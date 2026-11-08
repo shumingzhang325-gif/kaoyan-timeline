@@ -1,0 +1,1740 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0d12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="政治时空轴">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>考研政治 · 可视化时间轴</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&text=0123456789%E5%A4%A7%E6%B8%85%E4%B8%AD%E8%8F%AF%E6%B0%91%E5%9C%8B%E4%BA%BA%E5%85%B1%E5%92%8C%E9%A6%AC%E5%85%8B%E6%80%9D%E4%B8%BB%E7%BE%A9%E6%AD%90%E6%B4%B2&display=swap">
+<style>
+:root{
+  --bg:#0b0d12;--card:rgba(17,20,27,.9);--line:#252a34;--text:#eceff3;--dim:#9aa2af;--faint:#6f7784;
+  --gold:#d9a845;--gold2:#f1c766;--blue:#3b82f6;--green:#34a37a;--red:#d0473f;
+  --serif:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;-webkit-font-smoothing:antialiased}
+button,select{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.app{height:100vh;height:100dvh;display:grid;grid-template-rows:auto 1fr auto auto;grid-template-columns:minmax(0,1fr);overflow:hidden;overflow:clip}
+
+/* ---------- header ---------- */
+header{padding:10px 18px 10px;border-bottom:1px solid var(--line);background:linear-gradient(#0f1218,#0c0f14)}
+.h1{display:flex;align-items:center;gap:18px}
+.bigyear{font-family:var(--serif);font-weight:600;font-size:52px;line-height:1;letter-spacing:.01em;font-variant-numeric:tabular-nums;min-width:132px}
+.ttl b{font-size:17px;letter-spacing:.12em;font-weight:700}
+.ttl b i{font-style:normal;color:var(--dim);margin:0 .3em}
+.ttl sup{font-size:10px;color:var(--faint);margin-left:8px;letter-spacing:.05em;vertical-align:middle}
+.ttl div{font-size:12px;color:var(--dim);margin-top:5px;letter-spacing:.04em}
+.h1 .sp{flex:1}
+.hbtn{font-size:13px;padding:7px 13px;border:1px solid var(--line);border-radius:8px;background:#141821;color:#cfd5de;white-space:nowrap}
+.hbtn:hover{border-color:#3a4252}
+.icon{width:34px;height:34px;padding:0;display:grid;place-items:center}
+.icon svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+#bFav.on svg{fill:var(--gold2);stroke:var(--gold2)}
+.ctrls{display:flex;align-items:center;gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+.ctrls::-webkit-scrollbar{display:none}
+.cbtn{height:32px;padding:0 11px;border:1px solid var(--line);border-radius:7px;background:#141821;font-size:13px;color:#d4dae2;display:flex;align-items:center;gap:6px;white-space:nowrap;flex:none}
+.cbtn:hover{border-color:#3a4252}
+.cbtn.play.on{border-color:var(--gold);color:var(--gold2)}
+.cbtn .pi{width:14px;height:14px;border-radius:3px;background:#4d6fb3;display:grid;place-items:center;font-size:8px;color:#fff}
+.cbtn.play.on .pi{background:var(--gold)}
+.sep{width:1px;height:20px;background:var(--line);margin:0 6px;flex:none}
+.chk{display:flex;align-items:center;gap:6px;font-size:13px;color:#cfd5de;white-space:nowrap;cursor:pointer;flex:none;margin-right:6px}
+.chk input{width:16px;height:16px;accent-color:var(--blue);cursor:pointer}
+.chk input.gold{accent-color:var(--gold)}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#11141b;flex:none}
+.seg button{padding:0 15px;height:32px;font-size:13px;color:#aeb6c2;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:rgba(217,168,69,.14);color:var(--gold2);font-weight:600}
+.jump{height:32px;font-size:13px;color:#cfd5de;padding:0 6px;flex:none;background:#0b0d12}
+.jump option{background:#141821}
+
+/* ---------- stage ---------- */
+.stage{position:relative;min-height:0;overflow:hidden;background:radial-gradient(ellipse at 52% 45%,#141922 0%,#0b0d12 72%)}
+.stage.nobg{background:#0b0d12}
+.stage.nobg .grat{display:none}
+.map{position:absolute;top:0;bottom:0;left:336px;right:316px;transition:left .35s,right .35s}
+.app.noside .map{left:0;right:0}
+.map svg{position:absolute;inset:0;width:100%;height:100%;touch-action:none;transition:opacity .55s;cursor:grab}
+.map svg:active{cursor:grabbing}
+.map svg.hide{opacity:0;pointer-events:none}
+.vp{transform-origin:0 0}
+.grat line{stroke:#171d27;stroke-width:.6;vector-effect:non-scaling-stroke}
+.prov path{stroke:rgba(255,255,255,.16);stroke-width:.7;vector-effect:non-scaling-stroke;transition:fill .7s,stroke .4s;fill-rule:evenodd}
+.prov path.occ{stroke:#7d8794;stroke-dasharray:2 2}
+.mongo path{stroke:rgba(255,255,255,.16);stroke-width:.7;vector-effect:non-scaling-stroke;transition:fill .7s,opacity .7s}
+.mongo.off path{fill:transparent!important;stroke:#2a313c;stroke-dasharray:3 3}
+.eu path{fill:#3a3f48;stroke:rgba(255,255,255,.13);stroke-width:.6;vector-effect:non-scaling-stroke}
+.plab text{fill:rgba(255,255,255,.78);text-anchor:middle;pointer-events:none;font-weight:500;paint-order:stroke;stroke:rgba(0,0,0,.35);stroke-width:2px}
+.plab.off{display:none}
+.inset rect{fill:rgba(12,15,20,.6);stroke:#2a313c;vector-effect:non-scaling-stroke}
+.inset line{stroke:#6a7482;stroke-width:1.1;vector-effect:non-scaling-stroke}
+.inset text{font-size:7px;fill:#6b7584}
+.route path{fill:none;stroke:#ff6b57;stroke-width:1.6;stroke-dasharray:5 4;vector-effect:non-scaling-stroke;animation:dash 1.2s linear infinite}
+.route text{fill:#ff8a78;font-weight:600}
+.rel path{fill:none;stroke-width:1.3;stroke-dasharray:4 4;vector-effect:non-scaling-stroke;animation:dash 1.4s linear infinite;opacity:.95}
+.rel text{font-weight:600;paint-order:stroke;stroke:#0b0d12;stroke-width:3px}
+@keyframes dash{to{stroke-dashoffset:-16}}
+.mk{cursor:pointer}
+.mk .b{fill:#b48a3a;stroke:#0b0d12;stroke-width:1;vector-effect:non-scaling-stroke}
+.mk.dim .b{fill:#454b55}
+.mk:hover .b{fill:var(--gold2)}
+.mk.on .b{fill:#fff3c9;stroke:var(--gold2);stroke-width:2}
+.pulse{fill:none;stroke:var(--gold2);stroke-width:1.4;vector-effect:non-scaling-stroke;animation:pulse 1.8s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pulse{0%{transform:scale(1);opacity:.9}100%{transform:scale(3.4);opacity:0}}
+.chip rect{fill:rgba(12,14,19,.92);stroke:rgba(255,255,255,.35);stroke-width:.8;vector-effect:non-scaling-stroke}
+.chip text{fill:#fff;font-weight:600}
+.chip line{stroke:rgba(241,199,102,.7);stroke-width:.8;vector-effect:non-scaling-stroke}
+
+.mtitle{position:absolute;left:8px;top:14px;pointer-events:none}
+.mtitle b{display:block;font-family:var(--serif);font-weight:900;font-size:40px;letter-spacing:.18em;color:rgba(255,255,255,.12);line-height:1.15;transition:opacity .4s}
+.mtitle span{font-size:12px;color:rgba(255,255,255,.22);letter-spacing:.08em}
+.mloc{position:absolute;right:8px;top:16px;text-align:right;pointer-events:none}
+.mloc div{font-size:12px;color:var(--dim);letter-spacing:.05em}
+.mloc span{display:inline-block;margin-top:6px;font-size:11px;color:#a9b1bc;padding:2px 9px;border:1px dashed #3a4252;border-radius:999px}
+.loadnote{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);font-size:11px;color:var(--faint);pointer-events:none}
+
+/* floating cards */
+.lcard{position:absolute;left:16px;top:16px;bottom:16px;width:310px;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-left:2px solid var(--gold);border-radius:10px;overflow:hidden;backdrop-filter:blur(8px);z-index:3;transition:transform .35s,opacity .35s}
+.lcard::after{content:"";position:absolute;right:0;top:0;border-style:solid;border-width:0 22px 22px 0;border-color:transparent rgba(217,168,69,.55) transparent transparent}
+.lhead{padding:16px 18px 12px;border-bottom:1px solid var(--line)}
+.kick{font-size:11px;color:var(--gold);letter-spacing:.12em}
+.kick::before{content:"— "}
+.lhead h1{font-size:23px;line-height:1.35;margin:8px 0 8px;font-weight:700}
+.kp{font-size:11px;color:var(--dim);letter-spacing:.03em}
+.lbody{padding:6px 18px 18px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2a3140 transparent}
+.sec{font-size:13.5px;color:#d0d6de;margin:14px 0 7px;padding-left:9px;border-left:2px solid #59606c;font-weight:600}
+.lbody p{font-size:14px;line-height:1.85;color:#cfd5dd}
+.mcbox{margin:12px 0 0 6px;padding:2px 0 2px 12px;border-left:2px solid #5a4a2a}
+.mcbox h4{font-size:13px;color:#f1d79a;font-weight:600;margin-bottom:5px}
+.mcbox h4::before,.kph::before{content:"";display:inline-block;width:3px;height:11px;background:var(--gold2);margin-right:7px;vertical-align:-1px;border-radius:1px}
+.mcbox p{color:#f0d79c}
+.kph{font-size:13px;color:#f1d79a;font-weight:600;margin:16px 0 8px}
+#pts{list-style:none}
+#pts li{font-size:14px;line-height:1.75;color:#dfe4ea;padding-left:16px;position:relative;margin-bottom:6px}
+#pts li::before{content:"";position:absolute;left:3px;top:.75em;width:4px;height:4px;border-radius:50%;background:var(--gold)}
+#pts li b{color:var(--gold2);font-weight:600}
+.tags{display:flex;gap:6px;margin-top:14px}
+.tag{font-size:11px;padding:2px 9px;border-radius:999px;border:1px solid}
+.tag.core{color:#ef6a63;border-color:#7a3430;background:rgba(208,71,63,.1)}
+.tag.hot{color:var(--gold2);border-color:#6d5422;background:rgba(217,168,69,.09)}
+.tag.new{color:#4cc596;border-color:#24604a;background:rgba(52,163,122,.1)}
+
+.rcol{position:absolute;right:16px;top:16px;width:290px;display:flex;flex-direction:column;gap:12px;z-index:3;max-height:calc(100% - 86px);overflow-y:auto;scrollbar-width:none;transition:transform .35s,opacity .35s}
+.rcol::-webkit-scrollbar{display:none}
+.rc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:13px 15px;backdrop-filter:blur(8px)}
+.rc.loc{border-left:2px solid #4b77c9}
+.rc.pow{border-left:2px solid var(--gold)}
+.rc.rel{border-left:2px solid #3e5f9a}
+.rc .k{font-size:12px;color:#7fa4e6;letter-spacing:.06em}
+.rc.pow .k{color:var(--gold)}
+.dline{display:flex;align-items:center;gap:8px;margin-top:9px;font-size:13px;color:#cfd5dd;font-variant-numeric:tabular-nums}
+.pill{font-size:10.5px;color:var(--dim);border:1px solid #39404c;border-radius:999px;padding:1px 8px}
+.rc h2{font-size:18px;line-height:1.4;margin:6px 0 4px}
+.rc .sum{font-size:13px;color:#aab2bd}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:8px}
+.legend span{font-size:12px;color:#c3cad3;display:flex;align-items:center;gap:6px}
+.legend i{width:9px;height:9px;border-radius:2px;display:inline-block}
+.src{font-size:10.5px;color:var(--faint);margin-top:10px;padding-top:8px;border-top:1px solid var(--line);line-height:1.6}
+.rtypes{display:grid;gap:5px;margin-top:8px}
+.rtypes span{font-size:12px;color:#c3cad3;display:flex;align-items:center;gap:8px}
+.rtypes i{width:9px;height:9px;border-radius:2px}
+#relList{display:grid;gap:5px;margin-top:10px}
+#relList button{display:flex;align-items:center;gap:7px;text-align:left;font-size:12.5px;padding:6px 8px;border-radius:6px;background:#0e1117;border:1px solid var(--line)}
+#relList button:hover{border-color:#3a4252}
+#relList i{width:7px;height:7px;border-radius:50%;flex:none}
+#relList em{margin-left:auto;font-style:normal;font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
+#favs{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+#favs button{font-size:11.5px;padding:3px 8px;border-radius:6px;background:#0e1117;border:1px solid var(--line)}
+#favs .empty{font-size:11.5px;color:var(--faint)}
+.zoom{position:absolute;left:10px;bottom:16px;display:flex;flex-direction:column;gap:7px;z-index:3;transition:right .35s}
+.zb{width:32px;height:32px;border-radius:7px;background:rgba(17,20,27,.9);border:1px solid var(--line);font-size:17px;display:grid;place-items:center}
+.zb.t{font-size:11px;height:28px}
+.app.noside .lcard{transform:translateX(-340px);opacity:0;pointer-events:none}
+.app.noside .rcol{transform:translateX(320px);opacity:0;pointer-events:none}
+.fade{transition:opacity .2s}
+.fade.out{opacity:0}
+.tip{position:absolute;pointer-events:none;font-size:12px;padding:4px 9px;border-radius:6px;background:#eef1f5;color:#0b0d12;font-weight:600;transform:translate(-50%,-150%);opacity:0;transition:opacity .15s;white-space:nowrap;z-index:5}
+.tip.show{opacity:1}
+
+/* ---------- timeline ---------- */
+.tl{position:relative;height:118px;border-top:1px solid var(--line);background:#0c0f14;touch-action:none;cursor:ew-resize;user-select:none;-webkit-user-select:none;overflow:hidden}
+.band{position:absolute;top:10px;height:16px;border-top:1px solid #2f3540;font-size:11px;color:#868e9a;padding:3px 0 0 6px;white-space:nowrap;overflow:hidden}
+.axis{position:absolute;left:0;right:0;top:57px;height:2px;background:linear-gradient(90deg,#5a4520,#c99a3e 15%,#c99a3e 85%,#5a4520)}
+.tk{position:absolute;top:63px;font-size:10.5px;color:#868e9a;transform:translateX(-50%);font-variant-numeric:tabular-nums}
+.tk::before{content:"";position:absolute;left:50%;top:-6px;width:1px;height:4px;background:#4a515c}
+.dt{position:absolute;top:53px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--c,#c99a3e);border:2px solid #0c0f14;z-index:2;cursor:pointer;transition:opacity .2s}
+.dt.dim{background:#3b414b}
+.dt.on{width:16px;height:16px;margin-left:-8px;top:50px;background:#fff6d8;border:3px solid var(--gold2);box-shadow:0 0 12px rgba(241,199,102,.8);z-index:4}
+.lb{position:absolute;font-size:11.5px;color:#a7afba;white-space:nowrap;transform:translateX(-50%);pointer-events:none}
+.lb.on{color:#fff;font-weight:700;font-size:12.5px}
+.ph{position:absolute;top:44px;bottom:0;width:0;z-index:3;pointer-events:none}
+.ph::before{content:"";position:absolute;left:-1px;top:6px;height:30px;width:2px;background:#fff}
+.ph::after{content:"";position:absolute;left:-5px;top:34px;border-style:solid;border-width:8px 5px 0 5px;border-color:#fff transparent transparent}
+.hint{height:30px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:12px;color:var(--faint);border-top:1px solid #161a21;background:#0c0f14;white-space:nowrap;overflow:hidden}
+.hint b{color:#aab2bd;font-weight:500}
+.hint.off{display:none}
+.toast{position:fixed;left:50%;bottom:170px;transform:translateX(-50%) translateY(10px);background:#eef1f5;color:#0b0d12;font-size:13px;font-weight:600;padding:9px 16px;border-radius:10px;opacity:0;transition:.25s;pointer-events:none;z-index:20}
+.toast.show{opacity:1;transform:translateX(-50%)}
+
+@media (min-width:1024px) and (max-width:1199px){.lcard{width:280px}.rcol{width:256px}.map{left:304px;right:282px}}
+@media (max-width:599px), (max-height:500px) and (max-width:1000px){
+  .app{height:auto;min-height:100dvh;display:block;overflow:visible}
+  header{position:sticky;top:0;z-index:10;padding:8px 12px}
+  .bigyear{font-size:38px;min-width:96px}
+  .h1{gap:10px}.ttl{min-width:0;flex:1}.ttl b{font-size:13px;letter-spacing:.04em;white-space:nowrap}.ttl sup{display:none}.ttl div{font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .h1 .sp,#bShare{display:none}.icon{width:30px;height:30px}
+  #bSide{display:none}
+  .stage{overflow:visible;background:none}
+  .map,.app.noside .map{position:relative;left:0;right:0;height:56vh;min-height:320px;background:radial-gradient(ellipse at 50% 45%,#141922 0%,#0b0d12 72%)}
+  .mtitle{left:12px;top:10px}.mtitle b{font-size:26px}
+  .mloc{display:none}
+  .lcard,.rcol{position:static;width:auto;max-height:none;margin:12px;transform:none!important;opacity:1!important;pointer-events:auto!important}
+  .lcard{bottom:auto}
+  .lbody{overflow:visible}
+  .rcol{overflow:visible;padding-bottom:170px}
+  .tl,.hint{position:fixed;left:0;right:0;z-index:10}
+  .tl{bottom:0;height:112px;padding-bottom:env(safe-area-inset-bottom)}
+  .hint{display:none}
+}
+
+/* ===== v3：学习闭环 / 专题 / 课堂 / 编码 ===== */
+.dt.dim2{opacity:.16}
+.dt.th{width:13px;height:13px;margin-left:-6.5px;top:51.5px}
+.dt.m-good{box-shadow:0 0 0 2px #3fbf8c}
+.dt.m-hard{box-shadow:0 0 0 2px #e2b23f}
+.dt.m-again{box-shadow:0 0 0 2px #e5534b}
+.tleg{position:absolute;right:12px;top:6px;display:flex;gap:10px;font-size:10.5px;color:#868e9a;z-index:2;pointer-events:none;background:#0c0f14;padding-left:8px}
+.tleg span{display:flex;align-items:center;gap:4px}
+.tleg i{width:7px;height:7px;border-radius:50%}
+.tleg i.ring{background:transparent;box-shadow:0 0 0 1.5px #3fbf8c}
+.cbtn.tog.on{border-color:var(--gold);color:var(--gold2);background:rgba(217,168,69,.1)}
+.cz{display:inline-block;min-width:2.5em;padding:0 .25em;margin:0 .1em;border-bottom:1.5px dashed var(--gold);color:transparent!important;background:rgba(217,168,69,.1);border-radius:3px;cursor:pointer;user-select:none;-webkit-user-select:none;line-height:1.45}
+.cz.show{color:var(--gold2)!important;background:none;border-bottom-color:transparent;font-weight:600;cursor:default}
+.mcbox.hid p{filter:blur(7px);cursor:pointer;user-select:none;-webkit-user-select:none}
+.mcbox.hid h4::after{content:"  · 先回忆，再点击揭示";font-weight:400;color:var(--dim);font-size:11px}
+.mst{display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:11px;color:var(--dim)}
+.mst i{width:7px;height:7px;border-radius:50%}
+.rate{display:none;border-top:1px solid var(--line);padding:11px 16px 13px;background:rgba(9,11,15,.7)}
+.app.quiz .rate{display:block}
+.rate .q{font-size:12px;color:var(--dim);margin-bottom:8px;display:flex;justify-content:space-between}
+.rate .bs{display:flex;gap:8px}
+.rate button{flex:1;height:38px;border-radius:8px;border:1px solid;font-size:13px;font-weight:600;line-height:1.1}
+.rate button small{display:block;font-size:10px;font-weight:400;opacity:.75;margin-top:2px}
+.rate .again{color:#f08a83;border-color:#6e302c;background:rgba(208,71,63,.1)}
+.rate .hard{color:#ecc463;border-color:#6d5422;background:rgba(217,168,69,.09)}
+.rate .good{color:#5fd3a2;border-color:#24604a;background:rgba(52,163,122,.1)}
+.rc.study{border-left:2px solid #3fbf8c}
+.rc.study .k{color:#5fd3a2}
+.prog{height:6px;border-radius:3px;background:#1d222b;margin-top:10px;overflow:hidden;display:flex}
+.prog i{display:block;height:100%}
+.pstat{font-size:12px;color:#c3cad3;margin-top:8px}
+.pstat b{color:#fff}
+.pbtns{display:flex;gap:6px;margin-top:10px}
+.pbtns button{flex:1;height:32px;border-radius:7px;border:1px solid var(--line);background:#0e1117;font-size:12.5px}
+.pbtns button.pri{border-color:#24604a;color:#5fd3a2;background:rgba(52,163,122,.1)}
+.rtypes svg{width:26px;height:6px;flex:none}
+/* 专题线索 */
+.thread{position:absolute;left:336px;right:316px;bottom:12px;max-height:46%;display:none;flex-direction:column;background:rgba(14,17,23,.96);border:1px solid #2b3240;border-top:2px solid var(--gold);border-radius:10px;z-index:4;backdrop-filter:blur(8px);transition:left .35s,right .35s}
+.thread.on{display:flex}
+.app.noside .thread{left:16px;right:16px}
+.th-h{display:flex;align-items:baseline;gap:10px;padding:10px 14px 8px;border-bottom:1px solid var(--line)}
+.th-h b{font-size:15px}
+.th-h span{font-size:11.5px;color:var(--dim);flex:1}
+.th-h button{font-size:12px;color:var(--dim);padding:2px 8px;border:1px solid var(--line);border-radius:6px}
+.th-b{overflow:auto;scrollbar-width:thin;scrollbar-color:#2a3140 transparent}
+.th-b table{width:100%;border-collapse:collapse;font-size:12.5px}
+.th-b th{position:sticky;top:0;background:#141821;color:var(--gold);font-weight:600;text-align:left;padding:7px 10px;white-space:nowrap;font-size:12px}
+.th-b td{padding:7px 10px;border-top:1px solid #1d222b;color:#cfd5dd;vertical-align:top;line-height:1.55}
+.th-b td:first-child{white-space:nowrap;color:#fff;font-weight:600;font-variant-numeric:tabular-nums}
+.th-b tr{cursor:pointer}
+.th-b tbody tr:hover td{background:rgba(255,255,255,.03)}
+.th-b tr.on td{background:rgba(217,168,69,.1)}
+.th-b tr.on td:first-child{box-shadow:inset 2px 0 0 var(--gold2)}
+.jump.th{color:var(--gold2)}
+/* 课堂模式 */
+.pbar{display:none}
+.app.present .ctrls,.app.present .rcol,.app.present #bSide,.app.present .hint,.app.present .rate{display:none!important}
+.app.present .lcard{width:min(46%,660px)}
+.app.present .map{left:calc(min(46%,660px) + 28px);right:0}
+.app.present .thread{left:calc(min(46%,660px) + 28px);right:16px}
+.app.present .lhead h1{font-size:34px}
+.app.present .kick,.app.present .kp{font-size:13px}
+.app.present .lbody p{font-size:19px;line-height:1.8}
+.app.present #pts li{font-size:20px;line-height:1.7;margin-bottom:10px}
+.app.present #pts li::before{top:.8em;width:6px;height:6px}
+.app.present .sec,.app.present .mcbox h4,.app.present .kph{font-size:17px}
+.app.present .bigyear{font-size:60px}
+.veil,.veil *{color:transparent!important;user-select:none}
+.veil{background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 70%,transparent 70% 100%);background-size:100% 1.2em;background-repeat:no-repeat;background-position:0 .3em;border-radius:4px}
+.th-b td:nth-child(2){white-space:nowrap}
+#thSel{max-width:190px}
+.lbody{flex:1}
+.app.present .pbar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid var(--line);background:rgba(9,11,15,.75)}
+.pbar button{height:34px;padding:0 12px;border-radius:7px;border:1px solid var(--line);background:#141821;font-size:13px;white-space:nowrap}
+.pbar .main{flex:1;border-color:#6d5422;color:var(--gold2);background:rgba(217,168,69,.1);font-weight:600}
+.hbtn.on{border-color:var(--gold);color:var(--gold2)}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
+}
+@media (min-width:1024px) and (max-width:1199px){.thread{left:304px;right:282px}}
+@media (max-width:599px), (max-height:500px) and (max-width:1000px){
+  .thread,.app.noside .thread{position:static;margin:12px;max-height:60vh}
+  .th-b table{min-width:620px}
+  #bPresent{display:none}
+  .tleg{display:none}
+  .rate button{height:44px}
+}
+
+/* ===== v5：手机 App 外壳 ===== */
+.tabbar,.mini,.thlist,.cnav{display:none}
+@media (max-width:599px), (max-height:500px) and (max-width:1000px){
+  :root{--tab:56px;--tlh:96px;--hh:64px;--sb:env(safe-area-inset-bottom)}
+  html,body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
+  .app{display:block;height:auto;min-height:100dvh;overflow:visible}
+  header{position:fixed!important;left:0;right:0;top:0;z-index:20;padding:calc(env(safe-area-inset-top) + 8px) 14px 8px;background:rgba(12,15,20,.94);backdrop-filter:blur(12px)}
+  .bigyear{font-size:34px;min-width:84px}
+  header .ctrls{display:none}
+  .app[data-view=more] header .ctrls{display:flex;position:fixed;left:0;right:0;top:var(--hh);bottom:calc(var(--tab) + var(--sb));flex-wrap:wrap;align-content:flex-start;gap:12px;padding:18px 16px 30px;overflow-y:auto;background:var(--bg);margin:0}
+  .app[data-view=more] header{backdrop-filter:none;-webkit-backdrop-filter:none;background:#0c0f14}
+  .app[data-view=more] .ctrls::before{content:"播放与显示设置";width:100%;font-size:13px;color:var(--dim);letter-spacing:.1em}
+  .app[data-view=more] .cbtn{height:44px;padding:0 16px;font-size:14px}
+  .app[data-view=more] .sep{width:100%;height:1px;margin:2px 0}
+  .app[data-view=more] .chk{width:calc(50% - 8px);height:40px;font-size:14px;margin:0}
+  .app[data-view=more] .chk input{width:20px;height:20px}
+  .app[data-view=more] .seg{width:100%}
+  .app[data-view=more] .seg button{flex:1;height:42px;padding:0}
+  .app[data-view=more] .jump{width:100%;height:44px;border:1px solid var(--line);border-radius:8px;max-width:none;font-size:14px}
+  .stage{position:static;background:none}
+  .map,.lcard,.rcol,.thread,.thlist,.tl,.hint{display:none!important}
+  .app[data-view=map] .map{display:block!important;position:fixed!important;left:0;right:0;top:var(--hh);bottom:calc(var(--tab) + var(--tlh) + var(--sb));height:auto!important;min-height:0}
+  .app[data-view=map] .tl{display:block!important;position:fixed;left:0;right:0;bottom:calc(var(--tab) + var(--sb));height:var(--tlh);padding:0}
+  .app[data-view=card] .lcard{display:flex!important;margin:calc(var(--hh) + 10px) 10px calc(var(--tab) + 66px + var(--sb));overflow:visible;border-radius:12px}
+  .app[data-view=card] .lcard::after{display:none}
+  .app[data-view=card] .rate{position:sticky;bottom:calc(var(--tab) + 56px + var(--sb));border-radius:0 0 12px 12px}
+  .app[data-view=study] .rcol{display:flex!important;margin:calc(var(--hh) + 10px) 10px calc(var(--tab) + 20px + var(--sb));padding:0}
+  .app[data-view=thread] .thlist{display:flex!important;flex-wrap:wrap;gap:8px;margin:calc(var(--hh) + 12px) 10px 0}
+  .app[data-view=thread] .thread.on{display:flex!important;position:static;margin:12px 10px calc(var(--tab) + 20px + var(--sb));max-height:none}
+  .app[data-view=thread] .th-b{overflow-x:auto}
+  .thlist button{padding:9px 13px;border-radius:999px;border:1px solid var(--line);background:#121620;font-size:13px;color:#cfd5de}
+  .thlist button.on{border-color:var(--gold);color:var(--gold2);background:rgba(217,168,69,.12)}
+  .thlist p{width:100%;font-size:12px;color:var(--dim);margin-bottom:2px}
+  .tabbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:30;height:calc(var(--tab) + var(--sb));padding-bottom:var(--sb);background:rgba(12,15,20,.96);border-top:1px solid var(--line);backdrop-filter:blur(12px)}
+  .tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;color:#7d8693}
+  .tabbar svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .tabbar button.on{color:var(--gold2)}
+  .tabbar .badge{position:relative}
+  .tabbar .badge[data-n]:not([data-n="0"])::after{content:attr(data-n);position:absolute;top:-4px;right:-10px;min-width:16px;height:16px;border-radius:8px;background:#e5534b;color:#fff;font-size:10px;line-height:16px;text-align:center;padding:0 4px}
+  .app[data-view=map] .mini{display:flex;position:absolute;left:10px;right:10px;bottom:10px;z-index:5;align-items:center;gap:10px;padding:11px 12px;background:rgba(17,20,27,.95);border:1px solid var(--line);border-left:2px solid var(--gold);border-radius:12px;backdrop-filter:blur(8px)}
+  .mini .mi-t{flex:1;min-width:0}
+  .mini .mi-t span{font-size:11px;color:var(--dim)}
+  .mini .mi-t b{display:block;font-size:16px;margin:2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mini .mi-t small{display:block;font-size:12px;color:#aab2bd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mini button{height:40px;border-radius:9px;border:1px solid var(--line);background:#141821;font-size:13px;padding:0 12px;flex:none}
+  .mini #miGo{border-color:#6d5422;color:var(--gold2);background:rgba(217,168,69,.1);font-weight:600}
+  .mini #miPlay{width:40px;padding:0}
+  body[data-view=card] .cnav{display:flex;position:fixed;left:0;right:0;bottom:calc(var(--tab) + var(--sb));height:56px;z-index:25;align-items:center;gap:8px;padding:0 10px;background:rgba(12,15,20,.96);border-top:1px solid var(--line)}
+  .cnav button{flex:1;height:40px;border-radius:9px;border:1px solid var(--line);background:#141821;font-size:13.5px}
+  .cnav span{flex:none;font-size:12px;color:var(--dim);min-width:70px;text-align:center;font-variant-numeric:tabular-nums}
+  .zoom{left:auto!important;right:10px;top:70px;bottom:auto}
+  .mtitle b{font-size:24px}
+  .toast{bottom:calc(var(--tab) + var(--tlh) + 24px + var(--sb))}
+  .lhead h1{font-size:22px}
+}
+
+/* ===== v6：平板 ===== */
+/* 平板竖屏：地图在上，考点 + 详情双栏在下 */
+@media (min-width:600px) and (max-width:1023px) and (min-height:501px){
+  header{padding:10px 16px}
+  .bigyear{font-size:44px;min-width:112px}
+  .ctrls{gap:8px}
+  .cbtn,.seg button,.jump{height:38px}
+  .stage{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);grid-template-rows:minmax(260px,46%) minmax(0,1fr);gap:12px;padding:12px;background:#0b0d12}
+  .map,.app.noside .map{position:relative;left:auto;right:auto;top:auto;bottom:auto;grid-column:1 / 3;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:radial-gradient(ellipse at 52% 45%,#141922 0%,#0b0d12 72%)}
+  .lcard{position:relative;left:auto;top:auto;bottom:auto;width:auto;min-height:0}
+  .rcol{position:relative;right:auto;top:auto;width:auto;max-height:none;min-height:0;overflow-y:auto}
+  .thread{left:24px;right:24px;top:24px;bottom:auto;max-height:calc(46% - 24px)}
+  .app.noside .stage{grid-template-rows:1fr}
+  .app.noside .lcard,.app.noside .rcol{display:none}
+  .app.noside .thread{left:24px;right:24px}
+  .app.present .stage{grid-template-columns:1fr;grid-template-rows:38% 1fr}
+  .app.present .map{grid-column:1;left:auto}
+  .app.present .lcard{width:auto}
+  .app.present .thread{left:24px;right:24px}
+  .mloc{right:12px}
+  .zoom{left:auto;right:10px;bottom:10px}
+  .hint{display:none}
+  .tl{height:112px}
+  .lhead h1{font-size:22px}
+}
+/* 平板横屏（触屏、1024–1366）：保留桌面布局，加大触控区域 */
+@media (pointer:coarse) and (min-width:1024px){
+  .cbtn,.seg button,.jump{height:38px}
+  .chk input{width:19px;height:19px}
+  .zb{width:40px;height:40px}
+  .hint{display:none}
+  .tl{height:122px}
+}
+/* 所有触屏：时间轴圆点扩大点击热区，去掉悬停依赖 */
+@media (pointer:coarse){
+  .dt::after{content:"";position:absolute;inset:-10px;border-radius:50%}
+  .rate button{height:44px}
+  #relList button,.th-b td{padding-top:9px;padding-bottom:9px}
+}
+
+@media (min-width:600px) and (max-width:1023px) and (min-height:501px){
+  .ttl sup{display:none}.ttl b,.ttl div{white-space:nowrap}
+}
+@media (pointer:coarse) and (min-width:1024px){ .ctrls{flex-wrap:wrap;row-gap:8px} }
+/* 手机横屏：压缩时间轴，小卡片靠右，给地图让位 */
+@media (max-height:500px) and (max-width:1000px){
+  :root{--tlh:78px;--tab:50px}
+  header{padding-top:calc(env(safe-area-inset-top) + 4px);padding-bottom:4px}
+  .bigyear{font-size:26px}
+  .app[data-view=map] .mini{left:auto;width:320px;padding:8px 10px}
+  .mini .mi-t small{display:none}
+  .tl .band,.tl .tleg{display:none}
+  .mtitle{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header>
+    <div class="h1">
+      <div class="bigyear" id="bigYear">1840</div>
+      <div class="ttl">
+        <b>史纲<i>·</i>毛中特 时间轴<sup>v1.0 · 考点联动版</sup></b>
+        <div id="pian">上编 · 旧民主主义革命时期（1840—1919）</div>
+      </div>
+      <div class="sp"></div>
+      <button class="hbtn icon" id="bFav" title="收藏当前事件"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg></button>
+      <button class="hbtn icon" id="bShare" title="复制考点"><svg viewBox="0 0 24 24"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4M8.2 13.2l7.6 4"/></svg></button>
+      <button class="hbtn icon" id="bFull" title="全屏"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+      <button class="hbtn" id="bPresent" title="大字号、逐条揭示，适合投屏讲课">课堂模式</button>
+      <button class="hbtn" id="bSide">隐藏边栏</button>
+    </div>
+    <div class="ctrls">
+      <button class="cbtn" id="bPrev" title="上一个事件">‹</button>
+      <button class="cbtn play" id="bPlay"><span class="pi">▶</span><span id="playTxt">播放</span></button>
+      <button class="cbtn" id="bNext" title="下一个事件">›</button>
+      <button class="cbtn" id="bSpeed" title="播放速度">1X ▾</button>
+      <button class="cbtn" id="bDir" title="播放方向">→ 正放</button>
+      <button class="cbtn tog" id="bQuiz" title="挖空关键词，先回忆再揭示">✎ 自测</button>
+      <select class="jump" id="thSel" title="专题线索"><option value="">专题线索 ▾</option></select>
+      <div class="sep"></div>
+      <label class="chk"><input type="checkbox" class="gold" id="oSlow" checked>节点减速</label>
+      <label class="chk"><input type="checkbox" id="oBg" checked>地图背景</label>
+      <label class="chk"><input type="checkbox" id="oPow" checked>势力图</label>
+      <label class="chk"><input type="checkbox" id="oLab" checked>常驻标注</label>
+      <label class="chk"><input type="checkbox" id="oHint" checked>任务提示</label>
+      <div class="sep"></div>
+      <div class="seg" id="seg"></div>
+      <select class="jump" id="jump" title="跳转">
+        <option value="1840">开端 1840</option><option value="1919">中编 1919</option><option value="1949">下编 1949</option><option value="1978">改革 1978</option><option value="2012">新时代 2012</option>
+      </select>
+    </div>
+  </header>
+
+  <section class="stage" id="stage">
+    <div class="thlist" id="thList"></div>
+    <div class="map" id="map">
+      <svg id="svgCn" viewBox="0 0 525 380" preserveAspectRatio="xMidYMid meet"><g class="vp"></g></svg>
+      <svg id="svgEu" class="hide" viewBox="0 0 357 370" preserveAspectRatio="xMidYMid meet"><g class="vp"></g></svg>
+      <div class="mtitle"><b id="mTitle">大清</b><span id="mSub"></span></div>
+      <div class="mloc"><div id="mLoc">大清 · 事件定位</div><span id="mPill">清 · 疆域示意</span></div>
+      <div class="loadnote" id="loadNote">正在加载省级底图…</div>
+      <div class="tip" id="tip"></div>
+      <div class="mini" id="mini"><div class="mi-t"><span id="miDate"></span><b id="miTitle"></b><small id="miSum"></small></div><button id="miPlay" aria-label="播放">▶</button><button id="miGo">考点 ›</button></div>
+      <div class="zoom">
+        <button class="zb" id="zIn" title="放大">+</button>
+        <button class="zb" id="zOut" title="缩小">−</button>
+        <button class="zb t" id="zReset" title="复位">复位</button>
+      </div>
+    </div>
+
+    <div class="thread" id="thread"><div class="th-h"><b id="thTitle"></b><span id="thSub"></span><button id="thClose">关闭 ×</button></div><div class="th-b"><table id="thTable"></table></div></div>
+
+    <aside class="lcard fade" id="lcard">
+      <div class="lhead">
+        <div class="kick">历史背景</div>
+        <h1 id="title"></h1>
+        <div class="kp" id="kp"></div>
+        <div class="mst" id="mst"></div>
+      </div>
+      <div class="lbody">
+        <div class="sec">历史背景</div>
+        <p id="bg"></p>
+        <div class="mcbox"><h4>根本矛盾（主要矛盾）</h4><p id="mc"></p></div>
+        <div class="kph">关键考点</div>
+        <ul id="pts"></ul>
+        <div class="tags" id="tags"></div>
+      </div>
+      <div class="rate">
+        <div class="q"><span>回忆得怎么样？（据此安排下次复习）</span><span id="rateQ"></span></div>
+        <div class="bs">
+          <button class="again" data-r="again">忘了<small>10 分钟后</small></button>
+          <button class="hard" data-r="hard">模糊<small id="ivHard">1 天后</small></button>
+          <button class="good" data-r="good">记住<small id="ivGood">3 天后</small></button>
+        </div>
+      </div>
+      <div class="pbar">
+        <button id="pPrev">‹ 上一事件</button>
+        <button class="main" id="pStep">揭示下一条 →</button>
+        <button id="pNext">下一事件 ›</button>
+        <button id="pExit">退出</button>
+      </div>
+    </aside>
+
+    <aside class="rcol fade" id="rcol">
+      <div class="rc study">
+        <div class="k">学习进度 · 间隔复习</div>
+        <div class="prog" id="prog"></div>
+        <div class="pstat" id="pStat"></div>
+        <div class="pbtns"><button class="pri" id="bReview">开始复习</button><button id="bNew">学新事件</button></div>
+      </div>
+      <div class="rc loc">
+        <div class="k">事件定位</div>
+        <div class="dline"><span id="rDate"></span><span class="pill">时间轴</span></div>
+        <h2 id="rTitle"></h2>
+        <div class="sum" id="rSum"></div>
+      </div>
+      <div class="rc pow">
+        <div class="k" id="pK">势力图 · 清代区划</div>
+        <h2 id="pTitle"></h2>
+        <div class="legend" id="pLeg"></div>
+        <div class="src" id="pSrc"></div>
+      </div>
+      <div class="rc rel">
+        <div class="k">虚线 · 考点关联</div>
+        <div class="rtypes">
+          <span><svg viewBox="0 0 26 6"><line x1="0" y1="3" x2="26" y2="3" stroke="#34a37a" stroke-width="2" stroke-dasharray="7 3"/></svg>促进 / 推动 / 发展（长虚线）</span>
+          <span><svg viewBox="0 0 26 6"><line x1="0" y1="3" x2="26" y2="3" stroke="#d9a845" stroke-width="2" stroke-dasharray="2 3"/></svg>因果 / 背景 / 转折（点线）</span>
+          <span><svg viewBox="0 0 26 6"><line x1="0" y1="3" x2="26" y2="3" stroke="#d0473f" stroke-width="2" stroke-dasharray="9 3 2 3"/></svg>阻碍 / 失败 / 被迫（点划线）</span>
+        </div>
+        <div id="relList"></div>
+      </div>
+      <div class="rc">
+        <div class="k" style="color:var(--dim)">我的收藏</div>
+        <div id="favs"></div>
+      </div>
+    </aside>
+  </section>
+
+  <div class="tl" id="tl"></div>
+  <div class="hint" id="hint">
+    <span><b>空格</b> 暂停/播放</span>·<span><b>←/→</b> 连续微调</span>·<span><b>拖拽</b> 平移地图</span><span><b>滚轮</b> 缩放（不干预自动播放）</span>·<span><b>时间轴</b> 拖动播放 / 滚轮缩放</span>
+  </div>
+</div>
+<nav class="tabbar" id="tabbar"><button data-v="map" class="on"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>时空轴</button><button data-v="card"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>考点</button><button data-v="thread"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h13"/><circle cx="19" cy="12" r="1.5"/></svg>专题</button><button data-v="study"><span class="badge" id="tabBadge" data-n="0"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7v5l3 2"/><path d="M17 3h4v4"/></svg></span>复习</button><button data-v="more"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>设置</button></nav>
+<div class="cnav" id="cnav"><button id="cPrev">‹ 上一个</button><span id="cPos"></span><button id="cNext">下一个 ›</button></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   数据
+   ===================================================================== */
+const NE=['黑龙江','吉林','辽宁'];
+const OCC38=[...NE,'北京','天津','河北','山西','山东','江苏','上海','安徽','浙江','湖北','广东'];
+const C={red:'#b8433a',purple:'#6d55c9',green:'#2f8f6b',occ:'#353a42',orange:'#b9772d',gray:'#5a5f68',blue:'#2f5f9e',ru:'#4f6fa8',de:'#7b6ab8',jp:'#9a4a4a',uk:'#3f8f74',fr:'#4b8fb0'};
+const EVENTS=[
+{id:'e1840',y:1840,m:6,date:'1840年6月',short:'鸦片战争爆发',title:'第一次鸦片战争爆发',sum:'中国近代史的起点。',map:'cn',places:[['广州',113.26,23.13],['虎门',113.67,22.82]],cats:['史纲'],kp:'史纲·上编｜不平等条约',
+ bg:'英国为打开中国市场、扭转对华贸易逆差，以林则徐虎门销烟为借口发动侵略战争。清政府战败，中国的大门被西方列强用炮舰打开。',
+ mc:'鸦片战争后中国逐步沦为半殖民地半封建社会。近代社会主要矛盾：帝国主义和中华民族的矛盾、封建主义和人民大众的矛盾，前者是最主要的矛盾。',
+ pts:['<b>中国近代史的起点</b>','中国开始沦为<b>半殖民地半封建社会</b>','近代两大历史任务：<b>求得民族独立和人民解放；实现国家富强和人民富裕</b>'],tags:['core','hot'],rel:[['e1842','cause'],['e1856','cause']]},
+{id:'e1842',y:1842,m:8,date:'1842年8月29日',short:'《南京条约》签订',title:'《南京条约》签订',sum:'第一个不平等条约，主权开始遭到破坏。',map:'cn',places:[['南京',118.78,32.06]],cats:['史纲'],kp:'史纲·上编｜不平等条约',
+ bg:'战败签约：割香港岛、赔款2100万银元、开放广州、厦门、福州、宁波、上海五口通商、协定关税，中国开始丧失关税自主权。次年又签订《虎门条约》作为附件。',
+ mc:'帝国主义与中华民族的矛盾开始上升为最主要的矛盾。',
+ pts:['<b>中国近代第一个不平等条约</b>','破坏中国领土主权与关税自主权','“协定关税”使中国丧失关税自主权'],tags:['core'],rel:[['e1840','cause'],['e1895','cause'],['e1901','cause']]},
+{id:'e1845',y:1845,m:3,date:'1845年春',short:'《关于费尔巴哈的提纲》',title:'《关于费尔巴哈的提纲》',sum:'新世界观的天才萌芽。',map:'eu',places:[['布鲁塞尔',4.35,50.85]],cats:['马原'],kp:'马原·唯物论｜实践观',
+ bg:'马克思在布鲁塞尔写成，1888年恩格斯将其作为附录发表，称之为“包含着新世界观的天才萌芽的第一个文件”。',
+ mc:'旧唯物主义与唯心主义都不能科学说明人的感性实践活动。',
+ pts:['<b>实践的观点</b>是马克思主义认识论首要的和基本的观点','“哲学家们只是用不同的方式解释世界，<b>问题在于改变世界</b>”','人的本质“在其现实性上，它是<b>一切社会关系的总和</b>”'],tags:['hot'],rel:[['e1848','push']]},
+{id:'e1848',y:1848,m:2,date:'1848年2月',short:'《共产党宣言》',title:'《共产党宣言》发表',sum:'马克思主义诞生的标志。',map:'eu',places:[['伦敦',-0.13,51.51]],cats:['马原','毛中特'],kp:'马原·科学社会主义',
+ bg:'马克思、恩格斯受共产主义者同盟委托撰写的《共产党宣言》在伦敦发表，系统阐述了科学社会主义的基本原理。',
+ mc:'资本主义基本矛盾：生产社会化与生产资料资本主义私人占有之间的矛盾，表现为无产阶级与资产阶级的对立。',
+ pts:['<b>马克思主义诞生的标志</b>','第一次全面系统阐述<b>科学社会主义</b>理论','<b>“两个必然”</b>：资产阶级的灭亡和无产阶级的胜利是同样不可避免的'],tags:['core'],rel:[['e1845','push'],['e1871','push'],['e1917','push']]},
+{id:'e1851',y:1851,m:1,date:'1851年1月11日',short:'太平天国起义',title:'太平天国运动',sum:'旧式农民战争的最高峰。',map:'cn',places:[['金田村',110.1,23.4],['天京',118.78,32.06]],cats:['史纲'],kp:'史纲·上编｜早期探索',
+ bg:'洪秀全在广西桂平金田村发动起义，1853年定都天京，颁布《天朝田亩制度》；1859年洪仁玕提出《资政新篇》。1864年天京陷落。',
+ mc:'农民阶级与封建地主阶级的矛盾；同时开始直接面对外国侵略势力。',
+ pts:['<b>几千年来中国农民战争的最高峰</b>','《天朝田亩制度》：否定封建地主土地所有制，但具有空想性','《资政新篇》：先进中国人最早提出的<b>发展资本主义</b>的方案','失败根本原因：<b>农民阶级的局限性</b>'],tags:['hot'],rel:[['e1840','cause'],['e1861','block']]},
+{id:'e1856',y:1856,m:10,date:'1856年10月',short:'第二次鸦片战争',title:'第二次鸦片战争',sum:'侵略势力由沿海深入内地。',map:'cn',places:[['广州',113.26,23.13],['天津',117.2,39.13],['北京',116.4,39.9]],cats:['史纲'],kp:'史纲·上编｜不平等条约',
+ bg:'英法借口“亚罗号事件”“马神甫事件”发动战争，1860年英法联军攻入北京，焚毁圆明园；清政府被迫签订《天津条约》《北京条约》。沙俄趁机通过《瑷珲条约》等割占中国东北、西北大片领土。',
+ mc:'外国资本主义与中华民族的矛盾进一步加深。',
+ pts:['外国公使进驻北京，侵略势力<b>从沿海深入内地</b>','鸦片贸易“合法化”','沙俄割占中国<b>150多万平方公里</b>领土'],tags:['hot'],rel:[['e1840','cause'],['e1861','cause']]},
+{id:'e1861',y:1861,m:1,date:'1861年1月',short:'洋务运动',title:'洋务运动兴起',sum:'“自强”“求富”的近代化尝试。',map:'cn',places:[['安庆',117.05,30.52],['上海',121.47,31.23],['天津',117.2,39.13]],cats:['史纲'],kp:'史纲·上编｜洋务运动',
+ bg:'第二次鸦片战争后，曾国藩、李鸿章、左宗棠、张之洞等洋务派兴办军事工业（安庆内军械所、江南制造总局）和民用工业，建立新式海陆军，创办新式学堂、派遣留学生。',
+ mc:'封建统治阶级内部洋务派与顽固派之争；实质是在不触动封建制度的前提下回应近代化要求。',
+ pts:['指导思想：<b>“中学为体，西学为用”</b>','前期以“自强”为旗号，后期以<b>“求富”</b>为旗号','失败原因：<b>封建性、对外国的依赖性、管理的腐朽性</b>'],tags:['core','hot'],rel:[['e1856','cause'],['e1894','block']]},
+{id:'e1864',y:1864,m:9,date:'1864年9月28日',short:'第一国际成立',title:'第一国际成立',sum:'第一个国际性无产阶级组织。',map:'eu',places:[['伦敦',-0.13,51.51]],cats:['马原'],kp:'马原·科学社会主义',
+ bg:'国际工人协会在伦敦成立，马克思起草《成立宣言》和《临时章程》。',
+ mc:'无产阶级与资产阶级的矛盾日益尖锐。',
+ pts:['第一个<b>国际性的无产阶级革命组织</b>','促进<b>马克思主义与工人运动相结合</b>'],tags:[],rel:[['e1848','push'],['e1871','push']]},
+{id:'e1867',y:1867,m:9,date:'1867年9月',short:'《资本论》第一卷',title:'《资本论》第一卷出版',sum:'剩余价值理论的系统阐述。',map:'eu',places:[['汉堡',9.99,53.55]],cats:['马原'],kp:'马原·政治经济学',
+ bg:'《资本论》第一卷在汉堡出版，系统揭示资本主义生产关系的实质和运动规律。',
+ mc:'资本主义基本矛盾：生产社会化与生产资料资本主义私人占有之间的矛盾。',
+ pts:['<b>剩余价值理论</b>与唯物史观并称马克思一生的两大发现','<b>劳动二重性学说</b>是理解政治经济学的枢纽','揭示资本主义必然被社会主义取代的历史趋势'],tags:['core'],rel:[['e1848','push']]},
+{id:'e1871',y:1871,m:3,date:'1871年3月18日',short:'巴黎公社',title:'巴黎公社',sum:'无产阶级政权的第一次尝试。',map:'eu',places:[['巴黎',2.35,48.86]],cats:['马原'],kp:'马原·科学社会主义',
+ bg:'巴黎工人举行武装起义，建立巴黎公社，存续72天后被镇压。马克思写作《法兰西内战》总结其经验。',
+ mc:'无产阶级与资产阶级的矛盾激化。',
+ pts:['<b>无产阶级推翻资产阶级政权、建立无产阶级政权的第一次伟大尝试</b>','工人阶级不能简单地掌握现成的国家机器'],tags:['hot'],rel:[['e1864','push'],['e1917','push']]},
+{id:'e1883',y:1883,m:12,date:'1883年12月',short:'中法战争',title:'中法战争',sum:'“不败而败”。',map:'cn',places:[['镇南关',106.75,22.0],['马尾',119.45,26.0]],cats:['史纲'],kp:'史纲·上编｜反侵略战争',
+ bg:'法国侵略越南并进犯中国，1885年冯子材率军取得镇南关大捷，但清政府“乘胜即收”，与法国签订《中法新约》。',
+ mc:'帝国主义与中华民族的矛盾。',
+ pts:['出现<b>“法国不胜而胜，中国不败而败”</b>的局面','法国侵略势力由此伸入中国西南'],tags:[],rel:[['e1861','cause'],['e1894','cause']]},
+{id:'e1894',y:1894,m:7,date:'1894年7月25日',short:'甲午中日战争',title:'甲午中日战争',sum:'洋务破产、救亡升级。',map:'cn',places:[['黄海',122.6,38.9],['威海卫',122.12,37.5]],cats:['史纲'],kp:'史纲·上编｜反侵略战争',
+ bg:'日本蓄意发动侵华战争，北洋海军全军覆没，1895年清政府被迫签订《马关条约》。',
+ mc:'帝国主义与中华民族的矛盾空前激化。',
+ pts:['<b>洋务运动破产</b>，“中体西用”方案彻底失败','民族危机空前严重，各阶级救亡运动兴起'],tags:['core','hot'],rel:[['e1861','block'],['e1895','cause']]},
+{id:'e1895',y:1895,m:4,date:'1895年4月17日',short:'《马关条约》',title:'《马关条约》签订',sum:'半殖民地化程度大大加深。',map:'cn',places:[['马关',130.93,33.95]],cats:['史纲'],kp:'史纲·上编｜不平等条约',
+ bg:'割辽东半岛（后赎回）、台湾全岛及所有附属各岛屿、澎湖列岛；赔款白银2亿两；开放沙市、重庆、苏州、杭州；允许日本在通商口岸开设工厂。',
+ mc:'帝国主义与中华民族的矛盾空前加剧。',
+ pts:['<b>大大加深了中国半殖民地化的程度</b>','允许设厂 → 列强对华<b>资本输出</b>','引发列强<b>瓜分中国的狂潮</b>'],tags:['core','hot'],rel:[['e1894','cause'],['e1842','cause'],['e1898','cause'],['e1901','cause']]},
+{id:'e1898',y:1898,m:6,date:'1898年6月11日',short:'戊戌维新',title:'戊戌维新',sum:'改良主义道路走不通。',map:'cn',places:[['北京',116.4,39.9]],cats:['史纲'],kp:'史纲·上编｜早期探索',
+ bg:'甲午战后列强掀起瓜分中国狂潮。光绪帝颁布“明定国是”诏书推行变法，历时103天，9月慈禧太后发动政变，变法失败。',
+ mc:'资产阶级维新派与封建顽固势力的矛盾；民族危机空前严重。',
+ pts:['<b>一场爱国救亡运动</b>','资产阶级性质的<b>政治改革运动</b>','一场<b>思想启蒙运动</b>','失败说明：<b>改良主义道路走不通</b>'],tags:['hot'],rel:[['e1895','cause'],['e1905','push']]},
+{id:'e1901',y:1901,m:9,date:'1901年9月7日',short:'《辛丑条约》签订',title:'《辛丑条约》签订',sum:'完全沦为半殖民地半封建社会。',map:'cn',places:[['北京',116.4,39.9]],cats:['史纲'],kp:'史纲·上编｜不平等条约',
+ bg:'八国联军侵华后签订：赔款白银4.5亿两（本息合计9.8亿余两）；划定东交民巷为使馆界；拆毁大沽炮台，允许列强在北京至山海关铁路沿线驻兵；严禁中国人民参加反帝活动。',
+ mc:'帝国主义和中华民族的矛盾成为最主要的矛盾。',
+ pts:['标志<b>中国完全沦为半殖民地半封建社会</b>','清政府成为<b>“洋人的朝廷”</b>'],tags:['core','hot'],rel:[['e1895','cause'],['e1911','cause']]},
+{id:'e1905',y:1905,m:8,date:'1905年8月20日',short:'中国同盟会',title:'中国同盟会成立',sum:'第一个全国性资产阶级革命政党。',map:'cn',places:[['东京',139.69,35.69]],cats:['史纲'],kp:'史纲·上编｜辛亥革命',
+ bg:'孙中山在日本东京成立中国同盟会，以《民报》为机关报，与改良派展开论战。',
+ mc:'资产阶级革命派与清王朝封建专制统治的矛盾。',
+ pts:['<b>第一个全国性的资产阶级革命政党</b>','纲领：驱除鞑虏，恢复中华，创立民国，平均地权','孙中山将其阐发为<b>三民主义</b>'],tags:['hot'],rel:[['e1898','cause'],['e1911','push']]},
+{id:'e1911',y:1911,m:10,date:'1911年10月10日',short:'武昌起义',title:'辛亥革命',sum:'推翻两千多年君主专制。',map:'cn',places:[['武昌',114.31,30.55]],cats:['史纲'],kp:'史纲·上编｜辛亥革命',
+ bg:'武昌起义爆发，各省纷纷响应宣布独立。',
+ mc:'资产阶级革命派领导人民大众与清王朝封建专制统治的矛盾。',
+ pts:['<b>推翻了统治中国两千多年的君主专制制度</b>','近代意义上比较完全的<b>资产阶级民主革命</b>','失败根本原因：没有找到彻底反帝反封建的正确道路'],tags:['core','hot'],rel:[['e1905','push'],['e1912','push']]},
+{id:'e1912',y:1912,m:1,date:'1912年1月1日',short:'中华民国成立',title:'中华民国临时政府成立',sum:'民主共和观念深入人心。',map:'cn',places:[['南京',118.78,32.06]],cats:['史纲'],kp:'史纲·上编｜辛亥革命',
+ bg:'中华民国临时政府在南京成立，孙中山就任临时大总统；2月清帝退位；3月颁布《中华民国临时约法》；随后袁世凯窃取革命果实。',
+ mc:'资产阶级革命派与北洋军阀为代表的封建势力的矛盾。',
+ pts:['《临时约法》是中国历史上<b>第一部资产阶级共和国性质的宪法文件</b>','民主共和观念从此深入人心'],tags:['core'],rel:[['e1911','push'],['e1915','cause']]},
+{id:'e1915',y:1915,m:9,date:'1915年9月',short:'新文化运动',title:'新文化运动',sum:'民主与科学。',map:'cn',places:[['上海',121.47,31.23],['北京',116.4,39.9]],cats:['史纲'],kp:'史纲·中编｜思想启蒙',
+ bg:'陈独秀在上海创办《青年杂志》（后改名《新青年》），揭开新文化运动序幕。1918年李大钊发表《庶民的胜利》《Bolshevism的胜利》。',
+ mc:'资产阶级民主思想与封建旧思想、旧文化的矛盾。',
+ pts:['基本口号：<b>民主和科学</b>','五四以后转向<b>宣传马克思主义</b>','李大钊是中国最早的马克思主义传播者'],tags:['hot'],rel:[['e1912','cause'],['e1917','push'],['e1919','push']]},
+{id:'e1917',y:1917,m:11,date:'1917年11月7日',short:'十月革命',title:'十月革命与马克思主义传播',sum:'社会主义从理论变为现实。',map:'eu',places:[['彼得格勒',30.32,59.94]],cats:['史纲','马原'],kp:'史纲·中编｜马克思主义传播',
+ bg:'布尔什维克领导工人和士兵在彼得格勒起义，建立世界上第一个社会主义国家政权，马克思主义在中国率先传播。',
+ mc:'无产阶级与资产阶级、帝国主义之间的矛盾在世界范围内展开。',
+ pts:['<b>“十月革命一声炮响，给我们送来了马克思列宁主义”</b>','中国革命有了新的理论指导，进入世界无产阶级革命范畴'],tags:['core'],rel:[['e1871','push'],['e1919','push'],['e1921','push']]},
+{id:'e1919',y:1919,m:5,date:'1919年5月4日',short:'五四运动',title:'五四运动',sum:'新民主主义革命的开端。',map:'cn',places:[['北京',116.4,39.9],['上海',121.47,31.23]],cats:['史纲'],kp:'史纲·中编｜新民主主义革命',
+ bg:'巴黎和会中国外交失败（山东问题）引发五四运动。6月后上海工人罢工，工人阶级登上政治舞台，运动中心转移到上海。',
+ mc:'帝国主义和中华民族的矛盾、封建主义和人民大众的矛盾。',
+ pts:['<b>中国新民主主义革命的开端</b>','<b>彻底</b>反帝反封建的爱国运动','促进马克思主义同工人运动相结合'],tags:['core','hot'],rel:[['e1915','push'],['e1917','push'],['e1921','push']]},
+{id:'e1921',y:1921,m:7,date:'1921年7月23日',short:'中共一大',title:'中国共产党成立',sum:'开天辟地的大事变。',map:'cn',places:[['上海',121.47,31.23],['嘉兴南湖',120.76,30.75]],cats:['史纲','毛中特'],kp:'史纲·中编｜中国共产党成立',
+ bg:'中共一大在上海召开，最后一天会议转移到浙江嘉兴南湖的游船上举行。',
+ mc:'帝国主义和中华民族的矛盾、封建主义和人民大众的矛盾。',
+ pts:['<b>开天辟地的大事变</b>','一大党纲：奋斗目标是实现社会主义、共产主义'],tags:['core','hot'],rel:[['e1919','push'],['e1922','push']]},
+{id:'e1922',y:1922,m:7,date:'1922年7月',short:'中共二大',title:'中共二大',sum:'第一次提出民主革命纲领。',map:'cn',places:[['上海',121.47,31.23]],cats:['史纲'],kp:'史纲·中编｜新民主主义革命',
+ bg:'中共二大在上海召开，分析中国社会性质，区分最高纲领和最低纲领。',
+ mc:'帝国主义和中华民族的矛盾、封建主义和人民大众的矛盾。',
+ pts:['第一次提出明确的<b>反帝反封建民主革命纲领</b>','最高纲领：实现社会主义、共产主义；最低纲领：打倒军阀、推翻帝国主义压迫'],tags:['hot'],rel:[['e1921','push'],['e1924','push']]},
+{id:'e1924',y:1924,m:1,date:'1924年1月',short:'国共合作',title:'第一次国共合作',sum:'新三民主义成为合作基础。',map:'cn',places:[['广州',113.26,23.13]],cats:['史纲'],kp:'史纲·中编｜大革命',
+ bg:'国民党一大在广州召开，确立联俄、联共、扶助农工三大政策，第一次国共合作正式形成；创办黄埔军校。',
+ mc:'帝国主义及北洋军阀与中国人民的矛盾。',
+ pts:['<b>新三民主义</b>成为国共合作的政治基础','掀起国民革命高潮'],tags:['hot'],rel:[['e1922','push'],['e1926','push']]},
+{id:'e1926',y:1926,m:7,date:'1926年7月',short:'北伐战争',title:'北伐战争',sum:'打击北洋军阀，大革命高潮。',map:'cn',places:[['广州',113.26,23.13],['武汉',114.3,30.6]],cats:['史纲'],kp:'史纲·中编｜大革命',
+ bg:'国民革命军从广州出师北伐，打击吴佩孚、孙传芳、张作霖三大军阀，半年多推进到长江流域。1927年蒋介石“四一二”、汪精卫“七一五”反革命政变，大革命失败。',
+ mc:'帝国主义、北洋军阀与中国人民的矛盾。',
+ pts:['大革命失败客观原因：反革命力量强大、统一战线内部资产阶级动摇','主观原因：以陈独秀为代表的<b>右倾机会主义</b>错误'],tags:['hot'],rel:[['e1924','push'],['e1927','block']]},
+{id:'e1927',y:1927,m:8,date:'1927年8月1日',short:'南昌起义',title:'南昌起义 · 八七会议',sum:'武装反抗国民党的第一枪。',map:'cn',places:[['南昌',115.86,28.68],['井冈山',114.17,26.57]],cats:['史纲','毛中特'],kp:'史纲·中编｜中国革命新道路',
+ bg:'8月1日南昌起义；8月7日中共中央在汉口召开紧急会议（八七会议）；9月秋收起义后毛泽东率部上井冈山，创建第一个农村革命根据地。',
+ mc:'工农大众与国民党新军阀统治所代表的地主阶级、大资产阶级的矛盾。',
+ pts:['南昌起义：<b>打响武装反抗国民党反动派的第一枪</b>','八七会议：确定<b>土地革命和武装反抗国民党反动派的总方针</b>','井冈山：开辟<b>农村包围城市、武装夺取政权</b>的道路'],tags:['core','hot'],rel:[['e1926','block'],['e1930','push'],['e1935','cause']]},
+{id:'e1930',y:1930,m:5,date:'1930年5月',short:'反对本本主义',title:'《反对本本主义》',sum:'毛泽东思想初步形成。',map:'cn',places:[['寻乌',115.65,24.96]],cats:['毛中特'],kp:'毛中特｜毛泽东思想',
+ bg:'1930年毛泽东写作《反对本本主义》，此前《中国的红色政权为什么能够存在？》《井冈山的斗争》《星星之火，可以燎原》相继问世。',
+ mc:'党内教条主义与中国革命实际的矛盾。',
+ pts:['<b>“没有调查，没有发言权”</b>','中国革命斗争的胜利要靠中国同志了解中国情况','标志着<b>毛泽东思想初步形成</b>'],tags:['hot'],rel:[['e1927','push'],['e1935','push']]},
+{id:'e1931',y:1931,m:9,date:'1931年9月18日',short:'九一八事变',title:'九一八事变',sum:'中国局部抗战开始。',map:'cn',places:[['沈阳',123.43,41.8]],cats:['史纲'],kp:'史纲·中编｜抗日战争',
+ bg:'日本关东军炸毁柳条湖附近南满铁路，反诬中国军队所为，进而侵占东北三省；1932年扶植伪满洲国。',
+ mc:'中日民族矛盾逐渐上升。',
+ pts:['<b>中国局部抗战的开始</b>，揭开世界反法西斯战争序幕','东北抗日联军坚持斗争'],tags:['core','hot'],rel:[['e1935b','cause'],['e1937','cause']]},
+{id:'e1935',y:1935,m:1,date:'1935年1月15日—17日',short:'遵义会议',title:'遵义会议',sum:'生死攸关的转折点。',map:'cn',places:[['遵义',106.93,27.7]],route:[['瑞金',116.03,25.89],['遵义',106.93,27.7],['泸定',102.23,29.92],['吴起',108.18,36.93]],cats:['史纲','毛中特'],kp:'史纲·中编｜长征',
+ bg:'长征途中中共中央在贵州遵义召开政治局扩大会议，集中解决军事和组织问题。同年10月中央红军到达陕北吴起镇。',
+ mc:'党内“左”倾教条主义错误领导与中国革命实际需要的矛盾。',
+ pts:['事实上确立<b>毛泽东在党中央和红军的领导地位</b>','<b>党的历史上生死攸关的转折点</b>','标志党开始<b>独立自主</b>解决中国革命问题'],tags:['core','hot'],rel:[['e1930','push'],['e1936','cause'],['e1938','push']]},
+{id:'e1935b',y:1935,m:12,date:'1935年12月9日',short:'一二·九运动',title:'一二·九运动',sum:'抗日民主运动新高潮。',map:'cn',places:[['北平',116.4,39.9],['瓦窑堡',109.94,37.45]],cats:['史纲'],kp:'史纲·中编｜抗日战争',
+ bg:'华北事变后，北平学生举行抗日救国示威游行，喊出“停止内战，一致对外”。同月瓦窑堡会议召开。',
+ mc:'中日民族矛盾上升。',
+ pts:['标志<b>中国人民抗日民主运动新高潮</b>的到来','瓦窑堡会议确定<b>抗日民族统一战线</b>的策略方针'],tags:['hot'],rel:[['e1931','cause'],['e1936','push']]},
+{id:'e1936',y:1936,m:12,date:'1936年12月12日',short:'西安事变',title:'西安事变',sum:'时局转换的枢纽。',map:'cn',places:[['西安',108.94,34.34]],cats:['史纲'],kp:'史纲·中编｜抗日战争',
+ bg:'张学良、杨虎城发动兵谏，扣留蒋介石，要求停止内战、联共抗日；中共确定和平解决方针。',
+ mc:'中日民族矛盾逐步上升为主要矛盾。',
+ pts:['西安事变的<b>和平解决</b>成为时局转换的枢纽','十年内战基本结束，国内和平初步实现'],tags:['core','hot'],rel:[['e1935b','push'],['e1937','push']]},
+{id:'e1937',y:1937,m:7,date:'1937年7月7日',short:'全面抗战',title:'七七事变 · 全面抗战爆发',sum:'全民族抗战开始。',map:'cn',places:[['卢沟桥',116.21,39.85],['洛川',109.43,35.76]],cats:['史纲'],kp:'史纲·中编｜抗日战争',
+ bg:'卢沟桥事变后全民族抗战开始。8月洛川会议制定全面抗战路线；9月国共第二次合作，抗日民族统一战线正式形成。',
+ mc:'<b>中日民族矛盾上升为主要矛盾</b>，国内阶级矛盾降为次要和服从的地位。',
+ pts:['中国共产党是<b>全民族抗战的中流砥柱</b>','正面战场与敌后战场相互配合','1938年《论持久战》：抗日战争是<b>持久战</b>'],tags:['core','hot'],rel:[['e1936','push'],['e1945','push']]},
+{id:'e1938',y:1938,m:9,date:'1938年9—11月',short:'六届六中全会',title:'六届六中全会 · 马克思主义中国化',sum:'首次提出“马克思主义中国化”。',map:'cn',places:[['延安',109.49,36.6]],cats:['毛中特'],kp:'毛中特｜毛泽东思想',
+ bg:'中共扩大的六届六中全会在延安召开，毛泽东作《论新阶段》报告。',
+ mc:'中日民族矛盾是主要矛盾；党内需要克服教条主义，把马克思主义与中国实际相结合。',
+ pts:['<b>首次提出“马克思主义中国化”的命题</b>','强调“使马克思主义在中国具体化”'],tags:['core','hot'],rel:[['e1935','push'],['e1940','push']]},
+{id:'e1940',y:1940,m:1,date:'1940年1月',short:'《新民主主义论》',title:'《新民主主义论》发表',sum:'毛泽东思想走向成熟。',map:'cn',places:[['延安',109.49,36.6]],cats:['毛中特','史纲'],kp:'毛中特｜新民主主义革命理论',
+ bg:'毛泽东在《〈共产党人〉发刊词》《中国革命和中国共产党》（1939）、《新民主主义论》（1940）等著作中系统阐述新民主主义革命理论。',
+ mc:'中日民族矛盾是主要矛盾。',
+ pts:['毛泽东思想得到<b>系统总结和多方面展开而达到成熟</b>','三大法宝：<b>统一战线、武装斗争、党的建设</b>','新民主主义文化：<b>民族的科学的大众的</b>文化'],tags:['core','hot'],rel:[['e1938','push'],['e1942','push'],['e1945','push']]},
+{id:'e1942',y:1942,m:2,date:'1942年2月',short:'延安整风',title:'延安整风运动',sum:'全党马克思主义思想教育运动。',map:'cn',places:[['延安',109.49,36.6]],cats:['毛中特','史纲'],kp:'毛中特｜党的建设',
+ bg:'反对主观主义以整顿学风，反对宗派主义以整顿党风，反对党八股以整顿文风；1945年六届七中全会通过《关于若干历史问题的决议》。',
+ mc:'党内主观主义与中国革命实际的矛盾。',
+ pts:['最主要的任务是<b>反对主观主义</b>','一次全党范围的<b>马克思主义思想教育运动</b>','确立实事求是的思想路线'],tags:['hot'],rel:[['e1940','push'],['e1945','push']]},
+{id:'e1945',y:1945,m:4,date:'1945年4—6月',short:'中共七大',title:'中共七大 · 抗日战争胜利',sum:'毛泽东思想确立为指导思想。',map:'cn',places:[['延安',109.49,36.6],['重庆',106.55,29.56]],cats:['史纲','毛中特'],kp:'史纲·中编｜毛中特·毛泽东思想',
+ bg:'中共七大在延安召开；8月15日日本宣布无条件投降，9月2日签署投降书；8—10月毛泽东赴重庆谈判。',
+ mc:'抗战胜利后，中国人民与美帝国主义支持的国民党反动派之间的矛盾逐渐上升。',
+ pts:['七大把<b>毛泽东思想确立为党的指导思想并写入党章</b>','<b>三大优良作风</b>：理论和实践相结合、密切联系群众、批评与自我批评','抗战胜利是近代以来反抗外敌入侵<b>第一次取得完全胜利</b>的民族解放战争'],tags:['core','hot'],rel:[['e1937','push'],['e1942','push'],['e1946','cause']]},
+{id:'e1946',y:1946,m:6,date:'1946年6月',short:'全面内战爆发',title:'全面内战爆发',sum:'人民解放战争开始。',map:'cn',places:[['宣化店',114.6,31.8]],cats:['史纲'],kp:'史纲·中编｜解放战争',
+ bg:'国民党军队大举围攻中原解放区，全面内战爆发；人民解放军实行积极防御。1947年《中国土地法大纲》颁布。',
+ mc:'中国人民同美帝国主义支持的国民党反动派之间的矛盾成为主要矛盾。',
+ pts:['以<b>歼灭敌人有生力量</b>为主要目标，不以保守或夺取地方为主要目标','国统区人民运动形成反蒋的<b>第二条战线</b>'],tags:['hot'],rel:[['e1945','cause'],['e1947','push']]},
+{id:'e1947',y:1947,m:6,date:'1947年6月',short:'挺进大别山',title:'千里跃进大别山',sum:'战略进攻的序幕。',map:'cn',places:[['大别山',115.8,31.2]],route:[['鲁西南',115.5,35.2],['大别山',115.8,31.2]],cats:['史纲'],kp:'史纲·中编｜解放战争',
+ bg:'刘伯承、邓小平率晋冀鲁豫野战军主力强渡黄河，千里跃进大别山。12月毛泽东《目前形势和我们的任务》提出三大经济纲领。',
+ mc:'中国人民同国民党反动派之间的矛盾。',
+ pts:['揭开<b>人民解放军战略进攻</b>的序幕','新民主主义<b>三大经济纲领</b>：没收封建地主阶级的土地、没收官僚资本、保护民族工商业'],tags:['hot'],rel:[['e1946','push'],['e1948','push']]},
+{id:'e1948',y:1948,m:9,date:'1948年9月—1949年1月',short:'三大战役',title:'三大战役',sum:'奠定全国胜利的基础。',map:'cn',places:[['锦州',121.13,41.1],['徐州',117.18,34.26],['天津',117.2,39.13]],cats:['史纲'],kp:'史纲·中编｜解放战争',
+ bg:'辽沈、淮海、平津三大战役基本消灭国民党军队主力。1949年4月渡江战役，南京解放。',
+ mc:'中国人民同国民党反动派之间的矛盾。',
+ pts:['基本消灭国民党军队主力，<b>奠定全国胜利基础</b>','1949年3月七届二中全会提出<b>“两个务必”</b>'],tags:['core'],rel:[['e1947','push'],['e1949','push']]},
+{id:'e1949',y:1949,m:10,date:'1949年10月1日',short:'新中国成立',title:'中华人民共和国成立',sum:'人民民主的伟大飞跃。',map:'cn',places:[['北京',116.4,39.9],['西柏坡',114.1,38.35]],cats:['史纲'],kp:'史纲·下编｜新中国成立',
+ bg:'9月中国人民政治协商会议通过起临时宪法作用的《共同纲领》；10月1日开国大典。',
+ mc:'新中国成立初期：工人阶级与资产阶级的矛盾、社会主义道路与资本主义道路的矛盾。',
+ pts:['标志<b>新民主主义革命基本胜利</b>','中国从几千年封建专制政治向<b>人民民主</b>的伟大飞跃'],tags:['core','hot'],rel:[['e1948','push'],['e1953','push']]},
+{id:'e1950',y:1950,m:10,date:'1950年10月',short:'抗美援朝',title:'抗美援朝战争',sum:'打出了国威军威。',map:'cn',places:[['丹东',124.38,40.13]],cats:['史纲'],kp:'史纲·下编｜巩固新生政权',
+ bg:'中国人民志愿军跨过鸭绿江，1953年7月签订停战协定。',
+ mc:'新生人民政权与帝国主义侵略威胁之间的矛盾。',
+ pts:['打破了美军不可战胜的神话','为新中国赢得了相对稳定的和平建设环境','伟大<b>抗美援朝精神</b>'],tags:['hot'],rel:[['e1949','cause'],['e1953','push']]},
+{id:'e1953',y:1953,m:6,date:'1953年',short:'过渡时期总路线',title:'过渡时期总路线',sum:'“一化三改”。',map:'cn',places:[['北京',116.4,39.9]],cats:['史纲','毛中特'],kp:'史纲·下编｜毛中特·社会主义改造理论',
+ bg:'中共中央提出过渡时期总路线；同年开始实施第一个五年计划。',
+ mc:'工人阶级和资产阶级的矛盾、社会主义道路和资本主义道路的矛盾。',
+ pts:['总路线：<b>“一化三改”</b>，主体是社会主义工业化，两翼是三大改造','对资本主义工商业采取<b>和平赎买</b>政策'],tags:['core','hot'],rel:[['e1949','push'],['e1954','push'],['e1956','push']]},
+{id:'e1954',y:1954,m:9,date:'1954年9月',short:'五四宪法',title:'《中华人民共和国宪法》颁布',sum:'第一部社会主义类型宪法。',map:'cn',places:[['北京',116.4,39.9]],cats:['史纲'],kp:'史纲·下编｜政治制度',
+ bg:'第一届全国人民代表大会第一次会议通过《中华人民共和国宪法》。',
+ mc:'工人阶级和资产阶级的矛盾、社会主义道路和资本主义道路的矛盾。',
+ pts:['我国<b>第一部社会主义类型的宪法</b>','<b>人民代表大会制度</b>确立为根本政治制度'],tags:['hot'],rel:[['e1953','push'],['e1956','push']]},
+{id:'e1956',y:1956,m:9,date:'1956年9月',short:'中共八大',title:'三大改造基本完成 · 中共八大',sum:'社会主义基本制度确立。',map:'cn',places:[['北京',116.4,39.9]],cats:['史纲','毛中特'],kp:'史纲·下编｜毛中特·社会主义改造理论',
+ bg:'1956年底三大改造基本完成。4月毛泽东作《论十大关系》讲话，9月中共八大召开。',
+ mc:'八大：人民对于建立先进的工业国的要求同落后的农业国的现实之间的矛盾；人民对于经济文化迅速发展的需要同当前经济文化不能满足人民需要的状况之间的矛盾。',
+ pts:['标志<b>社会主义基本制度在我国确立</b>','《论十大关系》标志探索中国自己的社会主义建设道路的良好开端'],tags:['core','hot'],rel:[['e1953','push'],['e1957','push']]},
+{id:'e1957',y:1957,m:2,date:'1957年2月',short:'人民内部矛盾',title:'《关于正确处理人民内部矛盾的问题》',sum:'矛盾学说的创立。',map:'cn',places:[['北京',116.4,39.9]],cats:['毛中特','史纲'],kp:'史纲·下编｜毛中特·社会主义建设道路初步探索',
+ bg:'毛泽东发表讲话，系统阐述社会主义社会矛盾学说。',
+ mc:'人民内部矛盾成为国家政治生活的主题。',
+ pts:['社会主义社会基本矛盾仍是<b>生产关系和生产力、上层建筑和经济基础</b>之间的矛盾','严格区分和正确处理<b>两类不同性质的矛盾</b>'],tags:['core','hot'],rel:[['e1956','push']]},
+{id:'e1966',y:1966,m:5,date:'1966年5月',short:'“文化大革命”',title:'“文化大革命”',sum:'严重挫折与教训。',map:'cn',places:[['北京',116.4,39.9]],cats:['史纲'],kp:'史纲·下编｜曲折发展',
+ bg:'1966年5月至1976年10月的“文化大革命”，使党、国家和人民遭到新中国成立以来最严重的挫折和损失。1976年10月粉碎“四人帮”。',
+ mc:'对社会主要矛盾判断失误，阶级斗争被严重扩大化。',
+ pts:['1981年《历史决议》对“文化大革命”作出<b>彻底否定</b>','教训：必须坚持实事求是，加强社会主义民主法制建设'],tags:[],rel:[['e1978','cause']]},
+{id:'e1971',y:1971,m:10,date:'1971年10月25日',short:'恢复联合国席位',title:'恢复联合国合法席位',sum:'新中国外交的重大胜利。',map:'cn',places:[['北京',116.4,39.9]],cats:['史纲'],kp:'史纲·下编｜外交',
+ bg:'第26届联合国大会通过第2758号决议，恢复中华人民共和国在联合国的一切合法权利。1972年尼克松访华、中日邦交正常化。',
+ mc:'新中国维护国家主权与霸权主义、强权政治之间的矛盾。',
+ pts:['2758号决议彻底解决了<b>包括台湾在内全中国</b>在联合国的代表权问题','1974年毛泽东提出<b>“三个世界”</b>划分的战略思想'],tags:['hot'],rel:[['e1978','push']]},
+{id:'e1978',y:1978,m:12,date:'1978年12月18日',short:'十一届三中全会',title:'十一届三中全会',sum:'伟大转折，改革起点。',map:'cn',places:[['北京',116.4,39.9]],cats:['史纲','毛中特'],kp:'史纲·下编｜毛中特·邓小平理论',
+ bg:'全会重新确立解放思想、实事求是的思想路线，把工作重心转移到经济建设上来。此前真理标准问题大讨论为其作了思想准备。',
+ mc:'人民日益增长的物质文化需要同落后的社会生产之间的矛盾。',
+ pts:['作出实行<b>改革开放</b>的历史性决策','新中国成立以来党的历史上<b>具有深远意义的伟大转折</b>'],tags:['core','hot'],rel:[['e1966','cause'],['e1980','push'],['e1982','push']]},
+{id:'e1980',y:1980,m:8,date:'1980年8月',short:'经济特区',title:'设立经济特区',sum:'对外开放的“窗口”。',map:'cn',places:[['深圳',114.06,22.54],['珠海',113.58,22.27],['汕头',116.68,23.35],['厦门',118.09,24.48]],cats:['史纲','毛中特'],kp:'史纲·下编｜改革开放',
+ bg:'全国人大常委会批准《广东省经济特区条例》，在深圳、珠海、汕头、厦门设置经济特区；1984年开放14个沿海港口城市；1988年设立海南经济特区。',
+ mc:'人民日益增长的物质文化需要同落后的社会生产之间的矛盾。',
+ pts:['对外开放的<b>“窗口”和“试验田”</b>','形成经济特区—沿海开放城市—沿海经济开放区—内地的开放格局'],tags:['hot'],rel:[['e1978','push'],['e1992','push']]},
+{id:'e1982',y:1982,m:9,date:'1982年9月',short:'中共十二大',title:'中共十二大',sum:'建设有中国特色的社会主义。',map:'cn',places:[['北京',116.4,39.9]],cats:['毛中特','史纲'],kp:'毛中特｜邓小平理论',
+ bg:'邓小平在开幕词中提出走自己的道路，建设有中国特色的社会主义。',
+ mc:'人民日益增长的物质文化需要同落后的社会生产之间的矛盾。',
+ pts:['<b>“把马克思主义的普遍真理同我国的具体实际结合起来，走自己的道路，建设有中国特色的社会主义”</b>','中国特色社会主义命题首次提出'],tags:['core','hot'],rel:[['e1978','push'],['e1987','push']]},
+{id:'e1987',y:1987,m:10,date:'1987年10月',short:'中共十三大',title:'中共十三大',sum:'社会主义初级阶段理论。',map:'cn',places:[['北京',116.4,39.9]],cats:['毛中特'],kp:'毛中特｜邓小平理论',
+ bg:'十三大系统阐述社会主义初级阶段理论，提出党在社会主义初级阶段的基本路线。',
+ mc:'人民日益增长的物质文化需要同落后的社会生产之间的矛盾。',
+ pts:['系统阐述<b>社会主义初级阶段理论</b>','基本路线：<b>“一个中心、两个基本点”</b>','<b>“三步走”</b>发展战略'],tags:['core','hot'],rel:[['e1982','push'],['e1992','push']]},
+{id:'e1992',y:1992,m:1,date:'1992年1—2月',short:'南方谈话',title:'邓小平南方谈话 · 十四大',sum:'社会主义市场经济体制目标确立。',map:'cn',places:[['深圳',114.06,22.54],['珠海',113.58,22.27],['上海',121.47,31.23],['武昌',114.31,30.55]],cats:['史纲','毛中特'],kp:'毛中特｜邓小平理论',
+ bg:'邓小平视察武昌、深圳、珠海、上海等地发表谈话；同年10月中共十四大召开。',
+ mc:'人民日益增长的物质文化需要同落后的社会生产之间的矛盾。',
+ pts:['社会主义本质：<b>解放生产力，发展生产力，消灭剥削，消除两极分化，最终达到共同富裕</b>','计划多一点还是市场多一点，<b>不是社会主义与资本主义的本质区别</b>','十四大确立<b>社会主义市场经济体制</b>的改革目标'],tags:['core','hot'],rel:[['e1987','push'],['e1997','push']]},
+{id:'e1997',y:1997,m:7,date:'1997年7—9月',short:'中共十五大',title:'香港回归 · 中共十五大',sum:'邓小平理论写入党章。',map:'cn',places:[['北京',116.4,39.9],['香港',114.17,22.3]],cats:['史纲','毛中特'],kp:'毛中特｜邓小平理论',
+ bg:'7月1日香港回归；9月中共十五大召开，高举邓小平理论伟大旗帜。',
+ mc:'人民日益增长的物质文化需要同落后的社会生产之间的矛盾。',
+ pts:['十五大将<b>邓小平理论</b>确立为党的指导思想并写入党章','提出<b>社会主义初级阶段基本纲领</b>','<b>公有制为主体、多种所有制经济共同发展</b>是基本经济制度'],tags:['hot'],rel:[['e1992','push'],['e1999','push'],['e2002','push']]},
+{id:'e1999',y:1999,m:12,date:'1999年12月20日',short:'澳门回归',title:'澳门回归',sum:'“一国两制”的成功实践。',map:'cn',places:[['澳门',113.54,22.19]],cats:['史纲','毛中特'],kp:'毛中特｜一国两制',
+ bg:'中国政府恢复对澳门行使主权，澳门特别行政区成立。',
+ mc:'人民日益增长的物质文化需要同落后的社会生产之间的矛盾。',
+ pts:['<b>“一国两制”</b>伟大构想的成功实践','“一国两制”最早为解决台湾问题提出，首先运用于解决香港、澳门问题'],tags:['hot'],rel:[['e1997','push']]},
+{id:'e2001',y:2001,m:12,date:'2001年12月11日',short:'加入世界贸易组织',title:'加入世界贸易组织',sum:'对外开放进入新阶段。',map:'cn',places:[['上海',121.47,31.23]],cats:['史纲'],kp:'史纲·下编｜改革开放',
+ bg:'中国正式成为世界贸易组织成员。',
+ mc:'经济全球化与中国发展的关系成为新课题。',
+ pts:['中国对外开放进入新阶段，形成<b>全方位、多层次、宽领域</b>的开放格局','为中国特色社会主义发展赢得更广阔的国际空间'],tags:['hot'],rel:[['e1992','push'],['e2002','push']]},
+{id:'e2002',y:2002,m:11,date:'2002年11月',short:'中共十六大',title:'中共十六大 ·“三个代表”',sum:'“三个代表”写入党章。',map:'cn',places:[['北京',116.4,39.9],['广州',113.26,23.13]],cats:['毛中特'],kp:'毛中特｜“三个代表”重要思想',
+ bg:'2000年2月江泽民在广东考察时首次提出“三个代表”要求；十六大将其确立为党的指导思想并写入党章。',
+ mc:'人民日益增长的物质文化需要同落后的社会生产之间的矛盾。',
+ pts:['始终代表<b>中国先进生产力的发展要求</b>、<b>中国先进文化的前进方向</b>、<b>中国最广大人民的根本利益</b>','本质在坚持<b>执政为民</b>'],tags:['core'],rel:[['e1997','push'],['e2007','push']]},
+{id:'e2007',y:2007,m:10,date:'2007年10月',short:'中共十七大',title:'中共十七大 · 科学发展观',sum:'科学发展观写入党章。',map:'cn',places:[['北京',116.4,39.9]],cats:['毛中特'],kp:'毛中特｜科学发展观',
+ bg:'2003年十六届三中全会提出科学发展观；十七大写入党章；2012年十八大确立为党的指导思想。',
+ mc:'人民日益增长的物质文化需要同落后的社会生产之间的矛盾。',
+ pts:['第一要义是<b>发展</b>，核心是<b>以人为本</b>','基本要求是<b>全面协调可持续</b>，根本方法是<b>统筹兼顾</b>'],tags:['core'],rel:[['e2002','push'],['e2012','push']]},
+{id:'e2012',y:2012,m:11,date:'2012年11月',short:'中共十八大',title:'中共十八大',sum:'中国特色社会主义进入新时代。',map:'cn',places:[['北京',116.4,39.9]],cats:['毛中特','史纲'],kp:'毛中特｜习近平新时代中国特色社会主义思想',
+ bg:'以习近平同志为核心的党中央开启新时代，形成“五位一体”总体布局和“四个全面”战略布局。',
+ mc:'人民日益增长的物质文化需要同落后的社会生产之间的矛盾。',
+ pts:['十八大以来<b>中国特色社会主义进入新时代</b>','<b>“五位一体”</b>总体布局：经济、政治、文化、社会、生态文明建设','<b>“四个全面”</b>战略布局'],tags:['hot'],rel:[['e2007','push'],['e2017','push']]},
+{id:'e2017',y:2017,m:10,date:'2017年10月',short:'中共十九大',title:'中共十九大',sum:'社会主要矛盾转化。',map:'cn',places:[['北京',116.4,39.9]],cats:['毛中特','史纲'],kp:'毛中特｜习近平新时代中国特色社会主义思想',
+ bg:'十九大将习近平新时代中国特色社会主义思想确立为党的指导思想并写入党章；2018年写入宪法。',
+ mc:'<b>人民日益增长的美好生活需要和不平衡不充分的发展之间的矛盾</b>。',
+ pts:['确立<b>习近平新时代中国特色社会主义思想</b>为指导思想','社会主要矛盾转化','“两步走”：2035年基本实现社会主义现代化；本世纪中叶建成社会主义现代化强国'],tags:['core','hot'],rel:[['e2012','push'],['e2021','push'],['e2022','push']]},
+{id:'e2021',y:2021,m:11,date:'2021年11月',short:'第三个历史决议',title:'建党百年 · 第三个历史决议',sum:'“两个确立”。',map:'cn',places:[['北京',116.4,39.9]],cats:['毛中特','时政','史纲'],kp:'毛中特｜时政',
+ bg:'7月1日宣告全面建成小康社会；11月十九届六中全会通过《中共中央关于党的百年奋斗重大成就和历史经验的决议》。',
+ mc:'人民日益增长的美好生活需要和不平衡不充分的发展之间的矛盾。',
+ pts:['总结党的百年奋斗<b>重大成就和历史经验</b>（“十个坚持”）','<b>“两个确立”</b>具有决定性意义','<b>全面建成小康社会</b>，实现第一个百年奋斗目标'],tags:['core','hot'],rel:[['e2017','push'],['e2022','push']]},
+{id:'e2022',y:2022,m:10,date:'2022年10月',short:'中共二十大',title:'中共二十大',sum:'中国式现代化的纲领。',map:'cn',places:[['北京',116.4,39.9]],cats:['时政','毛中特','史纲'],kp:'史纲·下编｜毛中特｜时政',
+ bg:'二十大系统阐述中国式现代化的中国特色与本质要求，明确新时代新征程的使命任务。',
+ mc:'人民日益增长的美好生活需要和不平衡不充分的发展之间的矛盾。',
+ pts:['中国式现代化五大特征：<b>人口规模巨大、全体人民共同富裕、物质文明和精神文明相协调、人与自然和谐共生、走和平发展道路</b>','以中国式现代化全面推进中华民族伟大复兴','<b>“两个结合”</b>：同中国具体实际相结合、同中华优秀传统文化相结合'],tags:['core','hot'],rel:[['e2021','push'],['e2024','push'],['e2025','push']]},
+{id:'e2024',y:2024,m:7,date:'2024年7月',short:'二十届三中全会',title:'二十届三中全会',sum:'进一步全面深化改革。',map:'cn',places:[['北京',116.4,39.9]],cats:['时政'],kp:'时政',
+ bg:'全会通过《中共中央关于进一步全面深化改革、推进中国式现代化的决定》。',
+ mc:'人民日益增长的美好生活需要和不平衡不充分的发展之间的矛盾。',
+ pts:['总目标：<b>继续完善和发展中国特色社会主义制度，推进国家治理体系和治理能力现代化</b>','到<b>2029年</b>新中国成立80周年时完成《决定》提出的改革任务'],tags:['new','hot'],rel:[['e1978','push'],['e2022','push'],['e2025','push']]},
+{id:'e2025',y:2025,m:10,date:'2025年10月',short:'二十届四中全会',title:'二十届四中全会 ·“十五五”',sum:'“十五五”规划建议。',map:'cn',places:[['北京',116.4,39.9]],cats:['时政'],kp:'时政（以公报原文为准）',
+ bg:'全会审议通过《中共中央关于制定国民经济和社会发展第十五个五年规划的建议》。同年9月举行纪念中国人民抗日战争暨世界反法西斯战争胜利80周年大会。',
+ mc:'人民日益增长的美好生活需要和不平衡不充分的发展之间的矛盾。',
+ pts:['<b>“十五五”时期（2026—2030年）</b>是基本实现社会主义现代化夯实基础、全面发力的关键时期','承接2035年基本实现社会主义现代化目标'],tags:['new'],rel:[['e2022','push'],['e2024','push']]},
+];
+const POWER={
+ e1929:{t:'中华民国 · 土地革命',items:[['红四军活动区（闽西赣南）',C.red,['江西','福建']]]},
+ e1937b:{t:'中华民国 · 全面抗战',items:[['陕甘宁边区',C.red,['陕西']]]},
+
+ e1851:{t:'清 · 太平天国',items:[['太平天国活动区（示意）',C.purple,['广西','湖南','湖北','江西','安徽','江苏','浙江']]]},
+ e1856:{t:'清 · 英法联军入侵',items:[['英法联军进犯',C.red,['广东','天津','北京']]]},
+ e1883:{t:'清 · 中法战争',items:[['中法战场',C.red,['广西','云南','福建','台湾']]]},
+ e1894:{t:'清 · 甲午战争',items:[['主要战场',C.red,['辽宁','山东']]]},
+ e1895:{t:'清 · 割地赔款',items:[['辽东半岛（后赎回）',C.gray,['辽宁']],['台湾、澎湖（割让日本）',C.occ,['台湾']]]},
+ e1898:{t:'清朝 · 列强势力范围',items:[['俄国',C.ru,NE],['德国',C.de,['山东']],['英国',C.uk,['江苏','浙江','安徽','江西','湖北','湖南']],['法国',C.fr,['云南','广西']],['日本',C.jp,['福建','台湾']]]},
+ e1901:{t:'清 · 八国联军侵华',items:[['八国联军侵占',C.red,['北京','天津','河北']]]},
+ e1911:{t:'辛亥 · 各省响应',items:[['宣布独立省份',C.red,['湖北','湖南','陕西','江西','山西','云南','贵州','浙江','江苏','上海','广西','安徽','广东','福建','四川']]]},
+ e1915:{t:'中华民国 · 北洋军阀',items:[]},e1919:{t:'中华民国 · 北洋军阀',items:[]},e1921:{t:'中华民国 · 北洋军阀',items:[]},e1922:{t:'中华民国 · 北洋军阀',items:[]},
+ e1924:{t:'中华民国 · 北洋军阀',items:[['广州革命政府',C.red,['广东']]]},
+ e1926:{t:'中华民国 · 北伐',items:[['广州国民政府',C.red,['广东']],['北伐进军（1926—1927）',C.orange,['湖南','湖北','江西','福建','浙江','安徽','江苏','上海']]]},
+ e1927:{t:'中华民国 · 土地革命',items:[['井冈山革命根据地',C.red,['江西']]]},
+ e1930:{t:'中华民国 · 土地革命',items:[['中央革命根据地（示意）',C.red,['江西','福建']]]},
+ e1931:{t:'中华民国 · 局部抗战',items:[['日本侵占（伪满）',C.occ,NE]]},
+ e1935:{t:'中华民国 · 长征',items:[['日本侵占',C.occ,NE],['陕北革命根据地',C.red,['陕西']]]},
+ e1935b:{t:'中华民国 · 华北事变',items:[['日本侵占',C.occ,NE],['华北危机',C.gray,['河北','北京','天津']]]},
+ e1936:{t:'中华民国 · 西安事变',items:[['日本侵占',C.occ,NE],['西北（红军·东北军·西北军）',C.red,['陕西','甘肃']]]},
+ e1937:{t:'中华民国 · 全面抗战',items:[['日军占领区（示意）',C.occ,[...NE,'北京','天津','河北','上海']],['陕甘宁边区',C.red,['陕西']]]},
+ e1938:{t:'中华民国 · 抗战相持',items:[['日军占领区（示意）',C.occ,OCC38],['陕甘宁边区',C.red,['陕西']]]},
+ e1940:{t:'中华民国 · 抗战相持',items:[['日军占领区（示意）',C.occ,OCC38],['陕甘宁边区',C.red,['陕西']]]},
+ e1942:{t:'中华民国 · 抗战相持',items:[['日军占领区（示意）',C.occ,OCC38],['陕甘宁边区',C.red,['陕西']]]},
+ e1948:{t:'中华民国 · 战略决战',items:[['解放区（示意）',C.red,['黑龙江','吉林','辽宁','内蒙古','河北','山西','山东','河南']]]},
+ e1980:{t:'改革开放 · 沿海先行',items:[['经济特区 / 沿海开放',C.green,['广东','福建']]]},
+ e1997:{t:'一国两制 · 香港回归',items:[['香港特别行政区',C.green,['香港']]]},
+ e1999:{t:'一国两制 · 澳门回归',items:[['香港、澳门特别行政区',C.green,['香港','澳门']]]},
+ e2001:{t:'全方位对外开放',items:[['沿海开放地区',C.green,['辽宁','河北','天津','山东','江苏','上海','浙江','福建','广东','广西','海南']]]},
+ e2012:{t:'新时代 · 全国一盘棋',items:[]},e2017:{t:'新时代 · 全国一盘棋',items:[]},e2021:{t:'新时代 · 全国一盘棋',items:[]},e2022:{t:'新时代 · 全国一盘棋',items:[]},e2024:{t:'新时代 · 全国一盘棋',items:[]},e2025:{t:'新时代 · 全国一盘棋',items:[]},
+};
+const ERA={
+ qing:{title:'大清',name:'大清',base:'#6e5532',leg:'清朝',pow:'清 · 一统',k:'势力图 · 清代区划'},
+ roc:{title:'中華民國',name:'中华民国',base:'#3a5163',leg:'中华民国',pow:'中华民国',k:'势力图 · 民国区划'},
+ prc:{title:'中華人民共和國',name:'中华人民共和国',base:'#6a2c2a',leg:'全国',pow:'中华人民共和国',k:'势力图 · 现行区划'},
+ marx:{title:'馬克思主義',name:'欧洲',base:'#3a3f48',leg:'欧洲',pow:'欧洲 · 工人运动与马克思主义',k:'势力图 · 欧洲'}
+};
+const RELC={push:'#34a37a',cause:'#d9a845',block:'#d0473f'};
+const RELN={push:'促进',cause:'因果',block:'阻碍'};
+const RELDASH={push:'7 3',cause:'2 3',block:'9 3 2 3'};
+const CATCOL={'史纲':'#c99a3e','毛中特':'#d0605a','马原':'#5b8fd9','时政':'#3fae86'};
+const THREADS={
+ maodun:{t:'社会主要矛盾的演变',sub:'论述题高频：每个阶段的表述要一字不差',cols:['时间','阶段','主要矛盾表述'],rows:[
+  ['e1840','1840—1949','近代中国','帝国主义和中华民族的矛盾、封建主义和人民大众的矛盾，前者是最主要的矛盾'],
+  ['e1937','1937—1945','全民族抗战','中日民族矛盾上升为主要矛盾，国内阶级矛盾降为次要和服从的地位'],
+  ['e1946','1946—1949','解放战争','中国人民同美帝国主义支持的国民党反动派之间的矛盾'],
+  ['e1953','1949—1956','过渡时期','工人阶级和资产阶级的矛盾、社会主义道路和资本主义道路的矛盾'],
+  ['e1956','1956','中共八大','人民对于建立先进的工业国的要求同落后的农业国的现实之间的矛盾；人民对于经济文化迅速发展的需要同当前经济文化不能满足人民需要的状况之间的矛盾'],
+  ['e1981','1981','十一届六中全会','人民日益增长的物质文化需要同落后的社会生产之间的矛盾'],
+  ['e2017','2017','中共十九大','人民日益增长的美好生活需要和不平衡不充分的发展之间的矛盾']]},
+ tiaoyue:{t:'近代主要不平等条约对比',sub:'选择题高频：内容 ↔ 影响 一一对应',cols:['时间','条约','主要内容','影响'],rows:[
+  ['e1842','1842','《南京条约》','割香港岛；赔款2100万银元；五口通商；协定关税','第一个不平等条约，开始沦为半殖民地半封建社会'],
+  ['e1856','1858—1860','《天津条约》《北京条约》','公使驻京；增开通商口岸；割九龙司地方一区','侵略势力由沿海深入内地'],
+  ['e1895','1895','《马关条约》','割辽东半岛、台湾、澎湖；赔款白银2亿两；开放沙市等四口；允许设厂','大大加深半殖民地化程度，引发瓜分狂潮'],
+  ['e1901','1901','《辛丑条约》','赔款4.5亿两；划定使馆界；拆毁大沽炮台、允许驻兵；禁止反帝活动','中国完全沦为半殖民地半封建社会']]},
+ tansuo:{t:'近代救国方案的探索与失败',sub:'比较题：阶级 · 主张 · 失败根源',cols:['时间','方案','阶级力量','主张','结论 / 失败根源'],rows:[
+  ['e1851','1851','太平天国','农民阶级','《天朝田亩制度》《资政新篇》','农民阶级的局限性'],
+  ['e1861','1861','洋务运动','地主阶级洋务派','中学为体，西学为用；自强、求富','封建性、对外国的依赖性、管理的腐朽性'],
+  ['e1898','1898','戊戌维新','资产阶级维新派','变法维新，君主立宪','改良主义道路走不通'],
+  ['e1911','1911','辛亥革命','资产阶级革命派','三民主义，建立民主共和国','没有找到彻底反帝反封建的正确道路'],
+  ['e1919','1919','五四运动','工人阶级登上政治舞台','彻底反帝反封建','先进分子转向马克思主义，新民主主义革命开端']]},
+ lilun:{t:'马克思主义中国化时代化的理论成果',sub:'毛中特主线：形成 → 成熟 → 确立为指导思想',cols:['时间','节点','标志 / 意义'],rows:[
+  ['e1930','1930','《反对本本主义》','毛泽东思想初步形成'],
+  ['e1938','1938','六届六中全会','首次提出“马克思主义中国化”命题'],
+  ['e1940','1940','《新民主主义论》','毛泽东思想达到成熟'],
+  ['e1945','1945','中共七大','毛泽东思想确立为党的指导思想'],
+  ['e1982','1982','中共十二大','提出“建设有中国特色的社会主义”'],
+  ['e1987','1987','中共十三大','系统阐述社会主义初级阶段理论和基本路线'],
+  ['e1992','1992','南方谈话 · 十四大','邓小平理论走向成熟'],
+  ['e1997','1997','中共十五大','邓小平理论确立为指导思想，写入党章'],
+  ['e2002','2002','中共十六大','“三个代表”重要思想写入党章'],
+  ['e2007','2007','中共十七大','科学发展观写入党章'],
+  ['e2017','2017','中共十九大','习近平新时代中国特色社会主义思想写入党章']]},
+ huiyi:{t:'历史转折与重要会议',sub:'“转折点”类题目集中出题',cols:['时间','会议','意义'],rows:[
+  ['e1922','1922','中共二大','第一次提出反帝反封建民主革命纲领；提出民主联合战线'],
+  ['e1923b','1923','中共三大','共产党员以个人名义加入国民党'],
+  ['e1925','1925','中共四大','提出无产阶级领导权和工农联盟问题'],
+  ['e1927','1927','八七会议','确定土地革命和武装反抗国民党反动派的总方针；“枪杆子里面出政权”'],
+  ['e1929','1929','古田会议','思想建党、政治建军'],
+  ['e1935','1935','遵义会议','党的历史上生死攸关的转折点'],
+  ['e1935b','1935','瓦窑堡会议','确定抗日民族统一战线的策略方针'],
+  ['e1937','1937','洛川会议','制定抗日救国十大纲领，全面抗战路线正式形成'],
+  ['e1938','1938','六届六中全会','提出“马克思主义中国化”命题，基本纠正王明右倾错误'],
+  ['e1945','1945','中共七大','毛泽东思想确立为指导思想；党在政治、思想、组织上走向成熟'],
+  ['e1947b','1947','杨家沟会议','中国革命到了“历史的转折点”'],
+  ['e1949a','1949','七届二中全会','“两个务必”；工作重心由乡村转移到城市'],
+  ['e1950a','1950','七届三中全会','不要四面出击；争取财政经济状况基本好转'],
+  ['e1956','1956','中共八大','正确分析社会主要矛盾，开始探索建设道路'],
+  ['e1978','1978','十一届三中全会','新中国成立以来党的历史上具有深远意义的伟大转折'],
+  ['e1961','1961','八届九中全会','“调整、巩固、充实、提高”八字方针'],
+  ['e1981','1981','十一届六中全会','第二个历史决议，指导思想上拨乱反正完成'],
+  ['e1984','1984','十二届三中全会','有计划的商品经济'],
+  ['e2013','2013','十八届三中全会','全面深化改革，改革走向系统集成'],
+  ['e2021','2021','十九届六中全会','第三个历史决议，“两个确立”'],
+  ['e2024','2024','二十届三中全会','进一步全面深化改革，重点是深化经济体制改革']]},
+ tongzhan:{t:'四个时期的统一战线',sub:'易混：名称 ↔ 时期 ↔ 是否以国共合作为基础',cols:['时期','统一战线','要点'],rows:[
+  ['e1924','大革命','国民革命联合战线','以第一次国共合作为基础'],
+  ['e1927','土地革命','工农民主统一战线','大革命失败后民族资产阶级离开革命，主要是工农'],
+  ['e1937','全民族抗战','抗日民族统一战线','以第二次国共合作为基础；发展进步、争取中间、孤立顽固'],
+  ['e1946','解放战争','人民民主统一战线','争取最广泛人民（含民族资产阶级等）同国民党决战']]},
+ tudi:{t:'土地政策的演变',sub:'每个时期对地主、富农的态度不同',cols:['时间','文件 / 政策','要点'],rows:[
+  ['e1930','1928—1929','《井冈山土地法》《兴国土地法》','兴国土地法把“没收一切土地”改为“没收一切公共土地及地主阶级的土地”'],
+  ['e1937','1937—1945','减租减息','地主减租减息，农民交租交息'],
+  ['e1946','1946','“五四指示”','由减租减息改为耕者有其田'],
+  ['e1947','1947','《中国土地法大纲》','废除封建剥削土地制度，征收富农多余土地'],
+  ['e1950a','1950','《土地改革法》','废除地主阶级封建剥削的土地所有制，保存富农经济'],
+  ['e1953','1953—1956','农业社会主义改造','由限制富农到逐步消灭富农经济']]},
+ zhengquan:{t:'各时期政权性质',sub:'选择题易错：名称和性质要对上',cols:['时期','政权','性质'],rows:[
+  ['e1930','土地革命','苏维埃政权（中华苏维埃共和国）','工农民主专政；第一个全国性工农民主政权'],
+  ['e1940','全民族抗战','抗日根据地政权（三三制）','抗日民族统一战线性质，一切赞成抗日又赞成民主的人们的政权'],
+  ['e1946','解放战争','解放区政权','各革命阶级的联合专政'],
+  ['e1949','新中国成立','中华人民共和国','人民民主专政']]},
+ zhuzuo:{t:'毛泽东思想形成发展与代表著作',sub:'按时期记著作：萌芽 → 初步形成 → 成熟 → 继续发展',cols:['时间','阶段','代表著作 / 标志'],rows:[
+  ['e1925','大革命时期','萌芽','《中国社会各阶级分析》《湖南农民运动考察报告》'],
+  ['e1930','土地革命时期','初步形成','《中国的红色政权为什么能够存在？》《井冈山的斗争》《星星之火，可以燎原》《反对本本主义》'],
+  ['e1937b','遵义会议后—抗战','成熟','《实践论》《矛盾论》《论持久战》'],
+  ['e1940','抗战','成熟','《〈共产党人〉发刊词》《中国革命和中国共产党》《新民主主义论》《论联合政府》'],
+  ['e1945','1945','命名与确立','七大把毛泽东思想确立为指导思想'],
+  ['e1949a','解放战争后期','继续发展','七届二中全会报告、《论人民民主专政》'],
+  ['e1956','1956—1957','继续发展','《论十大关系》《关于正确处理人民内部矛盾的问题》']]},
+ xuanyan:{t:'易混：三份“宣言书”',sub:'题干给出“宣言书”时注意对应对象',cols:['时间','对象','宣言书的内容'],rows:[
+  ['e1950','抗美援朝胜利','中国人民站起来后屹立于世界东方的宣言书'],
+  ['e1978','《解放思想，实事求是，团结一致向前看》','开辟新时期新道路、开创中国特色社会主义的宣言书'],
+  ['e1992','邓小平南方谈话','把改革开放和现代化建设推向新阶段的又一个解放思想、实事求是的宣言书']]}
+};
+const CATS=['史纲','毛中特','马原','时政','全部'];
+const START=1838,END=2027;
+
+
+/* ---------- v4 新增事件（据《一页纸》知识点手册整理，表述已重写） ---------- */
+const EVENTS_V4=[
+{id:'e1841',y:1841,m:5,date:'1841年5月',short:'三元里抗英',title:'三元里人民抗英斗争',sum:'第一次大规模群众反侵略斗争。',map:'cn',places:[['三元里',113.25,23.17]],cats:['史纲'],kp:'史纲·上编｜反侵略斗争',
+ bg:'鸦片战争期间，广州城北三元里一带民众自发组织起来，围困袭扰英国侵略军。',
+ mc:'外国资本主义与中华民族的矛盾。',
+ pts:['中国近代史上中国人民<b>第一次大规模的反侵略武装斗争</b>','【易错】区分：太平天国是第一次<b>同时反对国内封建势力和外国侵略势力</b>的斗争'],tags:['hot'],rel:[['e1840','cause'],['e1842','cause']]},
+{id:'e1923',y:1923,m:2,date:'1923年2月',short:'京汉铁路大罢工',title:'京汉铁路大罢工',sum:'第一次工人运动高潮的顶点。',map:'cn',places:[['郑州',113.65,34.76],['汉口',114.3,30.6]],cats:['史纲'],kp:'史纲·中编｜工人运动',
+ bg:'1922年1月香港海员罢工揭开中国工人运动第一个高潮；其间安源路矿罢工取得完全胜利；1923年2月京汉铁路大罢工遭军阀镇压（二七惨案），高潮结束。',
+ mc:'工人阶级与帝国主义、封建军阀的矛盾。',
+ pts:['第一次工人运动高潮：<b>起点香港海员罢工（1922.1），顶点京汉铁路大罢工（1923.2）</b>','安源路矿工人罢工取得<b>完全胜利</b>','1925—1926年<b>省港大罢工</b>是持续时间最长的罢工','教训：必须争取同盟者，建立统一战线'],tags:['hot'],rel:[['e1922','push'],['e1923b','cause']]},
+{id:'e1923b',y:1923,m:6,date:'1923年6月',short:'中共三大',title:'中共三大',sum:'决定以个人名义加入国民党。',map:'cn',places:[['广州',113.26,23.13]],cats:['史纲'],kp:'史纲·中编｜会议大观',
+ bg:'中共三大在广州召开，确定同国民党合作、建立革命统一战线的方针。',
+ mc:'帝国主义、北洋军阀与中国人民的矛盾。',
+ pts:['正式决定<b>共产党员以个人名义加入国民党</b>','同时保持党在政治上、组织上的独立性','【易错】统一战线思想最早是<b>二大</b>提出的“民主联合战线”'],tags:['hot'],rel:[['e1922','push'],['e1924','push']]},
+{id:'e1925',y:1925,m:1,date:'1925年1月',short:'中共四大',title:'中共四大',sum:'提出无产阶级领导权和工农联盟问题。',map:'cn',places:[['上海',121.47,31.23]],cats:['史纲','毛中特'],kp:'史纲·中编｜会议大观',
+ bg:'中共四大在上海召开。同年12月毛泽东发表《中国社会各阶级分析》，次年3月发表《国民革命与农民运动》，1927年发表《湖南农民运动考察报告》。',
+ mc:'帝国主义、北洋军阀与中国人民的矛盾。',
+ pts:['提出<b>无产阶级在民主革命中的领导权</b>问题和<b>工农联盟</b>问题','对民主革命的内容作出更完整的规定','《中国社会各阶级分析》：“谁是我们的敌人？谁是我们的朋友？”是革命的<b>首要问题</b>——毛泽东思想<b>萌芽</b>'],tags:['core','hot'],rel:[['e1924','push'],['e1926','push']]},
+{id:'e1929',y:1929,m:12,date:'1929年12月',short:'古田会议',title:'古田会议',sum:'思想建党、政治建军。',map:'cn',places:[['古田',116.78,25.3]],cats:['史纲','毛中特'],kp:'史纲·中编｜党的建设',
+ bg:'红四军第九次党的代表大会在福建上杭古田召开，通过毛泽东起草的决议。',
+ mc:'在农村环境、以农民为主要成分的条件下，如何保持党的无产阶级先锋队性质。',
+ pts:['确立<b>思想建党、政治建军</b>的原则','规定红军是一个<b>执行革命的政治任务的武装集团</b>','党对军队的绝对领导：<b>发端于南昌起义，奠基于三湾改编，定型于古田会议</b>'],tags:['core','hot'],rel:[['e1927','push'],['e1930','push']]},
+{id:'e1937b',y:1937,m:8,date:'1937年7—8月',short:'《实践论》《矛盾论》',title:'《实践论》《矛盾论》',sum:'从哲学高度清算教条主义。',map:'cn',places:[['延安',109.49,36.6]],cats:['毛中特','马原'],kp:'毛中特｜毛泽东思想',
+ bg:'毛泽东在延安抗日军政大学讲授哲学，写成《实践论》《矛盾论》。',
+ mc:'党内主观主义特别是教条主义与中国革命实际的矛盾。',
+ pts:['从<b>马克思主义认识论</b>的高度总结党的历史经验','揭露和批判党内的<b>主观主义，尤其是教条主义</b>','科学阐明党的马克思主义思想路线'],tags:['hot'],rel:[['e1935','push'],['e1938','push'],['e1942','push']]},
+{id:'e1947b',y:1947,m:12,date:'1947年12月',short:'杨家沟会议',title:'杨家沟会议（十二月会议）',sum:'中国革命到了历史的转折点。',map:'cn',places:[['米脂杨家沟',110.18,37.75]],cats:['史纲'],kp:'史纲·中编｜解放战争',
+ bg:'中共中央在陕北米脂县杨家沟召开会议，毛泽东作《目前形势和我们的任务》报告，制定夺取全国胜利的行动纲领。',
+ mc:'中国人民同美帝国主义支持的国民党反动派之间的矛盾。',
+ pts:['毛泽东指出：中国革命已发展到<b>一个历史的转折点</b>','是蒋介石反革命统治由发展到消灭的转折点，也是帝国主义在中国统治由发展到消灭的转折点','提出新民主主义<b>三大经济纲领</b>'],tags:['hot'],rel:[['e1947','push'],['e1948','push']]},
+{id:'e1948a',y:1948,m:4,date:'1948年4月30日',short:'“五一口号”',title:'“五一口号”与多党合作',sum:'新型政党制度的序幕。',map:'cn',places:[['西柏坡',114.1,38.35]],cats:['史纲','毛中特'],kp:'史纲·中编｜多党合作',
+ bg:'中共中央发布纪念“五一”劳动节口号，号召召开新的政治协商会议；各民主党派和无党派民主人士热烈响应，1949年1月发表《对时局的意见》，公开表示接受中共领导。',
+ mc:'中国人民同国民党反动派之间的矛盾。',
+ pts:['“五一口号”揭开了中共领导的<b>多党合作和政治协商</b>的序幕','《对时局的意见》：民主党派<b>公开、自愿接受中国共产党的领导</b>','1949年人民政协召开标志<b>新型政党制度确立</b>'],tags:['hot'],rel:[['e1948','push'],['e1949','push']]},
+{id:'e1949a',y:1949,m:3,date:'1949年3月',short:'七届二中全会',title:'七届二中全会',sum:'“两个务必”，工作重心转向城市。',map:'cn',places:[['西柏坡',114.1,38.35],['北平香山',116.19,39.99]],cats:['史纲','毛中特'],kp:'史纲·中编｜会议大观',
+ bg:'中共七届二中全会在西柏坡召开。3月25日中共中央和毛泽东等进驻北平香山。',
+ mc:'中国人民同国民党反动派之间的矛盾；全国胜利后国内主要矛盾将转为工人阶级和资产阶级的矛盾。',
+ pts:['提出<b>“两个务必”</b>：谦虚谨慎、不骄不躁；艰苦奋斗','党的工作重心<b>由乡村转移到城市</b>（进驻香山标志革命重心转向城市）','指明由农业国转变为工业国、由新民主主义社会转变为社会主义社会的方向','【易错】秋收起义后是<b>城市转农村</b>；进驻香山是<b>农村转城市</b>'],tags:['core','hot'],rel:[['e1948','push'],['e1949','push']]},
+{id:'e1950a',y:1950,m:6,date:'1950年6月',short:'七届三中全会',title:'七届三中全会',sum:'“不要四面出击”。',map:'cn',places:[['北京',116.4,39.9]],cats:['史纲'],kp:'史纲·下编｜会议大观',
+ bg:'中共七届三中全会召开，确定新中国成立初期的战略策略方针。同年6月颁布《中华人民共和国土地改革法》。',
+ mc:'工人阶级和资产阶级的矛盾、社会主义道路和资本主义道路的矛盾。',
+ pts:['战略策略方针：<b>不要四面出击</b>','中心任务：争取<b>国家财政经济状况的基本好转</b>','土地改革法：保存<b>富农经济</b>'],tags:['hot'],rel:[['e1949','push'],['e1953','push']]},
+{id:'e1961',y:1961,m:1,date:'1961年1月',short:'八届九中全会',title:'八届九中全会',sum:'国民经济调整。',map:'cn',places:[['北京',116.4,39.9]],cats:['史纲'],kp:'史纲·下编｜曲折发展',
+ bg:'针对“大跃进”造成的严重困难，八届九中全会决定对国民经济进行调整。',
+ mc:'人民对于经济文化迅速发展的需要同当前经济文化不能满足人民需要的状况之间的矛盾。',
+ pts:['对国民经济实行<b>“调整、巩固、充实、提高”</b>的八字方针'],tags:['hot'],rel:[['e1957','cause'],['e1966','cause']]},
+{id:'e1978a',y:1978,m:5,date:'1978年5月',short:'真理标准讨论',title:'真理标准问题大讨论',sum:'思想解放运动。',map:'cn',places:[['北京',116.4,39.9]],cats:['史纲','毛中特'],kp:'史纲·下编｜拨乱反正',
+ bg:'《光明日报》发表特约评论员文章《实践是检验真理的唯一标准》，引发全国范围的真理标准问题讨论。',
+ mc:'“两个凡是”错误方针与实事求是思想路线的矛盾。',
+ pts:['继<b>五四运动、延安整风</b>之后又一场马克思主义思想解放运动','实质：是否坚持马克思列宁主义、毛泽东思想','为重新确立实事求是的思想路线、实现历史性转折作了<b>思想理论准备</b>'],tags:['core','hot'],rel:[['e1966','cause'],['e1978','push']]},
+{id:'e1981',y:1981,m:6,date:'1981年6月',short:'十一届六中全会',title:'十一届六中全会 · 第二个历史决议',sum:'指导思想上拨乱反正完成。',map:'cn',places:[['北京',116.4,39.9]],cats:['史纲','毛中特'],kp:'史纲·下编｜毛中特·毛泽东思想',
+ bg:'全会通过《关于建国以来党的若干历史问题的决议》。邓小平为起草确立三条原则，最核心的是确立毛泽东同志的历史地位，坚持和发展毛泽东思想。',
+ mc:'人民日益增长的物质文化需要同落后的社会生产之间的矛盾。',
+ pts:['标志党在<b>指导思想上拨乱反正的胜利完成</b>','科学评价毛泽东的历史地位和毛泽东思想；概括毛泽东思想<b>活的灵魂：实事求是、群众路线、独立自主</b>','彻底否定“文化大革命”','明确社会主要矛盾：<b>人民日益增长的物质文化需要同落后的社会生产之间的矛盾</b>'],tags:['core','hot'],rel:[['e1978','push'],['e1982','push']]},
+{id:'e1984',y:1984,m:10,date:'1984年10月',short:'十二届三中全会',title:'十二届三中全会',sum:'有计划的商品经济。',map:'cn',places:[['北京',116.4,39.9]],cats:['史纲','毛中特'],kp:'史纲·下编｜改革开放',
+ bg:'全会通过《中共中央关于经济体制改革的决定》，改革重点由农村转向城市。同年开放14个沿海港口城市。',
+ mc:'人民日益增长的物质文化需要同落后的社会生产之间的矛盾。',
+ pts:['指出社会主义经济是<b>公有制基础上的有计划的商品经济</b>','经济体制改革重点由农村转向城市'],tags:['hot'],rel:[['e1982','push'],['e1987','push']]},
+{id:'e2013',y:2013,m:11,date:'2013年11月',short:'十八届三中全会',title:'十八届三中全会',sum:'全面深化改革。',map:'cn',places:[['北京',116.4,39.9]],cats:['毛中特','时政'],kp:'毛中特｜全面深化改革',
+ bg:'全会通过《中共中央关于全面深化改革若干重大问题的决定》。',
+ mc:'人民日益增长的物质文化需要同落后的社会生产之间的矛盾。',
+ pts:['全面深化改革总目标：<b>完善和发展中国特色社会主义制度，推进国家治理体系和治理能力现代化</b>','实现改革由局部探索、破冰突围到<b>系统集成、全面深化</b>的转变'],tags:['hot'],rel:[['e2012','push'],['e2024','push']]},
+{id:'e2014',y:2014,m:10,date:'2014年10月',short:'十八届四中全会',title:'十八届四中全会 · 全面依法治国',sum:'建设中国特色社会主义法治体系。',map:'cn',places:[['北京',116.4,39.9]],cats:['毛中特','时政'],kp:'毛中特｜全面依法治国',
+ bg:'全会通过《中共中央关于全面推进依法治国若干重大问题的决定》。',
+ mc:'人民日益增长的物质文化需要同落后的社会生产之间的矛盾。',
+ pts:['总目标：<b>建设中国特色社会主义法治体系，建设社会主义法治国家</b>','法治体系五个子体系：完备的法律规范体系、高效的法治实施体系、严密的法治监督体系、有力的法治保障体系、完善的党内法规体系','新十六字方针：<b>科学立法、严格执法、公正司法、全民守法</b>','法律至上表现为法律的<b>普遍适用性、优先适用性、不可违反性</b>'],tags:['hot'],rel:[['e2013','push'],['e2017','push']]},
+{id:'e2020',y:2020,m:10,date:'2020年10月',short:'十九届五中全会',title:'十九届五中全会 · 新发展格局',sum:'“十四五”与新发展格局。',map:'cn',places:[['北京',116.4,39.9]],cats:['时政','毛中特'],kp:'毛中特｜新发展格局',
+ bg:'全会审议通过关于制定“十四五”规划和二〇三五年远景目标的建议，提出加快构建新发展格局。',
+ mc:'人民日益增长的美好生活需要和不平衡不充分的发展之间的矛盾。',
+ pts:['新发展格局：<b>以国内大循环为主体、国内国际双循环相互促进</b>','战略基点是<b>扩大内需</b>，主线是<b>深化供给侧结构性改革</b>','最本质特征是<b>实现高水平自立自强</b>'],tags:['hot'],rel:[['e2017','push'],['e2022','push']]},
+];
+EVENTS.push(...EVENTS_V4);
+
+/* ---------- v4 补充考点（易错 / 辨析） ---------- */
+const PTS_V4={
+ e1848:['马克思、恩格斯建立的第一个无产阶级政党：<b>共产主义者同盟</b>'],
+ e1851:['太平天国是中国近代史上<b>第一次同时反对国内封建势力和外国侵略势力</b>的斗争'],
+ e1861:['兴办洋务首先是为了制造洋枪洋炮镇压农民起义，<b>主要目的是维护封建统治</b>','19世纪70—80年代列强蚕食中国周边与边疆，形成<b>“边疆危机”</b>'],
+ e1871:['防止公仆变主人的两项措施：公职人员<b>选举制和撤换制</b>；<b>取消高薪制</b>','【易错】巴黎公社建立的是<b>政权</b>，不是政党；受第一国际精神影响，但不是第一国际领导'],
+ e1894:['甲午战争促使中国人民的<b>民族意识开始普遍觉醒</b>'],
+ e1898:['维新派与守旧派论战：近代<b>资产阶级思想与封建主义思想的第一次正面交锋</b>','维新派与洋务派分歧的实质：<b>要不要学习西方的政治制度</b>','【易错】戊戌时是“废八股、改科举”，<b>废科举是清末“新政”</b>'],
+ e1905:['革命派与改良派论战焦点：<b>要不要以革命手段推翻清王朝</b>','论战划清了革命与改良的界限，但暴露革命派不敢明确反帝反封建的弱点','孙中山第一个响亮喊出<b>“振兴中华”</b>'],
+ e1912:['【易错】南京临时政府在《告友邦书》中承认清政府与列强签订的<b>不平等条约</b>','护法运动失败标志<b>旧民主主义革命的终结</b>'],
+ e1915:['前期局限：提倡资产阶级民主主义、把改造国民性置于优先地位、还没有马克思主义','李大钊《我的马克思主义观》标志马克思主义进入<b>比较系统的传播阶段</b>'],
+ e1917:['十月革命使中国先进分子从<b>资产阶级民主主义转向社会主义</b>'],
+ e1919:['中华民族自鸦片战争以来<b>第一次全面觉醒</b>','区别新旧民主主义革命的根本标志：<b>领导权在无产阶级还是资产阶级手中</b>','【易错】新民主主义革命性质仍是<b>资产阶级民主主义革命</b>（新式的、特殊的）'],
+ e1922:['正式提出<b>“民主联合战线”</b>——党最早的统一战线主张','开始采用<b>群众路线</b>的方法'],
+ e1924:['新三民主义：民族主义突出<b>反帝</b>；民权为一般平民所共有；民生为<b>平均地权、节制资本</b>','【易错】新旧三民主义都是民族、民权、民生，<b>没有“民主”</b>；北伐发生在孙中山逝世后'],
+ e1927:['秋收起义打出<b>“工农革命军”</b>旗帜；南昌起义仍用<b>“国民革命军”</b>名义','三湾改编：<b>支部建在连上</b>，从组织上确立党对军队的领导','中共五大（1927.4）提出争取领导权，但没有提出有效的具体措施'],
+ e1930:['《中国的红色政权为什么能够存在？》《井冈山的斗争》：提出<b>工农武装割据</b>思想','工农武装割据＝<b>土地革命、武装斗争、农村革命根据地建设</b>三者结合','革命能坚持发展的根本原因：党<b>紧紧依靠农民，领导土地革命</b>'],
+ e1935:['长征胜利是中国革命<b>转危为安的关键</b>；湘江战役是突围以来最壮烈、最关键的一仗','遵义会议的鲜明特点：<b>坚持真理、修正错误</b>'],
+ e1935b:['瓦窑堡会议解决党的<b>政治路线</b>问题；毛泽东作《论反对日本帝国主义的策略》'],
+ e1937:['洛川会议制定<b>抗日救国十大纲领</b>，标志全面抗战路线正式形成','战略相持阶段：<b>敌后游击战争</b>成为主要作战方式'],
+ e1938:['全会基本纠正了<b>王明的右倾错误</b>','《论持久战》：持久战三阶段，<b>战略相持阶段</b>最关键；“兵民是胜利之本”'],
+ e1940:['抗日根据地政权“<b>三三制</b>”：共产党员、党外进步人士、中间派各占三分之一','统一战线策略总方针：<b>发展进步势力，争取中间势力，孤立顽固势力</b>'],
+ e1942:['对待犯错误同志的方针：<b>惩前毖后、治病救人</b>','1945年六届七中全会通过《关于若干历史问题的决议》，标志整风运动胜利结束'],
+ e1945:['七大标志党在<b>政治上、思想上、组织上走向成熟</b>','毛泽东作《论联合政府》报告，形成新民主主义基本纲领'],
+ e1946:['“五四指示”：由<b>减租减息</b>改为<b>耕者有其田</b>','“中间路线”主张英美式民主、改良的资本主义，实质是<b>旧民主主义道路</b>'],
+ e1947:['《中国土地法大纲》：废除封建剥削土地制度，实行<b>耕者有其田</b>','刘邓、陈粟、陈谢<b>三路大军</b>相互策应'],
+ e1948:['三大战役后，国民党赖以维持统治的<b>主要军事力量基本被摧毁</b>'],
+ e1949:['人民政协召开标志<b>中国新型政党制度确立</b>','《共同纲领》起临时宪法作用，但<b>还不是社会主义类型的宪法</b>','外交三大方针：<b>“一边倒”“另起炉灶”“打扫干净屋子再请客”</b>'],
+ e1950:['抗美援朝胜利是中国人民站起来后<b>屹立于世界东方的宣言书</b>'],
+ e1953:['“一五”计划：集中力量<b>发展重工业</b>','农业改造原则：<b>自愿互利、典型示范、国家帮助</b>；手工业改造方法：说服教育、典型示范、国家帮助','资本主义工商业改造三步：初级国家资本主义 → 个别企业公私合营 → <b>全行业公私合营</b>','新民主主义社会处于十字路口的经济成分：<b>个体经济</b>'],
+ e1956:['进入社会主义社会最主要的标志：<b>社会主义经济制度的确立</b>','《论十大关系》论述的第一大关系：<b>重工业和轻工业、农业的关系</b>','八大经济方针：<b>既反保守又反冒进</b>，在综合平衡中稳步前进'],
+ e1957:['“百花齐放、百家争鸣”；共产党与民主党派<b>“长期共存、互相监督”</b>','社会主义基本矛盾“<b>又相适应又相矛盾</b>”'],
+ e1978:['彻底否定“两个凡是”，断然否定“以阶级斗争为纲”','《解放思想，实事求是，团结一致向前看》：开辟新时期新道路的<b>宣言书</b>'],
+ e1982:['标志<b>邓小平理论主题</b>的形成'],
+ e1987:['第一次比较系统地概括中国特色社会主义理论，标志<b>邓小平理论轮廓形成</b>'],
+ e1992:['南方谈话：推进改革开放进入新阶段的又一个<b>解放思想、实事求是的宣言书</b>','邓小平理论走向成熟；邓小平理论的精髓是<b>解放思想、实事求是</b>'],
+ e2002:['提出全面建设<b>小康社会</b>的奋斗目标'],
+ e2007:['首次提出<b>“中国特色社会主义理论体系”</b>概念'],
+ e2022:['<b>高质量发展</b>是全面建设社会主义现代化国家的首要任务'],
+ e2024:['进一步全面深化改革的重点是<b>深化经济体制改革</b>'],
+};
+Object.entries(PTS_V4).forEach(([id,arr])=>{const e=EVENTS.find(x=>x.id===id);if(e)e.pts.push(...arr);});
+
+const byId=Object.fromEntries(EVENTS.map(e=>[e.id,e]));
+EVENTS.forEach(e=>{e.t=e.y+((e.m||1)-1)/12+0.03;});
+EVENTS.sort((a,b)=>a.t-b.t);
+const eraOf=y=>y<1912?'qing':y<1949.75?'roc':'prc';
+
+/* =====================================================================
+   地图几何
+   ===================================================================== */
+const pCn=(lon,lat)=>[(lon-72)*8.2,(55-lat)*10];
+const pEu=(lon,lat)=>[(lon+12)*6.16,(72-lat)*10];
+const MAINLAND=[[121.5,53.3],[126,52.8],[127.5,49.8],[130.5,48.9],[134.7,48.3],[133.1,45.1],[131.2,44.9],[131.3,42.8],[130.6,42.4],[129,42],[126.6,41.7],[124.3,39.9],[122,39.1],[121.2,38.8],[122.3,40.5],[121,40.9],[119.5,39.9],[118,39.2],[117.6,38.6],[118.8,37.5],[119.2,37.2],[120.7,37.8],[122.6,37.4],[120.3,36],[119.2,34.9],[120.3,34.3],[120.9,32.6],[121.9,31.7],[121.9,30.9],[121.3,30.3],[122.1,29.9],[121.6,28.3],[120.6,27.2],[119.6,26],[118.6,24.6],[117.1,23.5],[115.5,22.8],[114.2,22.3],[113.5,22.2],[112,21.7],[110.4,21.2],[110.1,20.3],[109.7,21.5],[108.5,21.6],[107,21.8],[106.7,22.9],[105.3,23.3],[103.9,22.5],[102.2,22.4],[101.7,21.2],[100.1,21.6],[99.2,22.1],[99.5,23],[98.7,24.1],[97.6,23.9],[98.2,25.3],[98.7,27.5],[97.3,28],[95.2,26.9],[92.1,26.9],[89.6,28.2],[88.8,27.3],[88.1,27.9],[86,27.9],[84.1,28.6],[81.1,30.2],[78.9,31.2],[78.4,32.6],[78,35.5],[76.2,35.8],[74.9,37.2],[73.6,39.2],[73.9,39.7],[75,40.4],[76.5,40.4],[78.4,41.4],[80.2,42.1],[80.3,43.1],[80.8,45],[82.5,45.5],[83,47.2],[85.7,47.1],[85.8,48.4],[87.3,49.1],[87.8,49.2],[88.9,48.1],[90.3,47.2],[91,46],[90.9,45.3],[93.5,44.9],[95.3,44.2],[96.4,42.7],[100.8,42.6],[105,41.6],[107.6,42.4],[110.4,42.8],[111.9,43.7],[111.6,44.8],[113.6,44.8],[116.7,46.4],[117.4,46.6],[119.7,46.7],[118.1,48],[116.7,49.8],[117.9,49.5],[119.7,50.3],[120.8,52.5]];
+const MONGOLIA=[[87.8,49.2],[90,50.2],[92,50.8],[94.3,50.5],[97.5,51.9],[98.9,52.1],[102,51.3],[103.7,50.1],[106.9,50.3],[108.5,49.3],[110.7,49.1],[114.4,50.2],[116.7,49.8],[118.1,48],[119.7,46.7],[117.4,46.6],[116.7,46.4],[113.6,44.8],[111.6,44.8],[111.9,43.7],[110.4,42.8],[107.6,42.4],[105,41.6],[100.8,42.6],[96.4,42.7],[95.3,44.2],[93.5,44.9],[90.9,45.3],[91,46],[90.3,47.2],[88.9,48.1]];
+const TAIWAN=[[121.5,25.3],[122,25],[121.4,23],[120.8,21.9],[120.2,22.6],[120.1,23.5],[121,25.1]];
+const HAINAN=[[108.6,19.2],[109.5,18.2],[110.5,18.4],[111,19.6],[110.4,20.1],[109.1,19.8]];
+const EU_FALLBACK=[
+ [[-9.3,43.2],[-8.9,37],[-6,36.2],[-2,36.7],[0.2,38.8],[3.2,41.9],[6,43.1],[8.7,44.4],[10.5,43.3],[12.4,41.7],[15.6,40],[15.7,38],[16.6,39],[18.5,40.2],[16.9,41.2],[14,42.6],[12.3,44.5],[13.7,45.6],[14.5,45.2],[16,43.5],[19.4,41.8],[19.9,39.9],[21.1,38.3],[22.6,36.4],[23.2,37.9],[24,40.6],[26,40.8],[29,41.2],[28,42.6],[28.6,43.7],[30.2,45.8],[33,46.1],[35.2,45.2],[36.6,45.3],[38.2,47.1],[39.7,47.2],[42,45.5],[46,43],[46,62],[37,62],[32,61],[30.3,59.9],[28,59.5],[23.5,59.4],[24.1,57.2],[21.1,56.9],[21.1,55.3],[19.6,54.4],[14.2,53.9],[10.9,54],[10,54.8],[8.6,57.1],[8.1,55.5],[8.6,53.9],[7,53.4],[4.8,53],[3.6,51.4],[1.6,50.9],[-1.6,49.6],[-1.9,48.7],[-4.7,48.4],[-2.2,47.1],[-1.2,46],[-1.6,43.4]],
+ [[5.2,59],[5,62],[8,63.5],[12,66.5],[15,68.5],[19,70],[25,71],[30,70],[31,69.6],[30,67],[30,63],[30,61],[27,60.4],[23,59.9],[21.5,61],[21.2,63],[25,65],[23,65.8],[21,64.5],[18.5,63],[17.3,61],[19,59.8],[16.5,57],[14.5,55.6],[12.8,55.4],[11.7,57.7],[10.6,59],[8,58],[5.6,58.5]],
+ [[-5.7,50],[-3,50.6],[1.4,51.2],[1.7,52.7],[0.3,53.4],[-0.1,54.5],[-1.6,55.6],[-2.1,57.6],[-3.1,58.6],[-5,58.6],[-6.2,56.6],[-5.6,55.3],[-3,54.5],[-3.1,53.4],[-4.6,52.8],[-5.2,51.7],[-3.4,51.4],[-4.5,51.2]],
+ [[-6,52.2],[-6.2,53.9],[-5.9,55.2],[-7.3,55.4],[-8.5,54.3],[-10,53.5],[-9.5,52],[-10.3,51.6],[-8,51.6]]];
+const EU_LABELS=[['英国',-2,53],['法国',2.5,46.8],['德意志',10.5,51],['俄国',38,56],['意大利',12.8,42.8],['西班牙',-3.7,40],['奥匈',16.5,47.5]];
+
+const NS='http://www.w3.org/2000/svg';
+const mk=(tag,attrs={},parent)=>{const n=document.createElementNS(NS,tag);for(const k in attrs)n.setAttribute(k,attrs[k]);if(parent)parent.appendChild(n);return n;};
+const ringD=(ring,proj)=>'M'+ring.map(p=>proj(p[0],p[1]).map(v=>v.toFixed(1)).join(',')).join('L')+'Z';
+
+/* echarts 编码地图数据的解码 */
+function decodeRing(str,off,scale){
+  const out=[];let px=off[0],py=off[1];
+  for(let i=0;i<str.length;i+=2){
+    let x=str.charCodeAt(i)-64,y=str.charCodeAt(i+1)-64;
+    x=(x>>1)^(-(x&1));y=(y>>1)^(-(y&1));
+    x+=px;y+=py;px=x;py=y;out.push([x/scale,y/scale]);
+  }
+  return out;
+}
+function geoFeatures(json){
+  const scale=json.UTF8Scale||1024,enc=!!json.UTF8Encoding;
+  return (json.features||[]).map(f=>{
+    const g=f.geometry||{};let rings=[];
+    if(g.type==='Polygon')rings=g.coordinates.map((r,i)=>enc&&typeof r==='string'?decodeRing(r,g.encodeOffsets[i],scale):r);
+    else if(g.type==='MultiPolygon')g.coordinates.forEach((poly,i)=>poly.forEach((r,j)=>rings.push(enc&&typeof r==='string'?decodeRing(r,g.encodeOffsets[i][j],scale):r)));
+    const p=f.properties||{};
+    return {name:p.name||'',cp:p.cp||p.center||null,rings};
+  });
+}
+const normName=n=>n.replace(/(壮族自治区|回族自治区|维吾尔自治区|特别行政区|自治区|省|市)$/,'');
+
+/* =====================================================================
+   状态
+   ===================================================================== */
+const S={year:1840.05,cur:null,cat:'史纲',playing:false,speedIdx:1,dir:1,real:false,
+  opt:{slow:true,bg:true,pow:true,lab:true,hint:true}};
+const SPEEDS=[0.5,1,2,4];
+let favs=new Set();
+try{favs=new Set(JSON.parse(localStorage.getItem('kyFavs')||'[]'));}catch(e){}
+const saveFavs=()=>{try{localStorage.setItem('kyFavs',JSON.stringify([...favs]));}catch(e){}};
+let MST={};
+try{MST=JSON.parse(localStorage.getItem('kyMst')||'{}')||{};}catch(e){}
+const saveMst=()=>{try{localStorage.setItem('kyMst',JSON.stringify(MST));}catch(e){}};
+const DAY=864e5;
+S.quiz=false;S.thread=null;S.present=false;S.step=0;S.reviewQ=null;
+const $=id=>document.getElementById(id);
+const matches=e=>S.cat==='全部'||e.cats.includes(S.cat);
+const pool=()=>{const p=EVENTS.filter(matches);return p.length?p:EVENTS;};
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),1800);}
+
+/* =====================================================================
+   地图
+   ===================================================================== */
+const MAPS={cn:{svg:$('svgCn'),proj:pCn,provs:[]},eu:{svg:$('svgEu'),proj:pEu}};
+let mapView='cn';
+function layers(svg,names){const g=svg.querySelector('.vp');g.innerHTML='';const o={};names.forEach(n=>o[n]=mk('g',{class:n},g));return o;}
+
+function buildCn(features){
+  const M=MAPS.cn,L=layers(M.svg,['grat','mongo','prov','inset','plab','route','rel','mks','chip']);M.L=L;
+  for(let lon=80;lon<=130;lon+=10){const[a,b]=pCn(lon,55),[c,d]=pCn(lon,17);mk('line',{x1:a,y1:b,x2:c,y2:d},L.grat);}
+  for(let lat=20;lat<=50;lat+=10){const[a,b]=pCn(72,lat),[c,d]=pCn(136,lat);mk('line',{x1:a,y1:b,x2:c,y2:d},L.grat);}
+  M.mongo=mk('path',{d:ringD(MONGOLIA,pCn)},L.mongo);
+  M.mongoLab=mk('text',{x:pCn(103,46.8)[0],y:pCn(103,46.8)[1]},L.plab);M.mongoLab.textContent='外蒙古';
+  M.provs=[];
+  features.forEach(f=>{
+    const name=normName(f.name);if(!f.rings.length||name==='南海诸岛')return;
+    const d=f.rings.filter(r=>r.length>2).map(r=>ringD(r,pCn)).join('');
+    const p=mk('path',{d},L.prov);p.dataset.name=name;
+    let cp=f.cp;
+    if(!cp){let mx=1e9,Mx=-1e9,my=1e9,My=-1e9;f.rings[0].forEach(([x,y])=>{mx=Math.min(mx,x);Mx=Math.max(Mx,x);my=Math.min(my,y);My=Math.max(My,y);});cp=[(mx+Mx)/2,(my+My)/2];}
+    const fix={'内蒙古':[112,42.5],'河北':[115.5,38.6],'甘肃':[101.5,38.6],'香港':null,'澳门':null};
+    if(name in fix)cp=fix[name];
+    let lab=null;
+    if(cp&&S.real){const[x,y]=pCn(cp[0],cp[1]);lab=mk('text',{x,y:y+3},L.plab);lab.textContent=name;}
+    M.provs.push({name,path:p,lab});
+  });
+  mk('rect',{x:462,y:300,width:56,height:72,rx:3},L.inset);
+  [[472,308,469,322],[468,330,469,344],[473,352,481,362],[488,366,498,366],[505,360,509,350],[511,340,512,328],[510,316,507,306]].forEach(d=>mk('line',{x1:d[0],y1:d[1],x2:d[2],y2:d[3]},L.inset));
+  const t=mk('text',{x:490,y:338,'text-anchor':'middle'},L.inset);t.textContent='南海诸岛';
+  M.sig='';
+}
+function buildEu(features){
+  const M=MAPS.eu,L=layers(M.svg,['grat','eu','plab','rel','mks','chip']);M.L=L;
+  const svg=M.svg;let defs=svg.querySelector('defs');if(!defs){defs=mk('defs',{},null);svg.insertBefore(defs,svg.firstChild);defs.innerHTML='<clipPath id="euclip"><rect x="0" y="0" width="357" height="370"/></clipPath>';}
+  L.eu.setAttribute('clip-path','url(#euclip)');
+  for(let lon=0;lon<=40;lon+=10){const[a,b]=pEu(lon,72),[c,d]=pEu(lon,35);mk('line',{x1:a,y1:b,x2:c,y2:d},L.grat);}
+  for(let lat=40;lat<=70;lat+=10){const[a,b]=pEu(-12,lat),[c,d]=pEu(46,lat);mk('line',{x1:a,y1:b,x2:c,y2:d},L.grat);}
+  features.forEach(f=>{
+    const rings=f.rings.filter(r=>{
+      if(r.length<3)return false;let mx=1e9,Mx=-1e9,my=1e9,My=-1e9;
+      r.forEach(([x,y])=>{mx=Math.min(mx,x);Mx=Math.max(Mx,x);my=Math.min(my,y);My=Math.max(My,y);});
+      return Mx-mx<180&&Mx>-14&&mx<48&&My>33&&my<74;
+    });
+    if(rings.length)mk('path',{d:rings.map(r=>ringD(r,pEu)).join('')},L.eu);
+  });
+  EU_LABELS.forEach(([n,lo,la])=>{const[x,y]=pEu(lo,la);const t=mk('text',{x,y},L.plab);t.textContent=n;});
+}
+
+function makeZoom(svg,key){
+  const vp=svg.querySelector('.vp'),vb=svg.viewBox.baseVal,W=vb.width,H=vb.height;
+  const st={s:1,x:0,y:0},ptrs=new Map();let moved=0;
+  const toSvg=(cx,cy)=>{const p=svg.createSVGPoint();p.x=cx;p.y=cy;return p.matrixTransform(svg.getScreenCTM().inverse());};
+  const clamp=()=>{st.x=Math.min(W*.3,Math.max(W-W*st.s-W*.3,st.x));st.y=Math.min(H*.3,Math.max(H-H*st.s-H*.3,st.y));};
+  function apply(anim){
+    vp.style.transition=anim?'transform .45s cubic-bezier(.2,.8,.2,1)':'none';
+    vp.style.transform=`translate(${st.x}px,${st.y}px) scale(${st.s})`;
+    const k=1/Math.sqrt(st.s);
+    svg.querySelectorAll('[data-r]').forEach(c=>c.setAttribute('r',(+c.dataset.r*k).toFixed(2)));
+    svg.querySelectorAll('[data-fs]').forEach(t=>t.style.fontSize=(+t.dataset.fs*k)+'px');
+    svg.querySelectorAll('.plab text').forEach(t=>t.style.fontSize=(7.2*k)+'px');
+    layoutChip(key);
+  }
+  function zoomAt(p,f){const ns=Math.min(8,Math.max(1,st.s*f));f=ns/st.s;st.x=p.x-(p.x-st.x)*f;st.y=p.y-(p.y-st.y)*f;st.s=ns;clamp();}
+  svg.addEventListener('wheel',e=>{e.preventDefault();zoomAt(toSvg(e.clientX,e.clientY),e.deltaY<0?1.15:1/1.15);apply(false);},{passive:false});
+  svg.addEventListener('pointerdown',e=>{ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;});
+  window.addEventListener('pointermove',e=>{
+    if(!ptrs.has(e.pointerId))return;
+    const prev=ptrs.get(e.pointerId),cur={x:e.clientX,y:e.clientY},k=svg.getScreenCTM().a;
+    if(ptrs.size===1){st.x+=(cur.x-prev.x)/k;st.y+=(cur.y-prev.y)/k;moved+=Math.abs(cur.x-prev.x)+Math.abs(cur.y-prev.y);}
+    else if(ptrs.size===2){const o=[...ptrs].find(([id])=>id!==e.pointerId)[1];const d0=Math.hypot(prev.x-o.x,prev.y-o.y),d1=Math.hypot(cur.x-o.x,cur.y-o.y);if(d0>0)zoomAt(toSvg((cur.x+o.x)/2,(cur.y+o.y)/2),d1/d0);moved+=10;}
+    ptrs.set(e.pointerId,cur);clamp();apply(false);
+  });
+  const end=e=>ptrs.delete(e.pointerId);
+  window.addEventListener('pointerup',end);window.addEventListener('pointercancel',end);
+  return {apply,zoom(f){zoomAt({x:W/2,y:H/2},f);apply(true);},reset(){st.s=1;st.x=0;st.y=0;apply(true);},wasDrag:()=>moved>6,st};
+}
+const zooms={};
+
+function setMapView(m){
+  mapView=m;
+  MAPS.cn.svg.classList.toggle('hide',m!=='cn');MAPS.eu.svg.classList.toggle('hide',m!=='eu');
+}
+
+/* 省份着色（随年份/事件） */
+function paintCn(){
+  const M=MAPS.cn;if(!M.L)return;
+  const y=S.year,era=eraOf(y),E=ERA[era],cur=S.cur;
+  const pw=(S.opt.pow&&cur&&cur.map==='cn'&&POWER[cur.id])?POWER[cur.id].items:[];
+  const tw=y>=1895.3&&y<1945.7;
+  const sig=era+'|'+(cur&&cur.id)+'|'+S.opt.pow+'|'+tw+'|'+(y<1946);
+  if(sig===M.sig)return;M.sig=sig;
+  const fillOf={};pw.forEach(([,col,list])=>list.forEach(n=>fillOf[n]=col));
+  M.provs.forEach(p=>{
+    let f=fillOf[p.name]||E.base,occ=false;
+    if(!S.real&&p.name!=='台湾'&&p.name!=='海南'&&!fillOf[p.name])f=E.base;
+    if(p.name==='台湾'&&tw&&!fillOf['台湾']){f=C.occ;occ=true;}
+    if(p.name==='台湾'&&tw)occ=true;
+    if((p.name==='香港'||p.name==='澳门')&&!fillOf[p.name]){
+      const back=p.name==='香港'?1997.5:1999.95;
+      if(y<back){f=era==='prc'?'#3d4450':E.base;}
+    }
+    p.path.style.fill=f;p.path.classList.toggle('occ',occ);
+    if(p.lab){
+      let n=p.name;
+      if(era==='qing'){n={辽宁:'奉天',北京:'京师'}[n]||n;}
+      if(p.name==='台湾'&&tw)n='台湾（日占）';
+      p.lab.textContent=n;
+      p.lab.style.display=(['香港','澳门'].includes(p.name)||(era==='qing'&&['天津','上海','重庆','宁夏','海南'].includes(p.name)))?'none':'';
+    }
+  });
+  M.mongo.style.fill=E.base;
+  M.L.mongo.classList.toggle('off',y>=1946);
+  M.mongoLab.style.display=y<1946&&S.real?'':'none';
+}
+
+/* 标记、关联虚线、路线、事件标签 */
+function renderOverlays(){
+  ['cn','eu'].forEach(m=>{
+    const M=MAPS[m];if(!M.L)return;const L=M.L,proj=M.proj,cur=S.cur;
+    L.mks.innerHTML='';L.rel.innerHTML='';L.chip.innerHTML='';if(L.route)L.route.innerHTML='';
+    const seen=new Set();
+    EVENTS.filter(e=>e.map===m&&e!==cur).forEach(e=>{
+      const pl=e.places[0];const key=pl[0];if(seen.has(key))return;seen.add(key);
+      const[x,y]=proj(pl[1],pl[2]);
+      const g=mk('g',{class:'mk'+(matches(e)?'':' dim'),'data-id':e.id,'data-name':e.title},L.mks);
+      mk('circle',{cx:x,cy:y,r:2.2,'data-r':2.2,class:'b'},g);
+    });
+    if(!cur||cur.map!==m)return;
+    // 关联虚线
+    const[x0,y0]=proj(cur.places[0][1],cur.places[0][2]);
+    cur.rel.forEach(([rid,type])=>{
+      const r=byId[rid];if(!r||r.map!==m)return;
+      const[x1,y1]=proj(r.places[0][1],r.places[0][2]);
+      if(Math.hypot(x1-x0,y1-y0)<3)return;
+      const mx=(x0+x1)/2,my=(y0+y1)/2,dx=x1-x0,dy=y1-y0,len=Math.hypot(dx,dy);
+      const cx=mx-dy/len*Math.min(40,len*.3),cy=my+dx/len*Math.min(40,len*.3);
+      mk('path',{d:`M${x0},${y0}Q${cx},${cy} ${x1},${y1}`,stroke:RELC[type],style:'stroke-dasharray:'+RELDASH[type]},L.rel);
+      const t=mk('text',{x:x1,y:y1-5,'text-anchor':'middle',fill:RELC[type],'data-fs':6.5},L.rel);t.textContent=r.short;
+      mk('circle',{cx:x1,cy:y1,r:2.4,'data-r':2.4,fill:RELC[type]},L.rel);
+    });
+    // 长征等路线
+    if(cur.route&&L.route){
+      const pts=cur.route.map(p=>proj(p[1],p[2]));
+      mk('path',{d:'M'+pts.map(p=>p.join(',')).join('L')},L.route);
+      cur.route.forEach((p,i)=>{const[x,y]=pts[i];mk('circle',{cx:x,cy:y,r:1.8,'data-r':1.8,fill:'#ff6b57'},L.route);const t=mk('text',{x:x+4,y:y-3,'data-fs':6.5},L.route);t.textContent=p[0];});
+    }
+    // 当前事件
+    cur.places.forEach((pl,i)=>{
+      const[x,y]=proj(pl[1],pl[2]);
+      const g=mk('g',{class:'mk on','data-id':cur.id,'data-name':cur.title+' · '+pl[0]},L.mks);
+      mk('circle',{cx:x,cy:y,r:3.6,'data-r':3.6,class:'pulse'},g);
+      mk('circle',{cx:x,cy:y,r:3.6,'data-r':3.6,class:'b'},g);
+      if(i>0){const t=mk('text',{x:x+6,y:y+3,fill:'#f1d79a','data-fs':6.5,style:'font-weight:600;paint-order:stroke;stroke:#0b0d12;stroke-width:2.5px'},L.chip);t.textContent=pl[0];}
+    });
+    const g=mk('g',{class:'chip'},L.chip);
+    mk('line',{},g);mk('rect',{rx:2},g);const t=mk('text',{},g);t.textContent=cur.title.length>16?cur.short:cur.title;
+    M.chipAnchor=[x0,y0];M.chip=g;
+  });
+  zooms.cn&&zooms.cn.apply(false);zooms.eu&&zooms.eu.apply(false);
+}
+function layoutChip(key){
+  const M=MAPS[key];if(!M||!M.chip||!M.chip.isConnected||!zooms[key])return;
+  const k=1/Math.sqrt(zooms[key].st.s),[x,y]=M.chipAnchor,fs=8*k;
+  const [line,rect,text]=M.chip.children;
+  text.style.fontSize=fs+'px';
+  text.setAttribute('x',0);text.setAttribute('y',0);
+  let w=fs*text.textContent.length*1.02;try{w=text.getBBox().width||w;}catch(_){}
+  const padX=4*k,h=fs*1.7,rx=x-w-padX*2-10*k,ry=y-h-6*k;
+  rect.setAttribute('x',rx);rect.setAttribute('y',ry);rect.setAttribute('width',w+padX*2);rect.setAttribute('height',h);
+  text.setAttribute('x',rx+padX);text.setAttribute('y',ry+h*.7);
+  line.setAttribute('x1',rx+w+padX*2);line.setAttribute('y1',ry+h/2);line.setAttribute('x2',x);line.setAttribute('y2',y);
+}
+['svgCn','svgEu'].forEach(id=>{
+  const svg=$(id),key=id==='svgCn'?'cn':'eu';
+  svg.addEventListener('click',e=>{const g=e.target.closest('.mk');if(!g||zooms[key].wasDrag())return;showTip(e,g.dataset.name);goEvent(g.dataset.id);});
+  svg.addEventListener('pointerover',e=>{const g=e.target.closest('.mk');if(g&&e.pointerType==='mouse')showTip(e,g.dataset.name);});
+});
+function showTip(e,txt){
+  const r=$('map').getBoundingClientRect(),t=$('tip');
+  t.textContent=txt;t.style.left=(e.clientX-r.left)+'px';t.style.top=(e.clientY-r.top)+'px';
+  t.classList.add('show');clearTimeout(showTip._t);showTip._t=setTimeout(()=>t.classList.remove('show'),1500);
+}
+$('zIn').onclick=()=>zooms[mapView].zoom(1.4);
+$('zOut').onclick=()=>zooms[mapView].zoom(1/1.4);
+$('zReset').onclick=()=>zooms[mapView].reset();
+
+/* =====================================================================
+   面板
+   ===================================================================== */
+const CN='〇一二三四五六七八九';
+const cnNum=n=>{if(n===1)return '元';if(n<10)return CN[n];if(n<20)return '十'+(n%10?CN[n%10]:'');return CN[Math.floor(n/10)]+'十'+(n%10?CN[n%10]:'');};
+function reign(y){const R=[['道光',1821],['咸丰',1851],['同治',1862],['光绪',1875],['宣统',1909]];let r=R[0];R.forEach(x=>{if(y>=x[1])r=x;});return r[0]+cnNum(y-r[1]+1)+'年';}
+function pianOf(y){return y<1919.3?'上编 · 旧民主主义革命时期（1840—1919）':y<1949.75?'中编 · 新民主主义革命时期（1919—1949）':'下编 · 社会主义革命、建设与改革时期（1949— ）';}
+
+let lastYearInt=null;
+function renderYear(){
+  const yi=Math.floor(S.year);
+  if(yi===lastYearInt)return;lastYearInt=yi;
+  $('bigYear').textContent=yi;
+  $('pian').textContent=pianOf(S.year);
+  renderMapTitle();
+}
+function renderMapTitle(){
+  const yi=Math.floor(S.year);
+  if(mapView==='eu'){
+    $('mTitle').textContent=ERA.marx.title;$('mSub').textContent=yi+'年 · 欧洲';
+    $('mLoc').textContent='欧洲 · 事件定位';$('mPill').textContent='欧洲 · 示意底图';return;
+  }
+  const era=eraOf(S.year),E=ERA[era];
+  $('mTitle').textContent=E.title;
+  $('mSub').textContent=era==='qing'?`${reign(yi)} · 内地十八省与藩部`:era==='roc'?`民国${cnNum(yi-1911)}年 · 省级区划`:`${yi}年 · 省级行政区`;
+  $('mLoc').textContent=E.name+' · 事件定位';
+  $('mPill').textContent=E.name+(era==='prc'&&S.real?' · 现行省界':' · 疆域示意');
+}
+let fadeT;
+function renderPanels(){
+  const e=S.cur;
+  ['lcard','rcol'].forEach(id=>$(id).classList.add('out'));
+  clearTimeout(fadeT);
+  fadeT=setTimeout(()=>{
+    $('title').textContent=e.title;
+    $('kp').textContent='考点：'+e.kp;
+    $('bg').textContent=e.bg;
+    $('mc').innerHTML=e.mc;
+    const cz=h=>S.quiz?h.replace(/<b>(.*?)<\/b>/g,(m,a)=>`<span class="cz" title="点击揭示">${a}</span>`):h;
+    $('pts').innerHTML=e.pts.map(p=>`<li>${cz(p)}</li>`).join('');
+    document.querySelector('.mcbox').classList.toggle('hid',S.quiz);
+    renderMst();applyStep();
+    $('tags').innerHTML=e.tags.map(t=>`<span class="tag ${t}">${{core:'核心考点',hot:'高频考点',new:'新增考点'}[t]}</span>`).join('');
+    $('rDate').textContent=e.date;$('rTitle').textContent=e.title;$('rSum').textContent=e.sum;
+    renderPower();
+    $('relList').innerHTML=e.rel.map(([id,type])=>{const r=byId[id];return `<button data-id="${id}"><i style="background:${RELC[type]}"></i>${RELN[type]} → ${r.title}<em>${r.y}</em></button>`;}).join('');
+    renderFavs();renderStudy();renderMobile();
+    ['lcard','rcol'].forEach(id=>$(id).classList.remove('out'));
+  },150);
+}
+function renderPower(){
+  const e=S.cur,era=e.map==='eu'?'marx':eraOf(S.year),E=ERA[era],P=POWER[e.id];
+  $('pK').textContent=E.k;
+  $('pTitle').textContent=P?P.t:E.pow;
+  const items=[[E.leg,E.base]];
+  if(P&&S.opt.pow)P.items.forEach(([n,c])=>items.push([n,c]));
+  $('pLeg').innerHTML=items.map(([n,c])=>`<span><i style="background:${c}"></i>${n}</span>`).join('');
+  $('pSrc').textContent=S.real&&e.map==='cn'?'底图：现行省级行政区划（DataV / ECharts）；疆域按时期着色，势力范围为示意。':'底图为示意轮廓，非精确边界；势力范围为示意。';
+}
+function renderFavs(){
+  const list=EVENTS.filter(x=>favs.has(x.id));
+  $('favs').innerHTML=list.length?list.map(x=>`<button data-id="${x.id}">${x.y} ${x.short}</button>`).join(''):'<span class="empty">点右上角 ☆ 收藏当前事件</span>';
+  $('bFav').classList.toggle('on',!!S.cur&&favs.has(S.cur.id));
+}
+$('relList').addEventListener('click',e=>{const b=e.target.closest('button');if(b)goEvent(b.dataset.id);});
+$('favs').addEventListener('click',e=>{const b=e.target.closest('button');if(b)goEvent(b.dataset.id);});
+
+/* =====================================================================
+   年份 → 当前事件
+   ===================================================================== */
+function eventAt(y){
+  const p=pool();let e=null;
+  for(const x of p){if(x.t<=y+1e-6)e=x;else break;}
+  return e||p[0];
+}
+function setYear(y,force){
+  S.year=Math.min(END,Math.max(START,y));
+  const e=eventAt(S.year);
+  const changed=e!==S.cur;
+  if(changed||force){
+    S.cur=e;
+    if(mapView!==e.map)setMapView(e.map);
+    renderPanels();renderOverlays();
+    try{history.replaceState(null,'','#'+(S.thread?'th-'+S.thread:e.id));}catch(_){}
+    lastYearInt=null;S.step=0;
+    tlLabels();threadRow();
+  }
+  paintCn();renderYear();tlUpdate();
+}
+function goEvent(id){const e=byId[id];if(!e)return;if(!matches(e)){S.cat='全部';renderSeg();tlBuild();}setYear(e.t,true);}
+
+/* =====================================================================
+   播放
+   ===================================================================== */
+let raf=0,lastT=0;
+function play(on){
+  S.playing=on;$('bPlay').classList.toggle('on',on);
+  $('bPlay').querySelector('.pi').textContent=on?'❚❚':'▶';$('playTxt').textContent=on?'暂停':'播放';$('miPlay').textContent=on?'❚❚':'▶';
+  cancelAnimationFrame(raf);
+  if(on){
+    if((S.dir>0&&S.year>=END-0.01)||(S.dir<0&&S.year<=START+0.01))S.year=S.dir>0?START:END;
+    lastT=performance.now();raf=requestAnimationFrame(tick);
+  }
+}
+function tick(now){
+  const dt=Math.min(.1,(now-lastT)/1000);lastT=now;
+  let v=3*SPEEDS[S.speedIdx];
+  if(S.opt.slow){
+    let d=1e9;for(const e of pool()){const x=Math.abs(e.t-S.year);if(x<d)d=x;}
+    if(d<0.35)v*=0.18+0.82*(d/0.35);
+  }
+  setYear(S.year+S.dir*v*dt);
+  if((S.dir>0&&S.year>=END)||(S.dir<0&&S.year<=START)){play(false);return;}
+  raf=requestAnimationFrame(tick);
+}
+$('bPlay').onclick=()=>play(!S.playing);
+$('bSpeed').onclick=()=>{S.speedIdx=(S.speedIdx+1)%SPEEDS.length;$('bSpeed').textContent=SPEEDS[S.speedIdx]+'X ▾';};
+$('bDir').onclick=()=>{S.dir*=-1;$('bDir').textContent=S.dir>0?'→ 正放':'← 倒放';};
+const navList=()=>S.thread?THREADS[S.thread].rows.map(r=>byId[r[0]]):pool();
+function stepEvent(d){
+  const p=navList();let i=p.indexOf(S.cur);
+  if(i<0){const n=p.findIndex(x=>x.t>S.year);i=d>0?(n<0?p.length-1:n)-1:(n<0?p.length:n);}
+  // 若年份已越过当前事件较多，向前一步时先回到当前事件
+  if(d<0&&S.year-S.cur.t>0.5){setYear(S.cur.t,true);return;}
+  i=Math.min(p.length-1,Math.max(0,i+d));goEvent(p[i].id);
+}
+$('bPrev').onclick=()=>stepEvent(-1);$('bNext').onclick=()=>stepEvent(1);
+$('jump').onchange=e=>{setYear(+e.target.value+0.01,true);};
+
+/* 选项 */
+const bindOpt=(id,key,fn)=>$(id).addEventListener('change',e=>{S.opt[key]=e.target.checked;fn&&fn();});
+bindOpt('oSlow','slow');
+bindOpt('oBg','bg',()=>$('stage').classList.toggle('nobg',!S.opt.bg));
+bindOpt('oPow','pow',()=>{MAPS.cn.sig='';paintCn();renderPower();});
+bindOpt('oLab','lab',()=>document.querySelectorAll('.plab').forEach(g=>g.classList.toggle('off',!S.opt.lab)));
+bindOpt('oHint','hint',()=>$('hint').classList.toggle('off',!S.opt.hint));
+
+function renderSeg(){$('seg').innerHTML=CATS.map(c=>`<button class="${c===S.cat?'on':''}" data-c="${c}">${c}</button>`).join('');}
+$('seg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.cat=b.dataset.c;renderSeg();tlBuild();renderOverlays();setYear(S.year,true);});
+
+/* 顶部按钮 */
+$('bSide').onclick=()=>{const on=$('app').classList.toggle('noside');$('bSide').textContent=on?'显示边栏':'隐藏边栏';};
+$('bFull').onclick=()=>{
+  try{if(document.fullscreenElement)document.exitFullscreen();else{const p=document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();if(p&&p.catch)p.catch(()=>toast('当前环境不支持全屏'));else if(!p)toast('当前环境不支持全屏');}}catch(_){toast('当前环境不支持全屏');}
+};
+$('bFav').onclick=()=>{const id=S.cur.id;if(favs.has(id)){favs.delete(id);toast('已取消收藏');}else{favs.add(id);toast('已收藏：'+S.cur.short);}saveFavs();renderFavs();};
+$('bShare').onclick=()=>{
+  const e=S.cur,plain=s=>s.replace(/<[^>]+>/g,'');
+  const txt=`【${e.date}】${e.title}\n考点：${e.kp}\n历史背景：${e.bg}\n主要矛盾：${plain(e.mc)}\n关键考点：\n${e.pts.map((p,i)=>`${i+1}. ${plain(p)}`).join('\n')}`;
+  try{navigator.clipboard.writeText(txt).then(()=>toast('考点已复制'),()=>toast('复制失败'));}catch(_){toast('复制失败');}
+};
+
+/* 键盘 */
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='SELECT'||e.target.tagName==='INPUT')return;
+  if(S.present){
+    if(['ArrowRight','PageDown','Enter'].includes(e.key)||e.code==='Space'){e.preventDefault();nextStep();}
+    else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();stepEvent(-1);}
+    else if(e.key==='Escape'){setPresent(false);}
+    return;
+  }
+  if(S.quiz&&['1','2','3'].includes(e.key)){rate(['again','hard','good'][+e.key-1]);return;}
+  if(e.code==='Space'){e.preventDefault();play(!S.playing);}
+  else if(e.key==='ArrowLeft'){e.preventDefault();setYear(S.year-0.25);}
+  else if(e.key==='ArrowRight'){e.preventDefault();setYear(S.year+0.25);}
+});
+
+/* =====================================================================
+   时间轴
+   ===================================================================== */
+const tl=$('tl');
+const V={a:START,b:END};
+const PADX=36;
+const xOf=y=>PADX+(y-V.a)/(V.b-V.a)*(tl.clientWidth-PADX*2);
+const yOfX=x=>V.a+(x-PADX)/(tl.clientWidth-PADX*2)*(V.b-V.a);
+let PH;
+function tlBuild(){
+  let h='';
+  [['上编',1840,1919.3],['中编',1919.3,1949.75],['下编',1949.75,END]].forEach(([n,a,b])=>{
+    const x0=Math.max(xOf(a),0),x1=Math.min(xOf(b),tl.clientWidth);
+    if(x1>x0+4)h+=`<div class="band" style="left:${x0+3}px;width:${x1-x0-10}px">${n}</div>`;
+  });
+  h+='<div class="axis"></div>';
+  const span=V.b-V.a,step=span>120?20:span>60?10:span>25?5:span>10?2:1;
+  for(let y=Math.ceil(V.a/step)*step;y<=V.b;y+=step)h+=`<div class="tk" style="left:${xOf(y)}px">${y}</div>`;
+  EVENTS.forEach(e=>{
+    if(e.t<V.a-1||e.t>V.b+1)return;
+    const inTh=S.thread&&THREADS[S.thread].rows.some(r=>r[0]===e.id);
+    const ms=MST[e.id]?' m-'+MST[e.id].s:'';
+    const cls=(S.thread?(inTh?' th':' dim2'):(matches(e)?'':' dim'))+ms;
+    h+=`<div class="dt${cls}" data-id="${e.id}" style="left:${xOf(e.t)}px;--c:${CATCOL[e.cats[0]]}"></div>`;
+  });
+  h+='<div class="ph" id="ph"></div><div id="lbs"></div>';
+  h+='<div class="tleg">'+Object.entries(CATCOL).map(([k,c])=>`<span><i style="background:${c}"></i>${k}</span>`).join('')+'<span><i class="ring"></i>外圈＝掌握度</span></div>';
+  tl.innerHTML=h;PH=$('ph');
+  tlLabels();tlUpdate();
+}
+function tlLabels(){
+  const box=$('lbs');if(!box)return;
+  const W=tl.clientWidth,rows={a:[],b:[]};
+  const cands=(S.thread?navList():pool()).filter(e=>e.t>=V.a&&e.t<=V.b);
+  const near=e=>S.cur?Math.max(0,8-Math.abs(e.t-S.cur.t)/((V.b-V.a)/45)):0;
+  const pri=e=>(e===S.cur?100:0)+(e.tags.includes('core')?10:0)+(e.tags.includes('hot')?3:0)+near(e);
+  cands.sort((p,q)=>pri(q)-pri(p)||p.t-q.t);
+  const fits=(list,a,b)=>list.every(([x,y])=>b<x-10||a>y+10);
+  let h='';
+  cands.forEach(e=>{
+    const x=xOf(e.t),w=e.short.length*(e===S.cur?13:12)+4,a=x-w/2,b=x+w/2;
+    if(a<2||b>W-2)return;
+    let row=null;
+    if(fits(rows.a,a,b))row='a';else if(fits(rows.b,a,b))row='b';else return;
+    rows[row].push([a,b]);
+    h+=`<div class="lb${e===S.cur?' on':''}" style="left:${x}px;top:${row==='a'?32:86}px">${e.short}</div>`;
+  });
+  box.innerHTML=h;
+  tl.querySelectorAll('.dt').forEach(d=>d.classList.toggle('on',S.cur&&d.dataset.id===S.cur.id));
+}
+function tlUpdate(){if(PH)PH.style.left=xOf(S.year)+'px';}
+// 拖动播放 / 滚轮缩放 / 双指缩放
+const tp=new Map();let tlMoved=0,tlDownId=null;
+tl.addEventListener('pointerdown',e=>{
+  tl.setPointerCapture(e.pointerId);tp.set(e.pointerId,e.clientX);tlMoved=0;
+  tlDownId=e.target.closest('.dt')?e.target.closest('.dt').dataset.id:null;
+  if(tp.size===1){if(!tlDownId)setYear(yOfX(e.clientX-tl.getBoundingClientRect().left));}
+});
+tl.addEventListener('pointermove',e=>{
+  if(!tp.has(e.pointerId))return;
+  const prev=tp.get(e.pointerId);tlMoved+=Math.abs(e.clientX-prev);
+  if(tp.size===1){if(tlMoved>4||!tlDownId)setYear(yOfX(e.clientX-tl.getBoundingClientRect().left));}
+  else if(tp.size===2){
+    const other=[...tp].find(([id])=>id!==e.pointerId)[1],L=tl.getBoundingClientRect().left;
+    const d0=Math.abs(prev-other),d1=Math.abs(e.clientX-other);
+    if(d0>10)zoomTl(yOfX((e.clientX+other)/2-L),d0/d1);
+  }
+  tp.set(e.pointerId,e.clientX);
+});
+const tlEnd=e=>{if(!tp.has(e.pointerId))return;tp.delete(e.pointerId);if(tlDownId&&tlMoved<=4)goEvent(tlDownId);tlDownId=null;};
+tl.addEventListener('pointerup',tlEnd);tl.addEventListener('pointercancel',tlEnd);
+tl.addEventListener('wheel',e=>{e.preventDefault();const L=tl.getBoundingClientRect().left;zoomTl(yOfX(e.clientX-L),e.deltaY>0?1.2:1/1.2);},{passive:false});
+function zoomTl(c,f){
+  let span=Math.min(END-START,Math.max(8,(V.b-V.a)*f));
+  let a=c-(c-V.a)*span/(V.b-V.a);a=Math.max(START,Math.min(END-span,a));
+  V.a=a;V.b=a+span;tlBuild();
+}
+
+/* =====================================================================
+   启动 & 加载真实底图
+   ===================================================================== */
+function loadScript(src,ms){
+  return new Promise((res,rej)=>{
+    const s=document.createElement('script');s.src=src;s.async=true;
+    const t=setTimeout(()=>{rej('timeout');},ms);
+    s.onload=()=>{clearTimeout(t);res();};s.onerror=()=>{clearTimeout(t);rej('error');};
+    document.head.appendChild(s);
+  });
+}
+const GEO={};
+window.echarts={registerMap:(name,json)=>{GEO[name]=json;}};
+
+function fallbackCn(){return [{name:'中国',rings:[MAINLAND]},{name:'台湾',rings:[TAIWAN],cp:[121,23.7]},{name:'海南',rings:[HAINAN],cp:[109.8,19.2]}];}
+
+/* =====================================================================
+   v3：自测 · 间隔复习 · 专题线索 · 课堂模式
+   ===================================================================== */
+function ivFor(id,level){
+  const o=MST[id]||{n:0,iv:0};
+  if(level==='again')return 0;
+  if(level==='hard')return Math.max(1,Math.round((o.iv||1)*1.2));
+  return o.n&&o.iv?Math.max(o.iv+1,Math.round(o.iv*2.5)):3;
+}
+const MSTN={good:['记住','#3fbf8c'],hard:['模糊','#e2b23f'],again:['忘了','#e5534b']};
+function renderMst(){
+  const o=MST[S.cur.id];
+  if(!o){$('mst').innerHTML='<i style="background:#4a515c"></i>未自测';}
+  else{const d=Math.round((o.due-Date.now())/DAY);const when=o.due<=Date.now()?'今天到期':d<1?'今天再练':d+' 天后复习';
+    $('mst').innerHTML=`<i style="background:${MSTN[o.s][1]}"></i>上次：${MSTN[o.s][0]} · ${when}`;}
+  $('ivHard').textContent=ivFor(S.cur.id,'hard')+' 天后';
+  $('ivGood').textContent=ivFor(S.cur.id,'good')+' 天后';
+  $('rateQ').textContent=S.reviewQ?`本轮剩余 ${S.reviewQ.length+1}`:'';
+}
+const dueList=()=>{const now=Date.now();return EVENTS.filter(e=>MST[e.id]&&MST[e.id].due<=now).map(e=>e.id);};
+function renderStudy(){
+  const all=EVENTS.length,cnt={good:0,hard:0,again:0};
+  EVENTS.forEach(e=>{const o=MST[e.id];if(o)cnt[o.s]++;});
+  const learned=cnt.good+cnt.hard+cnt.again,due=dueList().length;
+  $('prog').innerHTML=['good','hard','again'].map(k=>`<i style="width:${cnt[k]/all*100}%;background:${MSTN[k][1]}"></i>`).join('');
+  $('pStat').innerHTML=`已自测 <b>${learned}</b> / ${all} · 记住 ${cnt.good} · 模糊 ${cnt.hard} · 忘了 ${cnt.again}<br>今日到期复习：<b>${due}</b> 个`;
+  $('bReview').textContent=due?`开始复习（${due}）`:'今日无到期';
+}
+function setQuiz(on){
+  S.quiz=on;$('app').classList.toggle('quiz',on);$('bQuiz').classList.toggle('on',on);
+  if(!on)S.reviewQ=null;
+  if(S.cur)renderPanels();
+}
+function rate(level){
+  if(!S.quiz||!S.cur)return;
+  const id=S.cur.id,o=MST[id]||{n:0,iv:0},iv=ivFor(id,level);
+  MST[id]={s:level,n:(o.n||0)+1,iv,due:Date.now()+(iv?iv*DAY:10*60*1000)};
+  saveMst();
+  toast(level==='again'?'已记下：10 分钟后再考一次':`已记下：${iv} 天后复习`);
+  tlBuild();renderStudy();
+  if(S.reviewQ){
+    if(S.reviewQ.length)goEvent(S.reviewQ.shift());
+    else{S.reviewQ=null;toast('本轮复习完成 ✓');renderMst();}
+  }else stepEvent(1);
+}
+document.querySelector('.rate').addEventListener('click',e=>{const b=e.target.closest('button');if(b)rate(b.dataset.r);});
+$('pts').addEventListener('click',e=>{const c=e.target.closest('.cz');if(c)c.classList.add('show');});
+document.querySelector('.mcbox').addEventListener('click',()=>document.querySelector('.mcbox').classList.remove('hid'));
+$('bQuiz').onclick=()=>{setQuiz(!S.quiz);toast(S.quiz?'自测已开启：先回忆，再点空格处揭示，最后自评（键盘 1/2/3）':'已退出自测');};
+$('bReview').onclick=()=>{
+  const q=dueList();if(!q.length){toast('今天没有到期的复习，去学新事件吧');return;}
+  play(false);S.reviewQ=q;setQuiz(true);goEvent(S.reviewQ.shift());
+};
+$('bNew').onclick=()=>{
+  const p=pool(),i=p.indexOf(S.cur);
+  const order=[...p.slice(i+1),...p.slice(0,i+1)];
+  const n=order.find(e=>!MST[e.id]);
+  if(!n){toast('当前分类全部自测过了 🎉');return;}
+  play(false);S.reviewQ=null;setQuiz(true);goEvent(n.id);
+};
+
+/* 专题线索 */
+function openThread(k){
+  const T=THREADS[k];S.thread=T?k:null;$('thSel').value=S.thread||'';
+  $('thSel').classList.toggle('th',!!T);
+  $('thread').classList.toggle('on',!!T);
+  if(T){
+    $('thTitle').textContent=T.t;$('thSub').textContent=T.sub;
+    $('thTable').innerHTML='<thead><tr>'+T.cols.map(c=>`<th>${c}</th>`).join('')+'</tr></thead><tbody>'+
+      T.rows.map(r=>`<tr data-id="${r[0]}">`+r.slice(1).map(c=>`<td>${c}</td>`).join('')+'</tr>').join('')+'</tbody>';
+    try{history.replaceState(null,'','#th-'+k);}catch(_){}
+    tlBuild();
+    if(!T.rows.some(r=>r[0]===S.cur.id))goEvent(T.rows[0][0]);
+  }else{tlBuild();try{history.replaceState(null,'','#'+S.cur.id);}catch(_){}}
+  threadRow();
+}
+function threadRow(){
+  if(!S.thread)return;
+  $('thTable').querySelectorAll('tbody tr').forEach(tr=>{
+    const on=tr.dataset.id===S.cur.id;tr.classList.toggle('on',on);
+    if(on){const box=tr.closest('.th-b'),top=tr.offsetTop-40;if(top<box.scrollTop||top>box.scrollTop+box.clientHeight-60)box.scrollTop=Math.max(0,top);}
+  });
+}
+$('thSel').onchange=e=>openThread(e.target.value);
+$('thClose').onclick=()=>openThread(null);
+$('thTable').addEventListener('click',e=>{const tr=e.target.closest('tr[data-id]');if(tr)goEvent(tr.dataset.id);});
+
+/* 课堂模式：逐条揭示 */
+function applyStep(){
+  const lis=[...$('pts').children],mcb=document.querySelector('.mcbox');
+  mcb.classList.remove('veil');$('mc').classList.toggle('veil',S.present&&S.step<1);
+  lis.forEach((li,i)=>li.classList.toggle('veil',S.present&&S.step<i+2));
+  const total=1+S.cur.pts.length;
+  $('pStep').textContent=S.step<total?`揭示下一条 → （${S.step}/${total}）`:'下一事件 →';
+}
+function nextStep(){
+  const total=1+S.cur.pts.length;
+  if(S.step<total){S.step++;applyStep();}else stepEvent(1);
+}
+function setPresent(on){
+  S.present=on;$('app').classList.toggle('present',on);$('bPresent').classList.toggle('on',on);
+  $('bPresent').textContent=on?'退出课堂':'课堂模式';
+  if(on){play(false);S.step=0;toast('课堂模式：→ / 空格 逐条揭示，← 上一事件，Esc 退出');}
+  applyStep();
+  setTimeout(()=>{tlBuild();zooms.cn&&zooms.cn.apply(false);},400);
+}
+$('bPresent').onclick=()=>setPresent(!S.present);
+$('pStep').onclick=nextStep;$('pPrev').onclick=()=>stepEvent(-1);$('pNext').onclick=()=>stepEvent(1);$('pExit').onclick=()=>setPresent(false);
+$('lcard').addEventListener('click',e=>{if(S.present&&!e.target.closest('button'))nextStep();});
+
+
+/* =====================================================================
+   v5：手机 App 外壳
+   ===================================================================== */
+const isMobile=()=>matchMedia('(max-width:599px), (max-height:500px) and (max-width:1000px)').matches;
+function renderMobile(){
+  const e=S.cur;if(!e)return;
+  $('miDate').textContent=e.date;$('miTitle').textContent=e.title;$('miSum').textContent=e.sum;
+  const p=navList(),i=p.indexOf(e);
+  $('cPos').textContent=i<0?e.y:`${i+1} / ${p.length}`;
+  $('tabBadge').dataset.n=dueList().length;
+  $('thList').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===S.thread));
+}
+function setView(v){
+  $('app').dataset.view=v;document.body.dataset.view=v;
+  $('tabbar').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  window.scrollTo(0,0);
+  if(v==='map'){requestAnimationFrame(()=>{tlBuild();zooms.cn&&zooms.cn.apply(false);zooms.eu&&zooms.eu.apply(false);});}
+  if(v==='thread'&&!S.thread)openThread(Object.keys(THREADS)[0]);
+  if(v!=='map'&&S.playing)play(false);
+}
+function measure(){
+  const h=document.querySelector('header').offsetHeight;
+  document.documentElement.style.setProperty('--hh',h+'px');
+}
+$('tabbar').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setView(b.dataset.v);});
+$('miGo').onclick=()=>setView('card');
+$('miPlay').onclick=()=>play(!S.playing);
+$('cPrev').onclick=()=>stepEvent(-1);$('cNext').onclick=()=>stepEvent(1);
+$('thList').innerHTML='<p>选择一条专题线索，表格里点任意一行可跳到对应事件</p>'+Object.entries(THREADS).map(([k,T])=>`<button data-k="${k}">${T.t}</button>`).join('');
+$('thList').addEventListener('click',e=>{const b=e.target.closest('button');if(b){openThread(b.dataset.k);renderMobile();}});
+$('thTable').addEventListener('click',()=>{if(isMobile())setTimeout(()=>setView('card'),120);});
+/* 考点卡片左右滑动切换 */
+(()=>{let x0=null,y0=0;const c=$('lcard');
+  c.addEventListener('touchstart',e=>{if(!isMobile())return;x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+  c.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;x0=null;
+    if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.5)stepEvent(dx<0?1:-1);},{passive:true});
+})();
+window.addEventListener('resize',measure);
+function init(){
+  buildCn(fallbackCn());buildEu(EU_FALLBACK.map(r=>({rings:[r]})));
+  zooms.cn=makeZoom(MAPS.cn.svg,'cn');zooms.eu=makeZoom(MAPS.eu.svg,'eu');
+  renderSeg();renderFavs();
+  const hid=(location.hash||'').slice(1);
+  if(byId[hid]){if(!matches(byId[hid]))S.cat='全部';renderSeg();}
+  tlBuild();
+  setYear(byId[hid]?byId[hid].t:byId.e1840.t,true);
+  $('thSel').innerHTML='<option value="">专题线索 ▾</option>'+Object.entries(THREADS).map(([k,T])=>`<option value="${k}">${T.t}</option>`).join('');
+  if(hid.startsWith('th-')&&THREADS[hid.slice(3)])openThread(hid.slice(3));
+  const base='https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/js/';
+  loadScript(base+'china.js',9000).then(()=>{
+    if(!GEO.china)throw 'nodata';
+    S.real=true;buildCn(geoFeatures(GEO.china));
+    document.querySelectorAll('.plab').forEach(g=>g.classList.toggle('off',!S.opt.lab));
+    MAPS.cn.sig='';paintCn();renderOverlays();renderMapTitle();renderPower();
+    $('loadNote').textContent='';
+  }).catch(()=>{$('loadNote').textContent='省级底图加载失败，已使用示意轮廓';setTimeout(()=>$('loadNote').textContent='',4000);});
+  loadScript(base+'world.js',12000).then(()=>{
+    if(!GEO.world)return;buildEu(geoFeatures(GEO.world));
+    document.querySelectorAll('.plab').forEach(g=>g.classList.toggle('off',!S.opt.lab));
+    renderOverlays();
+  }).catch(()=>{});
+}
+document.getElementById('app').dataset.view='map';document.body.dataset.view='map';
+init();
+measure();setTimeout(measure,300);
+/* 独立部署时注册离线缓存（在 claude.ai 预览里会被忽略） */
+try{if('serviceWorker' in navigator&&document.querySelector('link[rel=manifest]'))navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(_){}
+let rT;window.addEventListener('resize',()=>{clearTimeout(rT);rT=setTimeout(()=>{tlBuild();},120);});
+</script>
+</body>
+</html>
