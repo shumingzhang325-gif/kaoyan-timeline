@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0b0d12">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="政治时空轴">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>考研政治 · 可视化时间轴</title>
@@ -403,7 +403,7 @@ header{padding:10px 18px 10px;border-bottom:1px solid var(--line);background:lin
   .mtitle{display:none}
 }
 /* ===== v7：图解面板 ===== */
-.kb{display:none;position:absolute;inset:12px;z-index:8;background:#0c0e13;border:1px solid #2b3240;border-radius:12px;overflow:hidden;grid-template-columns:250px minmax(0,1fr)}
+.kb{display:none;position:absolute;inset:12px;z-index:8;background:#0c0e13;overflow:clip!important;border:1px solid #2b3240;border-radius:12px;overflow:hidden;grid-template-columns:250px minmax(0,1fr)}
 .app.kbon .kb{display:grid}
 .kb-l{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
 .kb-lh{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}
@@ -570,6 +570,45 @@ table.cmp{width:100%;border-collapse:separate;border-spacing:0 6px;font-size:13p
   .bk span{grid-column:2}
   .cmp td,.cmp th{padding:7px 7px;font-size:12px}
   #bKb{display:none}
+}
+/* ===== v8：平板适配修正 ===== */
+/* 1. 主屏幕全屏模式：顶部避开状态栏，底部避开横条 */
+header{padding-top:max(10px,calc(env(safe-area-inset-top) + 8px))!important;padding-left:max(18px,env(safe-area-inset-left));padding-right:max(18px,env(safe-area-inset-right))}
+.tl{padding-bottom:env(safe-area-inset-bottom)}
+/* 2. 打开图解时：隐藏时间轴与底部提示，图解占满；背后的卡片不再露边 */
+@media (min-width:600px) and (min-height:501px){
+  .app.kbon .tl,.app.kbon .hint{display:none!important}
+  .app.kbon .lcard,.app.kbon .rcol,.app.kbon .thread,.app.kbon .zoom,.app.kbon .mini{visibility:hidden}
+  .app.kbon .kb{inset:12px 12px calc(12px + env(safe-area-inset-bottom)) 12px}
+  .kb-top h2{font-size:25px}
+  .kb-pts li{font-size:15px}
+  .pc span{font-size:14px}
+}
+/* 3a. 横屏（平板横放 / 电脑）：图解左、考点右，一屏看完 */
+@media (min-width:1024px) and (min-height:501px){
+  .kb-r{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,1fr);grid-template-rows:auto auto auto auto 1fr;column-gap:22px;align-content:start}
+  .kb-top{grid-column:1 / 3;grid-row:1}
+  .kb-fig{grid-column:1;grid-row:2 / 6;align-self:start;margin-top:14px}
+  .kb-r>.kph{grid-column:2;grid-row:2;margin-top:16px}
+  .kb-pts{grid-column:2;grid-row:3}
+  .kb-rate{grid-column:2;grid-row:4}
+  .kb .pairs{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+  svg.fig{max-height:calc(100dvh - 250px)}
+}
+/* 3b. 竖屏平板：目录改成顶部横向标签，内容占满宽度 */
+@media (min-width:600px) and (max-width:1023px) and (min-height:501px){
+  .kb{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto minmax(0,1fr)}
+  .kb-l,.kb-r{min-width:0}
+  .kb-l{border-right:0;border-bottom:1px solid var(--line);min-height:auto}
+  .kb-lh{padding:10px 14px}
+  .kb-list{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;padding:10px 12px;scrollbar-width:none}
+  .kb-list::-webkit-scrollbar{display:none}
+  .kb-g{display:none}
+  .kb-list button{flex:none;width:auto;white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:9px 14px;font-size:14px}
+  .kb-r{padding:18px 20px 28px}
+  .kb .pairs{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .pc{min-height:92px}
+  svg.fig{max-height:52vh}
 }
 </style>
 </head>
@@ -2343,7 +2382,11 @@ function openCard(id,auto=true){
   $('kbHard').textContent=ivFor(c.id,'hard')+' 天后';$('kbGood').textContent=ivFor(c.id,'good')+' 天后';
   const i=CARDS.indexOf(c);$('kbPos').textContent=`${i+1} / ${CARDS.length}`;
   renderKbList();
-  const btn=$('kbList').querySelector(`[data-id="${c.id}"]`);if(btn)btn.scrollIntoView({block:'nearest'});
+  const L=$('kbList'),btn=L.querySelector(`[data-id="${c.id}"]`);
+  if(btn){const horiz=getComputedStyle(L).flexWrap==='nowrap'&&getComputedStyle(L).display==='flex';
+    if(horiz)L.scrollLeft=btn.offsetLeft-L.clientWidth/2+btn.offsetWidth/2;
+    else{const t=btn.offsetTop-L.offsetTop;if(t<L.scrollTop||t>L.scrollTop+L.clientHeight-40)L.scrollTop=t-L.clientHeight/3;}}
+  $('kb').scrollLeft=0;$('kb').scrollTop=0;
   $('kbScroll').scrollTop=0;
   if(auto)requestAnimationFrame(()=>kbPlay&&kbPlay(figToken));
 }
@@ -2357,7 +2400,7 @@ function rateCard(level){
   else kbStep(1);
 }
 function goItem(id){if(id[0]==='k'){if(isMobile())setView('kb');openCard(id);}else{if($('app').classList.contains('kbon'))closeKb();if(isMobile())setView('card');goEvent(id);}}
-$('kbList').addEventListener('click',e=>{const b=e.target.closest('button');if(b){openCard(b.dataset.id);if(isMobile())$('kbScroll').scrollIntoView({block:'start'});}});
+$('kbList').addEventListener('click',e=>{const b=e.target.closest('button');if(b){openCard(b.dataset.id);if(isMobile())window.scrollTo({top:0,behavior:'smooth'});}});
 $('kbReplay').onclick=()=>{figToken++;const t=figToken;kbPlay&&kbPlay(t);};
 $('kbPrev').onclick=()=>kbStep(-1);$('kbNext').onclick=()=>kbStep(1);
 $('kbClose').onclick=closeKb;
