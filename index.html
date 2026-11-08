@@ -402,6 +402,175 @@ header{padding:10px 18px 10px;border-bottom:1px solid var(--line);background:lin
   .tl .band,.tl .tleg{display:none}
   .mtitle{display:none}
 }
+/* ===== v7：图解面板 ===== */
+.kb{display:none;position:absolute;inset:12px;z-index:8;background:#0c0e13;border:1px solid #2b3240;border-radius:12px;overflow:hidden;grid-template-columns:250px minmax(0,1fr)}
+.app.kbon .kb{display:grid}
+.kb-l{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.kb-lh{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}
+.kb-lh b{font-size:13px;color:var(--gold2)}
+.kb-lh button{width:30px;height:30px;border-radius:7px;border:1px solid var(--line);color:var(--dim)}
+.kb-list{overflow-y:auto;padding:6px 8px 14px;scrollbar-width:thin;scrollbar-color:#2a3140 transparent}
+.kb-g{font-size:11px;color:var(--dim);letter-spacing:.08em;margin:12px 6px 5px}
+.kb-list button{display:flex;align-items:center;gap:8px;width:100%;text-align:left;font-size:13px;padding:8px 9px;border-radius:7px;color:#cfd5de;line-height:1.35}
+.kb-list button:hover{background:#151a22}
+.kb-list button.on{background:rgba(217,168,69,.12);color:var(--gold2)}
+.kb-list i{width:7px;height:7px;border-radius:50%;flex:none}
+.kb-r{overflow-y:auto;padding:16px 22px 26px;scrollbar-width:thin;scrollbar-color:#2a3140 transparent}
+.kb-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.kb-top span#kbG{font-size:11px;color:var(--gold);letter-spacing:.1em}
+.kb-top h2{font-size:22px;margin:4px 0 4px}
+.kb-top em{font-style:normal;font-size:11.5px;color:var(--dim);margin-right:10px}
+.kb-nav{display:flex;align-items:center;gap:6px;flex:none}
+.kb-nav button{height:34px;min-width:34px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:#141821;font-size:14px}
+.kb-nav span{font-size:12px;color:var(--dim);min-width:46px;text-align:center}
+.kb-nav .kb-replay{border-color:#6d5422;color:var(--gold2);background:rgba(217,168,69,.1);font-size:12.5px}
+.kb-fig{margin:14px 0 6px;padding:12px;border:1px solid var(--line);border-radius:12px;background:radial-gradient(ellipse at 50% 40%,#151b25,#0d1016);min-height:200px}
+.kb-pts{list-style:none}
+.kb-pts li{font-size:14px;line-height:1.75;color:#dfe4ea;padding-left:16px;position:relative;margin-bottom:6px}
+.kb-pts li::before{content:"";position:absolute;left:3px;top:.75em;width:4px;height:4px;border-radius:50%;background:var(--gold)}
+.kb-pts li b{color:var(--gold2);font-weight:600}
+.kb-rate{margin-top:12px;border:1px solid var(--line);border-radius:10px}
+.hbtn#bKb.on{border-color:var(--gold);color:var(--gold2)}
+/* svg 图 */
+svg.fig{width:100%;height:auto;display:block;max-height:420px}
+svg.fig text{font-family:inherit}
+.fx-t{font-size:13px;font-weight:700;fill:#eef1f5}
+.fx-s{font-size:11px}
+.fx-lt{font-size:10.5px;fill:#c3cad3}
+.fx-link{stroke:#9aa2af;stroke-width:1.4;fill:none}
+.fx-link.bad{stroke:#e0665f;stroke-dasharray:4 3}
+.fx-cross{stroke:#e0665f;stroke-width:2.2;stroke-dasharray:400;stroke-dashoffset:400;transition:stroke-dashoffset .6s .35s}
+.fx-on .fx-cross{stroke-dashoffset:0}
+.fx{opacity:0;transition:opacity .45s,transform .45s}
+.fx-node{transform:scale(.85)}
+.fx.fx-on{opacity:1;transform:none}
+.fx-link{stroke-dasharray:900;stroke-dashoffset:900;transition:stroke-dashoffset .7s,opacity .2s}
+.fx-link.fx-on{stroke-dashoffset:0}
+.fx-link.bad.fx-on{stroke-dasharray:4 3}
+/* pairs */
+.pairs{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:9px}
+.pc{position:relative;min-height:78px;border-radius:10px;perspective:700px;text-align:left;padding:0}
+.pc span{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:10px 12px;border-radius:10px;backface-visibility:hidden;-webkit-backface-visibility:hidden;transition:transform .5s;font-size:13px;line-height:1.45}
+.pf{background:#141a24;border:1px solid #2b3342;color:#d6dce4}
+.pf::after{content:"点击翻面";font-size:10px;color:var(--faint);margin-top:4px}
+.pb{background:rgba(217,168,69,.12);border:1px solid #6d5422;color:var(--gold2);font-weight:700;transform:rotateY(180deg)}
+.pb small{font-weight:400;color:#aab2bd;font-size:10.5px;margin-bottom:3px}
+.pc.flip .pf{transform:rotateY(-180deg)}.pc.flip .pb{transform:rotateY(0)}
+.pc.warn .pb{background:rgba(208,71,63,.12);border-color:#7a3430;color:#f08a83}
+/* compare */
+table.cmp{width:100%;border-collapse:separate;border-spacing:0 6px;font-size:13px}
+.cmp th{font-size:13px;padding:6px 10px;text-align:left}
+.cmp th.ca{color:#6f9be6}.cmp th.cb{color:var(--gold2)}
+.cmp td{padding:9px 10px;background:#121821;color:#d0d6de;line-height:1.55;vertical-align:top}
+.cmp td:first-child{color:var(--dim);white-space:nowrap;border-radius:8px 0 0 8px;font-size:12px}
+.cmp td:last-child{border-radius:0 8px 8px 0}
+.cmp td b{color:var(--gold2)}
+.fxr{opacity:0;transform:translateX(-14px);transition:opacity .4s,transform .4s}
+.fxr.in{opacity:1;transform:none}
+/* books */
+.books{position:relative;padding-left:22px}
+.books::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:linear-gradient(#5b8fd9,#d9a845)}
+.bk{position:relative;display:grid;grid-template-columns:62px 170px 1fr;gap:10px;align-items:baseline;padding:7px 0;opacity:0;transform:translateY(8px);transition:.4s}
+.bk.in{opacity:1;transform:none}
+.bk i{position:absolute;left:-19px;top:12px;width:10px;height:10px;border-radius:50%;background:#5b8fd9;border:2px solid #0d1016}
+.bk em{font-style:normal;font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.bk b{font-size:13.5px;color:#fff}
+.bk span{font-size:12.5px;color:#c3cad3}
+/* nested */
+.n-out{fill:rgba(75,119,201,.1);stroke:#6f9be6;stroke-width:1.4;stroke-dasharray:440;stroke-dashoffset:440;transition:stroke-dashoffset .6s}
+.n-ot{font-size:13px;font-weight:700;fill:#6f9be6;opacity:0;transition:opacity .4s}
+.n-ic{fill:rgba(217,168,69,.2);stroke:#d9a845;stroke-width:1.4}
+.n-it{font-size:13px;font-weight:700;fill:#f1c766}
+.n-in{opacity:0;transform:scale(.3);transition:opacity .4s,transform .45s cubic-bezier(.3,1.5,.6,1)}
+.nest.on .n-out{stroke-dashoffset:0}.nest.on .n-ot{opacity:1}
+.nest.on2 .n-in{opacity:1;transform:none}
+/* cycle */
+.cyc-track{fill:none;stroke:#2b3342;stroke-width:10;stroke-linecap:round}
+.cyc-run{fill:none;stroke:#d9a845;stroke-width:1.5;stroke-dasharray:6 6;animation:dash 1.2s linear infinite}
+.cyc-dot{fill:#fff6d8;stroke:#f1c766;stroke-width:2;filter:drop-shadow(0 0 6px rgba(241,199,102,.9))}
+/* money */
+.mrow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.mc{display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px 6px;border-radius:10px;background:#141a24;border:1px solid #2b3342;opacity:0;transform:translateY(10px);transition:.35s}
+.mc.in{opacity:1;transform:none}
+.mc b{font-size:14px;color:var(--gold2)}.mc span{font-size:11px;color:#aab2bd;text-align:center}
+.mc.ok{border-color:#3fbf8c;background:rgba(52,163,122,.15)}.mc.no{border-color:#e5534b;background:rgba(208,71,63,.12)}
+.mq{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;padding:10px 12px;border-radius:9px;background:#10141b;font-size:13px}
+.mq span{color:var(--dim)}.mq b{color:#fff}.mq em{font-style:normal;color:var(--gold2);margin-left:auto}
+.mq button{height:30px;padding:0 10px;border:1px solid var(--line);border-radius:7px;font-size:12px}
+/* surplus */
+.sp-bar{fill:rgba(75,119,201,.35);stroke:#6f9be6;transition:width .8s}
+.sp-soc{stroke:#f1c766;stroke-width:2;stroke-dasharray:5 4;transition:x1 .8s,x2 .8s}
+.sp-gap{fill:rgba(52,163,122,.35);stroke:#45c08e;transition:width .6s}
+.sp-gt{transition:opacity .4s}
+.sp-nec{fill:#3a5163;transition:width .8s}.sp-sur{fill:#8a3a34;transition:x .8s,width .8s}
+/* productivity */
+.prod label{display:flex;align-items:center;gap:12px;font-size:13px;color:#cfd5de;margin-bottom:12px}
+.prod label b{color:var(--gold2);min-width:28px}
+.prod input[type=range]{flex:1;accent-color:var(--gold)}
+.prow{display:grid;grid-template-columns:96px 1fr 60px;align-items:center;gap:10px;margin:10px 0;font-size:12.5px;color:var(--dim)}
+.pq{display:flex;flex-wrap:wrap;gap:4px;grid-column:2 / 4}
+.pq i{width:16px;height:16px;border-radius:4px;background:#d9a845;animation:pop .3s}
+@keyframes pop{from{transform:scale(0)}}
+.pbarw{height:14px;background:#1d222b;border-radius:7px;overflow:hidden}
+.pbarw i{display:block;height:100%;background:linear-gradient(90deg,#6f9be6,#45c08e);transition:width .5s}
+.prow em{font-style:normal;color:#fff;font-size:12px}
+.pnote{font-size:12.5px;color:var(--gold2);margin-top:8px}
+/* bakery */
+.bk-row{display:grid;grid-template-columns:110px 1fr;align-items:center;gap:10px;margin:8px 0;font-size:12.5px;color:var(--dim)}
+.bk-row div{display:flex;gap:6px;flex-wrap:wrap;min-height:34px}
+.ov,.bp{width:32px;height:32px;border-radius:8px;display:inline-block;animation:pop .35s}
+.ov{background:#6e5532;box-shadow:inset 0 -8px 0 #b48a3a}
+.bp{background:#3a5163;border-radius:50% 50% 8px 8px}
+.bk-bar{display:flex;height:22px;border-radius:6px;overflow:hidden;margin:14px 0 8px}
+.bk-bar i{display:block;transition:width .6s}
+#bc{background:#b48a3a}#bv{background:#4b77c9}
+.bk-r{font-size:13px;color:#cfd5de}.bk-r b{color:var(--gold2)}
+.bk-up{margin-top:12px;height:34px;padding:0 14px;border-radius:8px;border:1px solid #6d5422;color:var(--gold2);background:rgba(217,168,69,.1);font-size:13px}
+/* avg profit */
+.ap-bar{transition:none}.ap-avg{stroke:#f1c766;stroke-width:2;stroke-dasharray:6 5;transition:opacity .5s}.ap-at{transition:opacity .5s}
+.ap-p{fill:#f1c766}
+/* calc */
+.cin{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.cin label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--dim)}
+.cin input{height:36px;border-radius:8px;border:1px solid var(--line);background:#0e1117;color:#fff;font-size:15px;padding:0 10px;width:100%;font-family:inherit}
+.cin label span{display:flex;align-items:center;gap:6px;color:#fff}
+.cout{margin:12px 0;padding:10px 12px;border-radius:9px;background:#10141b;font-size:13.5px;line-height:1.9;color:#cfd5de;font-variant-numeric:tabular-nums}
+.cout b{color:var(--gold2)}
+.cdh{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12.5px;color:var(--dim)}
+.cdh button{height:30px;padding:0 10px;border-radius:7px;border:1px solid var(--line);font-size:12px;color:#cfd5de}
+.cdh button.on{border-color:var(--gold);color:var(--gold2)}
+.cbar{display:flex;height:30px;margin:10px 0 6px;border-radius:6px;overflow:hidden;background:#1d222b}
+.cbar i{display:flex;align-items:center;justify-content:center;font-style:normal;font-size:12px;color:#fff;transition:width .6s;white-space:nowrap;overflow:hidden}
+#dn{background:#3a5163}#ds{background:#8a3a34}
+.cdr{font-size:13px;color:#cfd5de}.cdr b{color:var(--gold2)}
+/* 地图路线动画 */
+.route .rtd{stroke-dasharray:none!important;animation:none!important}
+.route .mover{fill:#fff;stroke:#ff6b57;stroke-width:1.5;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 4px #ff6b57)}
+.prov path{transition:fill .7s var(--d,0s),stroke .4s}
+@media (min-width:600px) and (max-width:1023px) and (min-height:501px){
+  .kb{grid-template-columns:200px minmax(0,1fr)}
+}
+@media (max-width:599px), (max-height:500px) and (max-width:1000px){
+  .kb,.app.kbon .kb{display:none!important}
+  .app[data-view=kb] .kb{display:block!important;position:static;margin:calc(var(--hh) + 10px) 10px calc(var(--tab) + 20px + var(--sb));border-radius:12px;overflow:visible}
+  .kb-l{border-right:0;border-bottom:1px solid var(--line)}
+  .kb-lh button{display:none}
+  .kb-list{display:flex;gap:6px;overflow-x:auto;padding:8px;flex-wrap:nowrap}
+  .kb-g{display:none}
+  .kb-list button{flex:none;width:auto;white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:7px 11px;font-size:12.5px}
+  .kb-r{overflow:visible;padding:14px 12px 18px}
+  .kb-top{flex-direction:column;gap:10px}
+  .kb-top h2{font-size:19px}
+  .kb-fig{padding:8px}
+  .pairs{grid-template-columns:1fr 1fr}
+  .pc{min-height:84px}
+  .mrow{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .cin{grid-template-columns:1fr}
+  .bk{grid-template-columns:52px 1fr;}
+  .bk span{grid-column:2}
+  .cmp td,.cmp th{padding:7px 7px;font-size:12px}
+  #bKb{display:none}
+}
 </style>
 </head>
 <body>
@@ -417,6 +586,7 @@ header{padding:10px 18px 10px;border-bottom:1px solid var(--line);background:lin
       <button class="hbtn icon" id="bFav" title="收藏当前事件"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg></button>
       <button class="hbtn icon" id="bShare" title="复制考点"><svg viewBox="0 0 24 24"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4M8.2 13.2l7.6 4"/></svg></button>
       <button class="hbtn icon" id="bFull" title="全屏"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+      <button class="hbtn" id="bKb" title="马原 / 政经 / 时政法治 图解动画">图解 · 马原</button>
       <button class="hbtn" id="bPresent" title="大字号、逐条揭示，适合投屏讲课">课堂模式</button>
       <button class="hbtn" id="bSide">隐藏边栏</button>
     </div>
@@ -459,6 +629,18 @@ header{padding:10px 18px 10px;border-bottom:1px solid var(--line);background:lin
       </div>
     </div>
 
+    <div class="kb" id="kb">
+      <div class="kb-l"><div class="kb-lh"><b>图解 · 马原 / 政经 / 其他</b><button id="kbClose" title="关闭">✕</button></div><div class="kb-list" id="kbList"></div></div>
+      <div class="kb-r" id="kbScroll">
+        <div class="kb-top"><div><span id="kbG"></span><h2 id="kbTitle"></h2><em id="kbKp"></em><span class="mst" id="kbMst"></span></div>
+          <div class="kb-nav"><button id="kbPrev">‹</button><span id="kbPos"></span><button id="kbNext">›</button><button class="kb-replay" id="kbReplay">▶ 重播动画</button></div></div>
+        <div class="kb-fig" id="kbFig"></div>
+        <div class="kph">关键考点</div>
+        <ul class="kb-pts" id="kbPts"></ul>
+        <div class="rate kb-rate" id="kbRate"><div class="q"><span>回忆得怎么样？</span></div><div class="bs">
+          <button class="again" data-r="again">忘了<small>10 分钟后</small></button><button class="hard" data-r="hard">模糊<small id="kbHard">1 天后</small></button><button class="good" data-r="good">记住<small id="kbGood">3 天后</small></button></div></div>
+      </div>
+    </div>
     <div class="thread" id="thread"><div class="th-h"><b id="thTitle"></b><span id="thSub"></span><button id="thClose">关闭 ×</button></div><div class="th-b"><table id="thTable"></table></div></div>
 
     <aside class="lcard fade" id="lcard">
@@ -532,7 +714,7 @@ header{padding:10px 18px 10px;border-bottom:1px solid var(--line);background:lin
     <span><b>空格</b> 暂停/播放</span>·<span><b>←/→</b> 连续微调</span>·<span><b>拖拽</b> 平移地图</span><span><b>滚轮</b> 缩放（不干预自动播放）</span>·<span><b>时间轴</b> 拖动播放 / 滚轮缩放</span>
   </div>
 </div>
-<nav class="tabbar" id="tabbar"><button data-v="map" class="on"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>时空轴</button><button data-v="card"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>考点</button><button data-v="thread"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h13"/><circle cx="19" cy="12" r="1.5"/></svg>专题</button><button data-v="study"><span class="badge" id="tabBadge" data-n="0"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7v5l3 2"/><path d="M17 3h4v4"/></svg></span>复习</button><button data-v="more"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>设置</button></nav>
+<nav class="tabbar" id="tabbar"><button data-v="map" class="on"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>时空轴</button><button data-v="card"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>考点</button><button data-v="thread"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h13"/><circle cx="19" cy="12" r="1.5"/></svg>专题</button><button data-v="kb"><svg viewBox="0 0 24 24"><circle cx="6" cy="7" r="3"/><circle cx="18" cy="7" r="3"/><circle cx="12" cy="18" r="3"/><path d="M8.5 8.5 11 16M15.5 8.5 13 16M9 7h6"/></svg>图解</button><button data-v="study"><span class="badge" id="tabBadge" data-n="0"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7v5l3 2"/><path d="M17 3h4v4"/></svg></span>复习</button><button data-v="more"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>设置</button></nav>
 <div class="cnav" id="cnav"><button id="cPrev">‹ 上一个</button><span id="cPos"></span><button id="cNext">下一个 ›</button></div>
 <div class="toast" id="toast"></div>
 
@@ -1043,6 +1225,76 @@ const PTS_V4={
 };
 Object.entries(PTS_V4).forEach(([id,arr])=>{const e=EVENTS.find(x=>x.id===id);if(e)e.pts.push(...arr);});
 
+/* ---------- v7 新增事件 / 考点 / 行军路线 ---------- */
+EVENTS.push(
+{id:'e1839',y:1839,m:6,date:'1839年6月',short:'虎门销烟',title:'林则徐虎门销烟',sum:'“睁眼看世界”的第一人。',map:'cn',places:[['虎门',113.67,22.82]],cats:['史纲'],kp:'史纲·上编｜向西方学习',
+ bg:'林则徐在虎门海滩当众销毁收缴的鸦片。他主持编译《四洲志》，介绍世界各国概况。',mc:'中国人民与外国资本主义鸦片侵略的矛盾。',
+ pts:['林则徐：《四洲志》，近代<b>“睁眼看世界”的第一人</b>','向西方学习四人对应：林则徐《四洲志》、魏源《海国图志》、郑观应《盛世危言》、严复（救亡图存）'],tags:['hot'],rel:[['e1840','cause']]},
+{id:'e1844',y:1844,m:2,date:'1844年2月',short:'《德法年鉴》',title:'《德法年鉴》出版',sum:'完成两个转变。',map:'eu',places:[['巴黎',2.35,48.86]],cats:['马原'],kp:'马原·经典著作',
+ bg:'马克思在巴黎参与编辑出版《德法年鉴》，发表《〈黑格尔法哲学批判〉导言》等文章。',mc:'德国落后的封建制度与资产阶级、无产阶级发展要求的矛盾。',
+ pts:['马克思完成<b>从唯心主义向唯物主义</b>、<b>从革命民主主义向共产主义</b>的转变','为创立马克思主义奠定了<b>思想前提</b>','1845年《神圣家族》是马恩<b>合著的第一部</b>著作'],tags:['hot'],rel:[['e1845','push']]},
+{id:'e1846',y:1846,m:1,date:'1845—1846年',short:'《德意志意识形态》',title:'《德意志意识形态》',sum:'首次系统阐述历史唯物主义。',map:'eu',places:[['布鲁塞尔',4.35,50.85]],cats:['马原'],kp:'马原·经典著作',
+ bg:'马克思和恩格斯在布鲁塞尔合写《德意志意识形态》，清算以往的哲学信仰。',mc:'唯心史观与现实物质生产实践的矛盾。',
+ pts:['<b>首次系统阐述了历史唯物主义</b>的基本观点'],tags:['hot'],rel:[['e1845','push'],['e1848','push']]},
+{id:'e1875',y:1875,m:5,date:'1875年',short:'《哥达纲领批判》',title:'《哥达纲领批判》',sum:'对未来社会的原则构想。',map:'eu',places:[['伦敦',-0.13,51.51]],cats:['马原'],kp:'马原·科学社会主义',
+ bg:'马克思批判德国工人党纲领草案中的错误观点。',mc:'工人运动中科学社会主义与机会主义的矛盾。',
+ pts:['对未来社会的<b>制度、发展阶段以及分配</b>等方面作了原则构想','提出共产主义社会两个阶段的划分'],tags:['hot'],rel:[['e1871','push'],['e1878','push']]},
+{id:'e1878',y:1878,m:7,date:'1878年',short:'《反杜林论》',title:'《反杜林论》',sum:'马克思主义的“百科全书”。',map:'eu',places:[['伦敦',-0.13,51.51]],cats:['马原'],kp:'马原·经典著作',
+ bg:'恩格斯在批判杜林的过程中，全面阐述马克思主义理论体系。',mc:'科学社会主义与小资产阶级社会主义思潮的矛盾。',
+ pts:['<b>全面阐述了马克思主义理论体系</b>','被称为马克思主义的<b>“百科全书”</b>'],tags:['hot'],rel:[['e1875','push']]},
+{id:'e1918',y:1918,m:6,date:'1918年',short:'战时共产主义',title:'苏俄战时共产主义政策',sum:'余粮收集制。',map:'eu',places:[['莫斯科',37.62,55.75]],cats:['马原'],kp:'国际共运',
+ bg:'国内战争和外国武装干涉时期，苏俄实行战时共产主义政策。',mc:'新生苏维埃政权与国内外敌对势力的矛盾。',
+ pts:['<b>余粮收集制</b>，取消商品货币关系','目的：更好地<b>供给军队作战</b>'],tags:[],rel:[['e1917','cause'],['e1921n','cause']]},
+{id:'e1921n',y:1921,m:3,date:'1921年3月',short:'新经济政策',title:'列宁新经济政策',sum:'恢复商品货币关系。',map:'eu',places:[['莫斯科',37.62,55.75]],cats:['马原'],kp:'国际共运',
+ bg:'俄共（布）十大决定以新经济政策代替战时共产主义。',mc:'战后恢复经济的需要与战时共产主义政策的矛盾。',
+ pts:['<b>粮食税</b>代替余粮收集制','部分恢复私营经济，实行<b>租让制、租借制</b>（国家资本主义）','恢复<b>商品货币关系</b>，允许自由贸易；主要特征是<b>发展商品经济</b>'],tags:['hot'],rel:[['e1918','cause']]},
+{id:'e1946a',y:1946,m:1,date:'1946年1月',short:'旧政协',title:'重庆政治协商会议',sum:'不是新民主主义性质。',map:'cn',places:[['重庆',106.55,29.56]],cats:['史纲'],kp:'史纲·中编｜多党合作',
+ bg:'国共两党和各党派代表在重庆召开政治协商会议，通过政府组织案、和平建国纲领等五项协议。',mc:'中国人民要求和平民主与国民党独裁内战政策的矛盾。',
+ pts:['政协协议<b>还不是新民主主义性质</b>的','但有利于冲破蒋介石独裁统治、实行民主政治，有利于和平建国','【易错】1949 年新政协才是以工农联盟为基础的人民民主统一战线组织形式'],tags:['hot'],rel:[['e1945','cause'],['e1946','block']]},
+{id:'e1949b',y:1949,m:4,date:'1949年4月21日',short:'渡江战役',title:'渡江战役 · 南京解放',sum:'国民党统治覆灭。',map:'cn',places:[['南京',118.78,32.06]],cats:['史纲'],kp:'史纲·中编｜解放战争',
+ routes:[{n:'中集团',pts:[['安庆',117.05,30.52],['芜湖',118.38,31.33],['南京',118.78,32.06]]},{n:'东集团',pts:[['江阴',120.28,31.92],['常州',119.95,31.78],['南京',118.78,32.06]],d:500}],
+ bg:'人民解放军在千里江面发起渡江战役，4月23日解放南京。',mc:'中国人民同国民党反动派之间的矛盾。',
+ pts:['南京解放，宣告<b>国民党在大陆的统治覆灭</b>','“宜将剩勇追穷寇，不可沽名学霸王”'],tags:['hot'],rel:[['e1948','push'],['e1949','push']]},
+{id:'e1951',y:1951,m:12,date:'1951年底',short:'“三反”运动',title:'“三反”运动',sum:'针对党政干部腐化问题。',map:'cn',places:[['北京',116.4,39.9]],cats:['史纲'],kp:'史纲·下编｜建国初期',
+ bg:'针对党政干部中存在的腐化问题，在党政机关开展“三反”运动。',mc:'工人阶级和资产阶级的矛盾、社会主义道路和资本主义道路的矛盾。',
+ pts:['三反：<b>反贪污、反浪费、反官僚主义</b>'],tags:[],rel:[['e1949','cause'],['e1953','push']]},
+{id:'e1979',y:1979,m:3,date:'1979年3月',short:'四项基本原则',title:'理论工作务虚会',sum:'首次提出四项基本原则。',map:'cn',places:[['北京',116.4,39.9]],cats:['毛中特','史纲'],kp:'毛中特｜邓小平理论',
+ bg:'邓小平在党的理论工作务虚会上发表讲话。',mc:'人民日益增长的物质文化需要同落后的社会生产之间的矛盾。',
+ pts:['<b>首次提出</b>坚持四项基本原则','四项基本原则是立国之本，与改革开放构成“两个基本点”'],tags:['hot'],rel:[['e1978','push'],['e1982','push']]}
+);
+Object.entries({
+ e1842:['魏源编成《海国图志》，提出<b>“师夷长技以制夷”</b>，开创近代向西方学习的新风'],
+ e1894:['郑观应《盛世危言》：主张<b>“君民共主”</b>'],
+ e1898:['严复：宣传<b>救亡图存</b>（译《天演论》）'],
+ e1915:['以<b>进化论观点和个性解放思想</b>为主要武器','批判孔学是为发展资本主义扫清障碍，但<b>没有全盘否定</b>孔学的历史作用','五四运动的直接导火线：<b>巴黎和会上中国外交的失败</b>'],
+ e1921:['早期信仰马克思主义者三类：<b>新文化运动的精神领袖</b>（李大钊、陈独秀）、<b>五四左翼骨干</b>（毛泽东等）、<b>原同盟会会员</b>（董必武等）','中国早期马克思主义者已在实际上<b>初步形成</b>马克思主义应与中国实际相结合的思想'],
+ e1925:['新民主主义时期中国社会阶级构成：<b>工人阶级、农民阶级、小资产阶级、民族资产阶级</b>，“两头小中间大”'],
+ e1949a:['1949年春毛泽东谈话“积极参政，共同建设新中国”，标志<b>民主党派地位的根本变化</b>'],
+ e1953:['五种经济成分中处于“十字路口”的是<b>个体经济</b>；合作社经济是个体经济向集体经济过渡的形式','<b>国家资本主义</b>是改造资本主义工商业并向社会主义过渡的必经之路','三步性质：初级国家资本主义（社会主义萌芽）→ 个别企业公私合营（<b>半社会主义</b>）→ 全行业公私合营（完全社会主义）','手工业、农业改造方针：<b>积极领导、稳步前进</b>'],
+ e1956:['毛泽东提出马克思主义同中国实际的<b>“第二次结合”</b>，但没有完成这一任务'],
+ e1982:['党际关系四项原则：<b>独立自主、完全平等、互相尊重、互不干涉内部事务</b>','<b>和平与发展</b>是当今世界两大主题'],
+ e1987:['为建设中国特色社会主义提供总依据的是<b>社会主义初级阶段理论</b>'],
+ e1992:['邓小平理论回答的首要基本理论问题：<b>什么是社会主义、怎样建设社会主义</b>；关键是认清<b>社会主义本质</b>','邓小平理论是中国特色社会主义理论体系的<b>奠基之作</b>'],
+ e2002:['“三个代表”回答：<b>建设什么样的党、怎样建设党</b>'],
+ e2007:['科学发展观回答：<b>实现什么样的发展、怎样发展</b>'],
+ e2017:['习近平新时代中国特色社会主义思想是马克思主义中国化的<b>新的飞跃</b>（不说“第三次飞跃”）'],
+ e2022:['推动高质量发展：必由之路<b>高水平科技自立自强</b>；主线<b>深化供给侧结构性改革</b>；最终目的<b>人民幸福安康</b>'],
+ e2014:['权利保障：<b>宪法保障</b>前提和基础、<b>立法保障</b>重要条件、<b>行政保护</b>关键环节、<b>司法保障</b>最后防线','法治体系：规范体系—前提，实施体系—重点，监督体系—重要保障，保障体系—重要依托，党内法规体系—本质要求'],
+ e2020:['新发展格局：基本立足点<b>满足国内需求</b>；关键<b>经济循环畅通无阻</b>；战略支撑<b>科技自立自强</b>'],
+ e1938:['结合过程从<b>党成立</b>就开始了；命题在六届六中全会《论新阶段》中正式提出'],
+ e1945:['七大确立毛泽东思想 —— 马克思主义中国化<b>第一次历史性飞跃</b>的理论成果'],
+}).forEach(([id,arr])=>{const e=EVENTS.find(x=>x.id===id);if(e)e.pts.push(...arr);});
+/* 行军路线（示意） */
+const RT=(id,routes)=>{const e=EVENTS.find(x=>x.id===id);if(e)e.routes=routes;};
+RT('e1926',[{n:'西路',pts:[['广州',113.26,23.13],['长沙',112.94,28.23],['武汉',114.3,30.6]]},{n:'东路',pts:[['广州',113.26,23.13],['南昌',115.86,28.68],['南京',118.78,32.06]],d:600}]);
+RT('e1935',[{n:'中央红军长征',pts:[['瑞金',116.03,25.89],['湘江',111.0,25.6],['遵义',106.93,27.7],['泸定',102.23,29.92],['吴起',108.18,36.93]]}]);
+RT('e1947',[{n:'刘邓',pts:[['鲁西南',115.5,35.2],['大别山',115.8,31.2]]},{n:'陈谢',pts:[['晋南',111.2,35.1],['豫西',112.4,34.0]],d:400},{n:'陈粟',pts:[['鲁西南',116.6,35.3],['豫皖苏',116.2,33.6]],d:800}]);
+RT('e1948',[{n:'辽沈',pts:[['长春',125.3,43.9],['沈阳',123.43,41.8],['锦州',121.13,41.1]]},{n:'淮海',pts:[['商丘',115.65,34.4],['徐州',117.18,34.26],['蚌埠',117.39,32.92]],d:1400},{n:'平津',pts:[['张家口',114.88,40.82],['北平',116.4,39.9],['天津',117.2,39.13]],d:2800}]);
+THREADS.zhuti={t:'理论成果回答的时代课题',sub:'看到“回答了……”的题干就对号入座',cols:['时间','理论成果','回答的问题'],rows:[
+ ['e1992','邓小平理论','什么是社会主义、怎样建设社会主义'],['e2002','“三个代表”重要思想','建设什么样的党、怎样建设党'],['e2007','科学发展观','实现什么样的发展、怎样发展'],
+ ['e2017','习近平新时代中国特色社会主义思想','新时代坚持和发展什么样的中国特色社会主义、怎样坚持和发展……（强国、长期执政的马克思主义政党）']]};
+THREADS.huiyi.rows.splice(THREADS.huiyi.rows.findIndex(r=>r[0]==='e1937'),0,['e1946a','1946','重庆政协会议','协议还不是新民主主义性质，但在相当程度上有利于人民']);
+
 const byId=Object.fromEntries(EVENTS.map(e=>[e.id,e]));
 EVENTS.forEach(e=>{e.t=e.y+((e.m||1)-1)/12+0.03;});
 EVENTS.sort((a,b)=>a.t-b.t);
@@ -1201,7 +1453,8 @@ function paintCn(){
   const sig=era+'|'+(cur&&cur.id)+'|'+S.opt.pow+'|'+tw+'|'+(y<1946);
   if(sig===M.sig)return;M.sig=sig;
   const fillOf={};pw.forEach(([,col,list])=>list.forEach(n=>fillOf[n]=col));
-  M.provs.forEach(p=>{
+  let si=0;
+  M.provs.forEach(p=>{p.path.style.setProperty('--d',(pw.length&&fillOf[p.name]?(si++)*0.06:0)+'s');
     let f=fillOf[p.name]||E.base,occ=false;
     if(!S.real&&p.name!=='台湾'&&p.name!=='海南'&&!fillOf[p.name])f=E.base;
     if(p.name==='台湾'&&tw&&!fillOf['台湾']){f=C.occ;occ=true;}
@@ -1226,6 +1479,7 @@ function paintCn(){
 
 /* 标记、关联虚线、路线、事件标签 */
 function renderOverlays(){
+  renderOverlays.tok=(renderOverlays.tok||0)+1;
   ['cn','eu'].forEach(m=>{
     const M=MAPS[m];if(!M.L)return;const L=M.L,proj=M.proj,cur=S.cur;
     L.mks.innerHTML='';L.rel.innerHTML='';L.chip.innerHTML='';if(L.route)L.route.innerHTML='';
@@ -1250,10 +1504,15 @@ function renderOverlays(){
       mk('circle',{cx:x1,cy:y1,r:2.4,'data-r':2.4,fill:RELC[type]},L.rel);
     });
     // 长征等路线
-    if(cur.route&&L.route){
-      const pts=cur.route.map(p=>proj(p[1],p[2]));
-      mk('path',{d:'M'+pts.map(p=>p.join(',')).join('L')},L.route);
-      cur.route.forEach((p,i)=>{const[x,y]=pts[i];mk('circle',{cx:x,cy:y,r:1.8,'data-r':1.8,fill:'#ff6b57'},L.route);const t=mk('text',{x:x+4,y:y-3,'data-fs':6.5},L.route);t.textContent=p[0];});
+    const routes=cur.routes||(cur.route?[{pts:cur.route}]:[]);
+    if(routes.length&&L.route){
+      routes.forEach(rt=>{
+        const pts=rt.pts.map(p=>proj(p[1],p[2]));
+        const path=mk('path',{d:'M'+pts.map(p=>p.join(',')).join('L')},L.route);
+        rt.pts.forEach((p,i)=>{const[x,y]=pts[i];mk('circle',{cx:x,cy:y,r:1.8,'data-r':1.8,fill:'#ff6b57'},L.route);const t=mk('text',{x:x+4,y:y-3,'data-fs':6.5},L.route);t.textContent=p[0];});
+        if(rt.n){const[x,y]=pts[pts.length-1];const t=mk('text',{x:x+4,y:y+9,'data-fs':6,fill:'#ffb3a7'},L.route);t.textContent=rt.n;}
+        animRoute(path,rt.d||0,L.route);
+      });
     }
     // 当前事件
     cur.places.forEach((pl,i)=>{
@@ -1384,7 +1643,7 @@ function setYear(y,force){
   }
   paintCn();renderYear();tlUpdate();
 }
-function goEvent(id){const e=byId[id];if(!e)return;if(!matches(e)){S.cat='全部';renderSeg();tlBuild();}setYear(e.t,true);}
+function goEvent(id){const e=byId[id];if(!e)return;if(document.getElementById('app').classList.contains('kbon')&&!isMobile())closeKb();if(!matches(e)){S.cat='全部';renderSeg();tlBuild();}setYear(e.t,true);}
 
 /* =====================================================================
    播放
@@ -1575,19 +1834,20 @@ function renderMst(){
   $('ivGood').textContent=ivFor(S.cur.id,'good')+' 天后';
   $('rateQ').textContent=S.reviewQ?`本轮剩余 ${S.reviewQ.length+1}`:'';
 }
-const dueList=()=>{const now=Date.now();return EVENTS.filter(e=>MST[e.id]&&MST[e.id].due<=now).map(e=>e.id);};
+const dueList=()=>{const now=Date.now();return [...EVENTS,...CARDS].filter(e=>MST[e.id]&&MST[e.id].due<=now).map(e=>e.id);};
 function renderStudy(){
-  const all=EVENTS.length,cnt={good:0,hard:0,again:0};
-  EVENTS.forEach(e=>{const o=MST[e.id];if(o)cnt[o.s]++;});
+  const ITEMS=[...EVENTS,...CARDS],all=ITEMS.length,cnt={good:0,hard:0,again:0};
+  ITEMS.forEach(e=>{const o=MST[e.id];if(o)cnt[o.s]++;});
   const learned=cnt.good+cnt.hard+cnt.again,due=dueList().length;
   $('prog').innerHTML=['good','hard','again'].map(k=>`<i style="width:${cnt[k]/all*100}%;background:${MSTN[k][1]}"></i>`).join('');
-  $('pStat').innerHTML=`已自测 <b>${learned}</b> / ${all} · 记住 ${cnt.good} · 模糊 ${cnt.hard} · 忘了 ${cnt.again}<br>今日到期复习：<b>${due}</b> 个`;
+  $('pStat').innerHTML=`已自测 <b>${learned}</b> / ${all}（事件 ${EVENTS.length} + 图解 ${CARDS.length}） · 记住 ${cnt.good} · 模糊 ${cnt.hard} · 忘了 ${cnt.again}<br>今日到期复习：<b>${due}</b> 个`;
   $('bReview').textContent=due?`开始复习（${due}）`:'今日无到期';
 }
 function setQuiz(on){
   S.quiz=on;$('app').classList.toggle('quiz',on);$('bQuiz').classList.toggle('on',on);
   if(!on)S.reviewQ=null;
   if(S.cur)renderPanels();
+  if(typeof kbCur!=='undefined'&&kbCur&&$('app').classList.contains('kbon'))openCard(kbCur.id,false);
 }
 function rate(level){
   if(!S.quiz||!S.cur)return;
@@ -1597,7 +1857,7 @@ function rate(level){
   toast(level==='again'?'已记下：10 分钟后再考一次':`已记下：${iv} 天后复习`);
   tlBuild();renderStudy();
   if(S.reviewQ){
-    if(S.reviewQ.length)goEvent(S.reviewQ.shift());
+    if(S.reviewQ.length)goItem(S.reviewQ.shift());
     else{S.reviewQ=null;toast('本轮复习完成 ✓');renderMst();}
   }else stepEvent(1);
 }
@@ -1607,7 +1867,7 @@ document.querySelector('.mcbox').addEventListener('click',()=>document.querySele
 $('bQuiz').onclick=()=>{setQuiz(!S.quiz);toast(S.quiz?'自测已开启：先回忆，再点空格处揭示，最后自评（键盘 1/2/3）':'已退出自测');};
 $('bReview').onclick=()=>{
   const q=dueList();if(!q.length){toast('今天没有到期的复习，去学新事件吧');return;}
-  play(false);S.reviewQ=q;setQuiz(true);goEvent(S.reviewQ.shift());
+  play(false);S.reviewQ=q;setQuiz(true);goItem(S.reviewQ.shift());
 };
 $('bNew').onclick=()=>{
   const p=pool(),i=p.indexOf(S.cur);
@@ -1686,6 +1946,7 @@ function setView(v){
   if(v==='map'){requestAnimationFrame(()=>{tlBuild();zooms.cn&&zooms.cn.apply(false);zooms.eu&&zooms.eu.apply(false);});}
   if(v==='thread'&&!S.thread)openThread(Object.keys(THREADS)[0]);
   if(v!=='map'&&S.playing)play(false);
+  if(v==='kb'){$('app').classList.add('kbon');openCard(kbCur?kbCur.id:CARDS[0].id);}else if($('app').classList.contains('kbon')&&isMobile()){figToken++;$('app').classList.remove('kbon');}
 }
 function measure(){
   const h=document.querySelector('header').offsetHeight;
@@ -1705,6 +1966,416 @@ $('thTable').addEventListener('click',()=>{if(isMobile())setTimeout(()=>setView(
     if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.5)stepEvent(dx<0?1:-1);},{passive:true});
 })();
 window.addEventListener('resize',measure);
+/* =====================================================================
+   v7：马原 / 政经 / 其他 —— 图解卡片（据《一页纸》知识点手册整理，表述已重写）
+   ===================================================================== */
+const PAIR=(arr)=>arr.map(([q,a,warn])=>({q,a,warn}));
+const CARDS=[
+{id:'k01',g:'马原 · 基本知识',t:'马克思主义核心对应',kp:'知识点 001—009',fig:{type:'pairs',items:PAIR([
+ ['马恩建立的第一个无产阶级政党','共产主义者同盟'],['马克思主义的本质属性','人民性'],['区别于其他理论的根本特征','实践性'],
+ ['新世界观创立的关键','确立科学的实践观'],['马克思主义的基本特征','科学性与革命性的统一'],['马克思经济学说的核心和基石','剩余价值理论'],
+ ['理解政治经济学的枢纽','劳动二重性理论'],['社会主义由空想变为科学的两大基石','唯物史观和剩余价值学说'],
+ ['实践是检验真理唯一标准，因为实践具有','直接现实性'],['科学社会主义的核心命题','资本主义必然灭亡，社会主义必然胜利'],['人的本质','一切社会关系的总和']])}},
+{id:'k02',g:'马原 · 唯物史观',t:'社会结构：经济基础与上层建筑',kp:'知识点 003、026',fig:{type:'flow',w:640,h:350,
+ nodes:[{id:'sc',x:20,y:270,w:170,h:56,t:'生产力',sub:'生产的物质内容',c:'green',s:1},{id:'gx',x:235,y:270,w:170,h:56,t:'生产关系',sub:'生产的社会形式',c:'blue',s:1},
+  {id:'fs',x:450,y:270,w:170,h:56,t:'社会的生产方式',sub:'二者构成',c:'gold',s:2},
+  {id:'jj',x:235,y:170,w:170,h:52,t:'经济基础',sub:'生产关系的总和',c:'blue',s:3},
+  {id:'zz',x:40,y:40,w:250,h:66,t:'政治上层建筑（主导）',sub:'核心：国家政权',c:'red',s:4},
+  {id:'gn',x:350,y:40,w:250,h:66,t:'观念上层建筑（意识形态）',sub:'核心：政治法律思想',c:'purple',s:5}],
+ links:[{a:'sc',b:'gx',t:'决定',s:2},{a:'gx',b:'fs',s:2},{a:'gx',b:'jj',s:3},{a:'jj',b:'zz',t:'决定 / 反作用',s:4},{a:'jj',b:'gn',t:'决定 / 反作用',s:5}]},
+ pts:['政治上层建筑居<b>主导地位</b>，核心是<b>国家政权</b>','意识形态中居核心、起主导作用的是<b>政治法律思想</b>','社会历史发展的根本动力：<b>社会基本矛盾</b>；其中<b>生产力</b>的发展具有最终决定意义','资本主义经济危机的周期性由<b>资本主义基本矛盾运动的阶段性</b>决定']},
+{id:'k03',g:'马原 · 唯物论',t:'物质世界的二重化',kp:'知识点 008',fig:{type:'flow',w:640,h:330,
+ nodes:[{id:'p',x:250,y:135,w:140,h:56,t:'人类实践',sub:'改造世界',c:'gold',s:1},
+  {id:'a',x:20,y:20,w:150,h:46,t:'自然界',c:'gray',s:2},{id:'a1',x:470,y:10,w:150,h:40,t:'自然界',c:'green',s:3},{id:'a2',x:470,y:56,w:150,h:40,t:'人类社会',c:'green',s:3},
+  {id:'b',x:20,y:140,w:150,h:46,t:'客观世界',c:'gray',s:2},{id:'b1',x:470,y:120,w:150,h:40,t:'客观世界',c:'blue',s:4},{id:'b2',x:470,y:166,w:150,h:40,t:'主观世界',c:'blue',s:4},
+  {id:'c',x:20,y:260,w:150,h:46,t:'现实世界',c:'gray',s:2},{id:'d1',x:470,y:230,w:150,h:40,t:'现实世界',c:'purple',s:5},{id:'d2',x:470,y:276,w:150,h:40,t:'虚拟世界',c:'purple',s:5}],
+ links:[{a:'a',b:'p',s:2},{a:'b',b:'p',s:2},{a:'c',b:'p',s:2},{a:'p',b:'a1',s:3},{a:'p',b:'a2',s:3},{a:'p',b:'b1',s:4},{a:'p',b:'b2',s:4},{a:'p',b:'d1',s:5},{a:'p',b:'d2',s:5}]},
+ pts:['人类实践使世界发生二重分化：从自然界中分化出<b>人类社会</b>','从客观世界中分化出<b>主观世界</b>','人类实践使世界二重化为<b>现实世界与虚拟世界</b>']},
+{id:'k04',g:'马原 · 辩证法',t:'六个“寓于”',kp:'知识点 010',fig:{type:'nested',items:[['价值','使用价值'],['必然性','偶然性'],['斗争性','同一性'],['绝对性','相对性'],['普遍性','特殊性'],['共性','个性']]},
+ pts:['“A 寓于 B 之中”：A 在里面，B 是外面的载体','价值寓于<b>使用价值</b>之中；必然性寓于<b>偶然性</b>之中；斗争性寓于<b>同一性</b>之中','绝对性寓于<b>相对性</b>之中；普遍性寓于<b>特殊性</b>之中；共性寓于<b>个性</b>之中','【易错】方向别反：是<b>普遍性寓于特殊性</b>，不能说成“特殊性寓于普遍性”']},
+{id:'k05',g:'马原 · 认识论',t:'自由与两类认识',kp:'知识点 011、012',fig:{type:'compare',a:'知识性认识',b:'评价性认识（价值评价）',rows:[
+ ['对象 / 内容','客体本身的属性、关系和发展过程','主体与客体之间的价值关系'],['回答的问题','“是什么”','“应该怎样”'],['认识目的','求“真”','求“善”和“美”'],['特点','反映客观事物及其规律','包含主体的意向、愿望和要求；有正确与错误、科学与非科学之分']]},
+ pts:['马克思主义追求的根本价值目标 / 共产主义社会根本特征：实现<b>人的自由全面发展</b>','人类认识世界和改造世界的根本目标：<b>认识必然和争取自由</b>','人的发展最根本的是<b>人的自由程度的提高</b>','人生价值评价的根本尺度是<b>历史标准</b>']},
+{id:'k06',g:'马原 · 经典著作',t:'马克思恩格斯主要著作',kp:'知识点 013',fig:{type:'books',items:[
+ ['1844','《德法年鉴》','完成两个转变：唯心主义→唯物主义，革命民主主义→共产主义'],['1845','《神圣家族》','马恩合著的第一部著作'],['1845','《关于费尔巴哈的提纲》','首次提出科学的实践观'],
+ ['1845—46','《德意志意识形态》','首次系统阐述历史唯物主义基本观点'],['1848','《共产党宣言》','标志马克思主义公开问世'],['1867','《资本论》','“工人阶级的圣经”'],
+ ['1871','《法兰西内战》','科学总结巴黎公社的历史经验'],['1875','《哥达纲领批判》','对未来社会的制度、发展阶段、分配作原则构想'],['1878','《反杜林论》','全面阐述马克思主义理论体系，“百科全书”']]},
+ pts:['《德法年鉴》完成<b>两个转变</b>','《神圣家族》是马恩<b>合著的第一部</b>著作','《德意志意识形态》首次系统阐述<b>历史唯物主义</b>','《共产党宣言》标志马克思主义<b>公开问世</b>','《哥达纲领批判》构想未来社会的<b>分配</b>等','《反杜林论》被称为马克思主义的<b>“百科全书”</b>']},
+{id:'k07',g:'政经 · 当代资本主义',t:'资本主义的新变化',kp:'知识点 014、015',fig:{type:'compare',a:'二战后的新变化',b:'当代：国际金融垄断',rows:[
+ ['所有制','<b>法人资本所有制</b>居主导；所有权与控制权分离','最突出特征：<b>国际金融资本的垄断</b>'],['关系 / 表现','职工参与决策、终身雇佣、职工持股、社会福利普及','金融垄断寡头化、国际化；经济虚拟化；产业空心化'],['阶层 / 条件','高级职业经理控制企业；知识型、服务型劳动者增加','重要制度条件：<b>金融自由化与金融创新</b>']]},
+ pts:['当今资本主义居主导地位的资本所有制形式：<b>法人资本所有制</b>','当代资本主义最突出的特征：<b>国际金融资本的垄断</b>','国际金融垄断的表现：<b>寡头化、国际化、经济虚拟化、产业空心化</b>']},
+{id:'k08',g:'政经 · 垄断资本',t:'金融资本与金融寡头',kp:'知识点 018—020',fig:{type:'flow',w:640,h:340,
+ nodes:[{id:'h',x:245,y:140,w:150,h:60,t:'金融寡头',sub:'金融资本的人格化',c:'gold',s:1},
+  {id:'e',x:20,y:20,w:190,h:58,t:'经济领域',sub:'参与制（股票控制）',c:'red',s:2},{id:'p',x:430,y:20,w:190,h:58,t:'政治领域',sub:'同政府的“个人联合”',c:'blue',s:3},
+  {id:'s',x:430,y:262,w:190,h:58,t:'社会生活',sub:'政策咨询机构、新闻科教文化',c:'purple',s:4},
+  {id:'f',x:20,y:262,w:190,h:58,t:'形成途径',sub:'金融联系·资本参与·人事参与',c:'green',s:5}],
+ links:[{a:'h',b:'e',s:2},{a:'h',b:'p',s:3},{a:'h',b:'s',s:4},{a:'f',b:'h',t:'形成',s:5}]},
+ pts:['经济领域统治形式：<b>参与制</b>；政治领域控制国家机器：<b>个人联合</b>','金融资本形成途径：<b>金融联系、资本参与、人事参与</b>','垄断资本向世界扩展的基本形式：<b>借贷资本输出、生产资本输出、商品资本输出</b>']},
+{id:'k09',g:'政经 · 资本循环',t:'产业资本循环与三种划分',kp:'知识点 019、021',fig:{type:'cycle'},
+ pts:['产业资本三种职能形式：<b>货币资本、生产资本、商品资本</b>——空间上并存，时间上继起','按是否带来剩余价值：<b>不变资本、可变资本</b>','按在循环中的职能：<b>货币资本、生产资本、商品资本</b>','按周转方式：<b>固定资本、流动资本</b>']},
+{id:'k10',g:'政经 · 剩余价值',t:'资本主义工资与劳动过程',kp:'知识点 016、017',fig:{type:'pairs',items:PAIR([
+ ['资本主义工资的本质','劳动力的价值或价格'],['“工资是劳动的价值或价格”','错误：是假象',true],['资本主义劳动过程特点一','工人在资本家监督下劳动'],['资本主义劳动过程特点二','劳动成果全部归资本家所有'],['劳动是否具有生产性，取决于','能否为资本家带来剩余价值']])},
+ pts:['资本主义工资是<b>劳动力的价值或价格</b>，不是劳动的价值']},
+{id:'k11',g:'政经 · 资本积累',t:'资本积累的链条',kp:'知识点 022—024',fig:{type:'flow',w:640,h:330,
+ nodes:[{id:'m',x:20,y:30,w:150,h:52,t:'剩余价值',sub:'积累的唯一源泉',c:'gold',s:1},{id:'k',x:245,y:30,w:150,h:52,t:'资本积累',c:'red',s:2},
+  {id:'r',x:470,y:30,w:150,h:52,t:'扩大再生产',c:'blue',s:3},{id:'o',x:470,y:150,w:150,h:56,t:'有机构成提高',sub:'一直增加',c:'purple',s:4},
+  {id:'u',x:245,y:150,w:150,h:56,t:'相对过剩人口',sub:'失业',c:'gray',s:5},{id:'pl',x:20,y:150,w:150,h:56,t:'两极分化',c:'red',s:6},
+  {id:'z',x:110,y:262,w:420,h:52,t:'社会再生产核心问题：社会总产品的实现',sub:'价值补偿 + 实物补偿',c:'green',s:7}],
+ links:[{a:'m',b:'k',s:2},{a:'k',b:'r',s:3},{a:'r',b:'o',s:4},{a:'o',b:'u',s:5},{a:'u',b:'pl',s:6}]},
+ pts:['<b>剩余价值</b>是资本积累的唯一源泉；资本积累是扩大再生产的源泉','资本有机构成<b>一直在提高</b>——选项说“降低”就是错的','影响资本周转快慢的两个关键因素：<b>周转时间</b>、<b>固定资本和流动资本的构成</b>','社会再生产的核心问题：社会总产品的<b>价值补偿和实物补偿</b>']},
+{id:'k12',g:'政经 · 劳动价值论',t:'商品经济的基本矛盾',kp:'知识点 025',fig:{type:'flow',w:640,h:330,
+ nodes:[{id:'b',x:170,y:20,w:300,h:62,t:'私人劳动 ⟷ 社会劳动',sub:'私有制商品经济的基本矛盾',c:'red',s:1},
+  {id:'l',x:30,y:150,w:260,h:56,t:'具体劳动 ⟷ 抽象劳动',c:'blue',s:2},{id:'v',x:350,y:150,w:260,h:56,t:'使用价值 ⟷ 价值',c:'green',s:3},
+  {id:'c',x:120,y:262,w:400,h:52,t:'资本主义基本矛盾',sub:'生产社会化 ⟷ 生产资料资本主义私人占有',c:'gold',s:4}],
+ links:[{a:'b',b:'l',t:'根源于',s:2},{a:'b',b:'v',t:'根源于',s:3}]},
+ pts:['私人劳动和社会劳动的矛盾决定商品经济的<b>本质及发展过程</b>，是其他一切矛盾的<b>基础</b>，决定商品生产者的<b>命运</b>','商品生产者劳动的社会性质由<b>社会分工</b>决定','具体劳动能否还原为抽象劳动，取决于<b>私人劳动和社会劳动能否统一</b>']},
+{id:'k13',g:'政经 · 货币',t:'货币的五种职能',kp:'知识点 027',fig:{type:'money'},
+ pts:['货币的本质：<b>固定充当一般等价物的商品</b>','最基本的职能：<b>价值尺度和流通手段</b>','经济危机的抽象一般可能性首先由货币作为<b>流通手段和支付手段</b>引起','贮藏手段必须是<b>足值的货币</b>']},
+{id:'k14',g:'政经 · 价值规律',t:'价值规律的作用',kp:'知识点 028',fig:{type:'flow',w:640,h:330,
+ nodes:[{id:'v',x:20,y:135,w:150,h:60,t:'价值规律',sub:'自发作用',c:'gold',s:1},
+  {id:'a',x:260,y:10,w:360,h:52,t:'调节生产资料和劳动力的分配比例',c:'green',s:2},{id:'b',x:260,y:80,w:360,h:52,t:'刺激社会生产力的发展',c:'green',s:3},
+  {id:'c',x:260,y:150,w:360,h:52,t:'调节社会收入的分配',c:'green',s:4},{id:'x',x:260,y:250,w:360,h:56,t:'调节工人与资本家的利益再分配',sub:'✗ 错误选项',c:'red',s:5,cross:1}],
+ links:[{a:'v',b:'a',s:2},{a:'v',b:'b',s:3},{a:'v',b:'c',s:4},{a:'v',b:'x',s:5,bad:1}]},
+ pts:['价值规律三作用：自发调节<b>资源分配比例</b>、自发刺激<b>生产力发展</b>、自发调节<b>社会收入分配</b>','“自发调节雇佣工人与资本家的利益再分配”是<b>错误</b>表述']},
+{id:'k15',g:'政经 · 剩余价值',t:'超额剩余价值与相对剩余价值',kp:'知识点 029',fig:{type:'surplus'},
+ pts:['单个资本家改进技术的主观动机：追求<b>超额剩余价值</b>（个别 · 原因）','客观后果：全社会劳动生产率提高，必要劳动时间缩短，整个资本家阶级获得<b>相对剩余价值</b>（社会 · 结果）']},
+{id:'k16',g:'政经 · 劳动价值论',t:'劳动生产率与商品价值',kp:'知识点 030',fig:{type:'productivity'},
+ pts:['劳动生产率越高，单位时间生产的<b>商品数量越多</b>','单位商品的价值量与劳动生产率成<b>反比</b>','单位时间内劳动量不变，生产的<b>价值总量也不变</b>']},
+{id:'k17',g:'政经 · 资本构成',t:'资本有机构成（面包店）',kp:'知识点 031',fig:{type:'bakery'},
+ pts:['不变资本（c）：生产资料，价值由<b>具体劳动转移</b>，不增殖','可变资本（v）：购买劳动力，工人劳动<b>再生产</b>出来并创造剩余价值','资本有机构成：由<b>技术构成决定</b>并反映其变化的价值构成，即 <b>c : v</b>','技术构成变 → 价值构成变 → 有机构成变；有机构成普遍提高形成<b>相对过剩人口</b>']},
+{id:'k18',g:'政经 · 利润',t:'平均利润的形成',kp:'知识点 032',fig:{type:'avgprofit'},
+ pts:['平均利润形成原因：<b>不同生产部门</b>资本家之间的竞争','超额利润形成原因：<b>同一部门内</b>不同企业之间的竞争','平均利润形成后，商品价值转化为<b>生产价格</b>，价值规律的实现形式发生变化','利润多少取决于<b>整个资产阶级对整个工人阶级</b>的剥削程度']},
+{id:'k19',g:'政经 · 计算',t:'政经计算（可动手算）',kp:'知识点 033、034',fig:{type:'calc'},
+ pts:['投资 = 成本 = <b>c + v</b>；有机构成 = <b>c : v</b>；剩余价值率 = <b>m : v</b>；利润在量上 = <b>m</b>','剩余价值率 = 剩余劳动时间 ÷ 必要劳动时间','绝对剩余价值：<b>延长工作日</b>；相对剩余价值：工作日不变，<b>缩短必要劳动时间</b>','两者都是靠延长<b>剩余劳动时间</b>获得的']},
+{id:'k20',g:'国际共运',t:'战时共产主义与新经济政策',kp:'知识点 035、036',fig:{type:'compare',a:'战时共产主义（1918）',b:'新经济政策（1921，列宁）',rows:[
+ ['农业','<b>余粮收集制</b>','<b>粮食税</b>，余粮可自由出卖'],['工业','国有化','部分恢复私营；租让制、租借制（<b>国家资本主义</b>）'],['商品货币','<b>取消</b>商品货币关系','<b>恢复</b>商品货币关系，允许自由贸易'],['目的','更好地供给军队作战','战后迅速活跃经济；主要特征是<b>发展商品经济</b>']]},
+ pts:['新经济政策的主要特征是<b>发展商品经济</b>','苏联模式（斯大林）：农业合作化','巴黎公社是<b>无产阶级夺取政权的第一次伟大尝试</b>，建立的是政权不是政党','防止公仆变主人：<b>选举制和撤换制</b>、<b>取消高薪制</b>']},
+{id:'k21',g:'其他 · 时政',t:'高质量发展与新发展格局',kp:'知识点 095、096',fig:{type:'pairs',items:PAIR([
+ ['全面建设社会主义现代化国家的首要任务','高质量发展'],['高质量发展的必由之路','加快实现高水平科技自立自强'],['高质量发展的主线','深化供给侧结构性改革'],
+ ['高质量发展的战略基点','加快构建新发展格局'],['高质量发展的最终目的','人民幸福安康'],['新发展格局的基本立足点','满足国内需求'],
+ ['新发展格局的战略基点','扩大内需'],['新发展格局的最本质特征','实现高水平自立自强'],['新发展格局的关键','经济循环畅通无阻']])},
+ pts:['新发展格局：<b>以国内大循环为主体、国内国际双循环相互促进</b>']},
+{id:'k22',g:'其他 · 法治',t:'全面依法治国四组对应',kp:'知识点 097—100',fig:{type:'pairs',items:PAIR([
+ ['科学立法','前提'],['严格执法','关键'],['公正司法','重点'],['全民守法','基础'],
+ ['完备的法律规范体系','前提'],['高效的法治实施体系','重点'],['严密的法治监督体系','重要保障'],['有力的法治保障体系','重要依托'],['完善的党内法规体系','本质要求'],
+ ['宪法保障','前提和基础'],['立法保障','重要条件'],['行政保护','关键环节'],['司法保障','最后防线'],
+ ['普遍适用性','所有人、所有组织都必须遵守'],['优先适用性','多种规范矛盾时优先适用法律'],['不可违反性','违法就要受制裁，不论职位高低']])},
+ pts:['法律至上表现为：<b>普遍适用性、优先适用性、不可违反性</b>','权利保障：司法保障是<b>最后防线</b>']},
+];
+const cardById=Object.fromEntries(CARDS.map(c=>[c.id,c]));
+/* =====================================================================
+   v7：图解动画引擎
+   ===================================================================== */
+const FC={gold:['rgba(217,168,69,.16)','#d9a845'],red:['rgba(208,71,63,.16)','#e0665f'],blue:['rgba(75,119,201,.18)','#6f9be6'],
+  green:['rgba(52,163,122,.16)','#45c08e'],purple:['rgba(109,85,201,.2)','#9a86e8'],gray:['rgba(140,148,160,.14)','#9aa2af']};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let figToken=0;
+const RM=()=>matchMedia('(prefers-reduced-motion:reduce)').matches;
+function svgEl(w,h){const s=document.createElementNS(NS,'svg');s.setAttribute('viewBox',`0 0 ${w} ${h}`);s.classList.add('fig');
+  s.innerHTML='<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#9aa2af"/></marker><marker id="ahr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#e0665f"/></marker></defs>';return s;}
+function txt(parent,x,y,str,attrs={}){const t=mk('text',Object.assign({x,y,'text-anchor':'middle'},attrs),parent);t.textContent=str;return t;}
+function reveal(el,on){el.classList.toggle('fx-on',on);}
+
+/* ---- 通用：节点流程图（逐步出现） ---- */
+function figFlow(box,F){
+  const s=svgEl(F.w,F.h);box.appendChild(s);const N={};
+  F.links.forEach(l=>{
+    const A=F.nodes.find(n=>n.id===l.a),B=F.nodes.find(n=>n.id===l.b);
+    const ca=[A.x+A.w/2,A.y+A.h/2],cb=[B.x+B.w/2,B.y+B.h/2],dx=cb[0]-ca[0],dy=cb[1]-ca[1];
+    const trim=(n)=>Math.min(n.w/2/Math.max(1e-6,Math.abs(dx)),n.h/2/Math.max(1e-6,Math.abs(dy)));
+    const ta=trim(A),tb=trim(B);
+    const x1=ca[0]+dx*ta,y1=ca[1]+dy*ta,x2=cb[0]-dx*tb*1.04,y2=cb[1]-dy*tb*1.04;
+    const p=mk('path',{d:`M${x1},${y1}L${x2},${y2}`,class:'fx fx-link'+(l.bad?' bad':''),'marker-end':l.bad?'url(#ahr)':'url(#ah)','data-s':l.s},s);
+    if(l.t){const t=txt(s,(x1+x2)/2,(y1+y2)/2-5,l.t,{class:'fx fx-lt','data-s':l.s});}
+  });
+  F.nodes.forEach(n=>{
+    const g=mk('g',{class:'fx fx-node','data-s':n.s,style:`transform-origin:${n.x+n.w/2}px ${n.y+n.h/2}px`},s);
+    const [bg,st]=FC[n.c||'gray'];
+    mk('rect',{x:n.x,y:n.y,width:n.w,height:n.h,rx:9,fill:bg,stroke:st,'stroke-width':1.3},g);
+    txt(g,n.x+n.w/2,n.y+(n.sub?n.h/2-3:n.h/2+5),n.t,{class:'fx-t'});
+    if(n.sub)txt(g,n.x+n.w/2,n.y+n.h/2+15,n.sub,{class:'fx-s',fill:st});
+    if(n.cross)mk('line',{x1:n.x+8,y1:n.y+n.h/2,x2:n.x+n.w-8,y2:n.y+n.h/2,class:'fx-cross'},g);
+    N[n.id]=g;
+  });
+  const max=Math.max(...F.nodes.map(n=>n.s),...F.links.map(l=>l.s));
+  return async(tok)=>{
+    s.querySelectorAll('.fx').forEach(e=>reveal(e,false));
+    for(let k=1;k<=max;k++){
+      if(tok!==figToken)return;
+      s.querySelectorAll(`[data-s="${k}"]`).forEach(e=>reveal(e,true));
+      await sleep(RM()?0:700);
+    }
+  };
+}
+
+/* ---- 对应关系翻牌 ---- */
+function figPairs(box,F){
+  const g=document.createElement('div');g.className='pairs';box.appendChild(g);
+  F.items.forEach(it=>{const c=document.createElement('button');c.className='pc'+(it.warn?' warn':'');
+    c.innerHTML=`<span class="pf">${it.q}</span><span class="pb"><small>${it.q}</small>${it.a}</span>`;
+    c.onclick=()=>c.classList.toggle('flip');g.appendChild(c);});
+  return async(tok)=>{
+    const cs=[...g.children];cs.forEach(c=>c.classList.remove('flip'));
+    if(S.quiz)return;
+    for(const c of cs){if(tok!==figToken)return;await sleep(RM()?0:260);c.classList.add('flip');}
+  };
+}
+
+/* ---- 两栏对比，逐行出现 ---- */
+function figCompare(box,F){
+  const t=document.createElement('table');t.className='cmp';
+  t.innerHTML=`<thead><tr><th></th><th class="ca">${F.a}</th><th class="cb">${F.b}</th></tr></thead><tbody>`+F.rows.map(r=>`<tr class="fxr"><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')+'</tbody>';
+  box.appendChild(t);
+  return async(tok)=>{const rs=[...t.querySelectorAll('.fxr')];rs.forEach(r=>r.classList.remove('in'));
+    for(const r of rs){if(tok!==figToken)return;await sleep(RM()?0:450);r.classList.add('in');}};
+}
+
+/* ---- 著作时间线 ---- */
+function figBooks(box,F){
+  const w=document.createElement('div');w.className='books';
+  w.innerHTML=F.items.map(([y,b,d])=>`<div class="bk"><i></i><em>${y}</em><b>${b}</b><span>${d}</span></div>`).join('');
+  box.appendChild(w);
+  return async(tok)=>{const bs=[...w.children];bs.forEach(b=>b.classList.remove('in'));
+    for(const b of bs){if(tok!==figToken)return;await sleep(RM()?0:380);b.classList.add('in');}};
+}
+
+/* ---- 六个寓于：外圈载体 + 内圈 ---- */
+function figNested(box,F){
+  const s=svgEl(640,330);box.appendChild(s);const gs=[];
+  F.items.forEach(([inner,outer],i)=>{
+    const cx=110+(i%3)*210,cy=88+Math.floor(i/3)*160;
+    const g=mk('g',{class:'nest'},s);
+    mk('circle',{cx,cy,r:70,class:'n-out'},g);txt(g,cx,cy+56,outer,{class:'n-ot'});
+    const gi=mk('g',{class:'n-in',style:`transform-origin:${cx}px ${cy-8}px`},g);
+    mk('circle',{cx,cy:cy-8,r:34,class:'n-ic'},gi);txt(gi,cx,cy-3,inner,{class:'n-it'});
+    gs.push(g);
+  });
+  txt(s,320,322,'里面的「寓于」外面的之中',{class:'fx-s',fill:'#9aa2af'});
+  return async(tok)=>{gs.forEach(g=>g.classList.remove('on','on2'));
+    for(const g of gs){if(tok!==figToken)return;g.classList.add('on');await sleep(RM()?0:280);g.classList.add('on2');await sleep(RM()?0:200);}};
+}
+
+/* ---- 资本循环 ---- */
+function figCycle(box){
+  const s=svgEl(640,340);box.appendChild(s);
+  const P=[[320,52],[530,270],[110,270]],L=[['货币资本','G','购买阶段'],['生产资本','P','生产阶段'],['商品资本','W′','售卖阶段']],cols=['gold','green','blue'];
+  const path=`M${P[0][0]},${P[0][1]}Q${520},${80} ${P[1][0]},${P[1][1]}Q${320},${360} ${P[2][0]},${P[2][1]}Q${120},${80} ${P[0][0]},${P[0][1]}`;
+  mk('path',{d:path,class:'cyc-track'},s);
+  const ph=mk('path',{d:path,class:'cyc-run'},s);
+  P.forEach((p,i)=>{const[bg,st]=FC[cols[i]];const g=mk('g',{class:'cyc-node'},s);
+    mk('circle',{cx:p[0],cy:p[1],r:44,fill:bg,stroke:st,'stroke-width':1.5},g);
+    txt(g,p[0],p[1]-4,L[i][0],{class:'fx-t'});txt(g,p[0],p[1]+15,L[i][1],{class:'fx-s',fill:st});});
+  [['购买：G—W（Pm + A）',420,140],['生产：…P…（创造剩余价值）',320,322],['售卖：W′—G′（实现剩余价值）',150,140]].forEach(([t,x,y])=>txt(s,x,y,t,{class:'fx-s',fill:'#c3cad3'}));
+  const dot=mk('circle',{r:7,class:'cyc-dot'},s);
+  txt(s,320,190,'空间上并存',{class:'fx-t',fill:'#f1c766'});txt(s,320,210,'时间上继起',{class:'fx-t',fill:'#f1c766'});
+  const len=ph.getTotalLength();
+  return async(tok)=>{
+    const t0=performance.now(),D=RM()?0:5200;
+    while(tok===figToken){
+      const k=D?((performance.now()-t0)%D)/D:0;const p=ph.getPointAtLength(k*len);
+      dot.setAttribute('cx',p.x);dot.setAttribute('cy',p.y);
+      if(!D)return;await new Promise(r=>requestAnimationFrame(r));
+    }
+  };
+}
+
+/* ---- 货币五职能：动画 + 情境小测 ---- */
+function figMoney(box){
+  const F=[['价值尺度','标价','这件衣服标价 200 元'],['流通手段','买（即时交易）','一手交钱，一手交货'],['贮藏手段','足值货币贮存','把金银收藏起来'],['支付手段','延期付款','发工资、交房租、还债、纳税'],['世界货币','汇率、国际结算','用美元结算进口原油']];
+  const w=document.createElement('div');w.className='money';
+  w.innerHTML='<div class="mrow">'+F.map(([n,k],i)=>`<button class="mc" data-i="${i}"><b>${n}</b><span>${k}</span></button>`).join('')+'</div><div class="mq"><span>情境：</span><b id="mqT"></b><em id="mqR"></em><button id="mqN">换一题</button></div>';
+  box.appendChild(w);let cur=0;
+  const ask=()=>{cur=Math.floor(Math.random()*F.length);w.querySelector('#mqT').textContent=F[cur][2];w.querySelector('#mqR').textContent='点上面对应的职能';w.querySelectorAll('.mc').forEach(c=>c.classList.remove('ok','no'));};
+  w.querySelectorAll('.mc').forEach(c=>c.onclick=()=>{const i=+c.dataset.i;c.classList.add(i===cur?'ok':'no');w.querySelector('#mqR').textContent=i===cur?'✓ 正确':'✗ 再想想';});
+  w.querySelector('#mqN').onclick=ask;ask();
+  return async(tok)=>{const cs=[...w.querySelectorAll('.mc')];cs.forEach(c=>c.classList.remove('in'));
+    for(const c of cs){if(tok!==figToken)return;await sleep(RM()?0:240);c.classList.add('in');}};
+}
+
+/* ---- 超额 → 相对剩余价值 ---- */
+function figSurplus(box){
+  const s=svgEl(640,340);box.appendChild(s);
+  const names=['企业 A','企业 B','企业 C'];const X0=110,W=440,base=8;
+  const sx=h=>X0+h/base*W*0.82;
+  const bars=names.map((n,i)=>{const y=40+i*62;txt(s,58,y+22,n,{class:'fx-t'});
+    const r=mk('rect',{x:X0,y,width:sx(base)-X0,height:32,rx:5,class:'sp-bar'},s);return {r,y};});
+  const soc=mk('line',{x1:sx(base),y1:24,x2:sx(base),y2:226,class:'sp-soc'},s);
+  const socT=txt(s,sx(base),18,'社会必要劳动时间',{class:'fx-s',fill:'#f1c766'});
+  const gap=mk('rect',{x:sx(5),y:40,width:0,height:32,class:'sp-gap'},s);
+  const gapT=txt(s,0,62,'超额剩余价值',{class:'fx-s sp-gt',fill:'#45c08e'});
+  const day=mk('g',{class:'sp-day'},s);
+  txt(day,320,262,'工人一个工作日（8 小时）',{class:'fx-s',fill:'#9aa2af'});
+  const nec=mk('rect',{x:120,y:272,width:200,height:30,class:'sp-nec'},day);const sur=mk('rect',{x:320,y:272,width:200,height:30,class:'sp-sur'},day);
+  const necT=txt(day,220,292,'必要劳动 4h',{class:'fx-s',fill:'#fff'});const surT=txt(day,420,292,'剩余劳动 4h',{class:'fx-s',fill:'#fff'});
+  const cap=txt(s,320,330,'',{class:'fx-t',fill:'#f1c766'});
+  const setW=(r,w)=>r.setAttribute('width',Math.max(0,w));
+  return async(tok)=>{
+    const D=RM()?0:1;
+    bars.forEach(b=>setW(b.r,sx(base)-X0));soc.setAttribute('x1',sx(base));soc.setAttribute('x2',sx(base));socT.setAttribute('x',sx(base));
+    setW(gap,0);gapT.style.opacity=0;nec.setAttribute('width',200);sur.setAttribute('x',320);sur.setAttribute('width',200);necT.textContent='必要劳动 4h';surT.textContent='剩余劳动 4h';
+    cap.textContent='① 各企业生产率相同';await sleep(900*D);if(tok!==figToken)return;
+    cap.textContent='② 企业 A 率先改进技术：个别劳动时间 < 社会必要劳动时间';setW(bars[0].r,sx(5)-X0);await sleep(900*D);
+    gap.setAttribute('x',sx(5));setW(gap,sx(base)-sx(5));gapT.setAttribute('x',(sx(5)+sx(base))/2);gapT.style.opacity=1;
+    cap.textContent='→ A 按社会价值出售，多得：超额剩余价值（个别 · 动机）';await sleep(1800*D);if(tok!==figToken)return;
+    cap.textContent='③ 其他企业竞相跟进，全社会生产率提高';bars.forEach(b=>setW(b.r,sx(5)-X0));setW(gap,0);gapT.style.opacity=0;
+    soc.setAttribute('x1',sx(5));soc.setAttribute('x2',sx(5));socT.setAttribute('x',sx(5));await sleep(1300*D);if(tok!==figToken)return;
+    cap.textContent='④ 生活资料变便宜 → 必要劳动时间缩短 → 相对剩余价值（社会 · 结果）';
+    nec.setAttribute('width',130);sur.setAttribute('x',250);sur.setAttribute('width',270);necT.setAttribute('x',185);surT.setAttribute('x',385);necT.textContent='必要 2.6h';surT.textContent='剩余劳动 5.4h';
+  };
+}
+
+/* ---- 劳动生产率滑块 ---- */
+function figProductivity(box){
+  const w=document.createElement('div');w.className='prod';
+  w.innerHTML=`<label>劳动生产率 <b id="pv">×1</b><input type="range" min="1" max="4" step="1" value="1" id="pr"></label>
+  <div class="prow"><span>1 小时产出</span><div class="pq" id="pq"></div></div>
+  <div class="prow"><span>单位商品价值</span><div class="pbarw"><i id="pu"></i></div><em id="put"></em></div>
+  <div class="prow"><span>价值总量</span><div class="pbarw"><i id="pt" style="width:100%"></i></div><em>不变</em></div>
+  <p class="pnote">生产率 ↑ → 数量 ↑，单位商品价值 ↓（反比），价值总量不变</p>`;
+  box.appendChild(w);
+  const upd=v=>{w.querySelector('#pv').textContent='×'+v;w.querySelector('#pq').innerHTML='<i></i>'.repeat(v*3);
+    w.querySelector('#pu').style.width=(100/v)+'%';w.querySelector('#put').textContent=(12/v).toFixed(1)+' 元';};
+  const r=w.querySelector('#pr');r.oninput=()=>upd(+r.value);upd(1);
+  return async(tok)=>{for(let v=1;v<=4;v++){if(tok!==figToken)return;r.value=v;upd(v);await sleep(RM()?0:900);}};
+}
+
+/* ---- 面包店：资本有机构成 ---- */
+function figBakery(box){
+  const w=document.createElement('div');w.className='bake';
+  w.innerHTML=`<div class="bk-row"><span>生产资料（c）</span><div id="ov"></div></div>
+  <div class="bk-row"><span>劳动力（v）</span><div id="bk"></div></div>
+  <div class="bk-bar"><i id="bc"></i><i id="bv"></i></div><div class="bk-r" id="br"></div>
+  <button class="bk-up" id="bu">升级设备 ⟳</button>`;
+  box.appendChild(w);let lv=0;
+  const S2=[[2,4],[4,2],[6,1]];
+  const upd=()=>{const[c,v]=S2[lv];w.querySelector('#ov').innerHTML='<i class="ov"></i>'.repeat(c);w.querySelector('#bk').innerHTML='<i class="bp"></i>'.repeat(v);
+    const cc=c*30,vv=v*10;w.querySelector('#bc').style.width=cc/(cc+vv)*100+'%';w.querySelector('#bv').style.width=vv/(cc+vv)*100+'%';
+    w.querySelector('#br').innerHTML=`有机构成 c : v = <b>${cc} : ${vv}</b>（约 ${(cc/vv).toFixed(1)} : 1）${lv?' — 机器多了，需要的工人少了 → <b>相对过剩人口</b>':''}`;};
+  w.querySelector('#bu').onclick=()=>{lv=(lv+1)%3;upd();};upd();
+  return async(tok)=>{lv=0;upd();for(let i=1;i<3;i++){await sleep(RM()?0:1500);if(tok!==figToken)return;lv=i;upd();}};
+}
+
+/* ---- 平均利润：资本流动 ---- */
+function figAvg(box){
+  const s=svgEl(640,330);box.appendChild(s);
+  const sec=[['纺织',10,'gray'],['机械',20,'blue'],['电子',30,'purple']];const bars=[],labs=[];
+  sec.forEach(([n,r,c],i)=>{const x=90+i*190;txt(s,x+50,312,n+'部门',{class:'fx-t'});
+    const[bg,st]=FC[c];const b=mk('rect',{x,y:290-r*7,width:100,height:r*7,rx:6,fill:bg,stroke:st,class:'ap-bar'},s);bars.push(b);
+    labs.push(txt(s,x+50,280-r*7,r+'%',{class:'fx-t ap-l',fill:st}));});
+  const avg=mk('line',{x1:70,y1:290-140,x2:590,y2:290-140,class:'ap-avg'},s);const avgT=txt(s,320,290-148,'平均利润率 20%',{class:'fx-s ap-at',fill:'#f1c766'});
+  const cap=txt(s,320,24,'',{class:'fx-t',fill:'#f1c766'});const parts=mk('g',{},s);
+  const set=(i,r)=>{bars[i].setAttribute('y',290-r*7);bars[i].setAttribute('height',r*7);labs[i].setAttribute('y',280-r*7);labs[i].textContent=Math.round(r)+'%';};
+  return async(tok)=>{
+    sec.forEach(([,r],i)=>set(i,r));avg.style.opacity=0;avgT.style.opacity=0;parts.innerHTML='';
+    cap.textContent='不同部门利润率不同';await sleep(RM()?0:1000);if(tok!==figToken)return;
+    cap.textContent='资本从利润率低的部门流向高的部门';
+    for(let k=0;k<6;k++){const c=mk('circle',{cx:140,cy:200,r:6,class:'ap-p'},parts);
+      const anim=c.animate([{transform:'translate(0,0)'},{transform:`translate(${380+(k%3)*8}px,${-30-k*6}px)`}],{duration:RM()?1:1400,delay:k*160,fill:'forwards',easing:'ease-in-out'});}
+    await sleep(RM()?0:1600);if(tok!==figToken)return;
+    const t0=performance.now(),D=RM()?1:1600;
+    while(true){const k=Math.min(1,(performance.now()-t0)/D);sec.forEach(([,r],i)=>set(i,r+(20-r)*k));if(k>=1||tok!==figToken)break;await new Promise(r=>requestAnimationFrame(r));}
+    avg.style.opacity=1;avgT.style.opacity=1;cap.textContent='利润率平均化 → 商品价值转化为生产价格';
+    parts.querySelectorAll('circle').forEach(c=>c.animate([{opacity:1},{opacity:0}],{duration:500,fill:'forwards'}));
+  };
+}
+
+/* ---- 政经计算器 ---- */
+function figCalc(box){
+  const w=document.createElement('div');w.className='calc';
+  w.innerHTML=`<div class="cin"><label>预付资本（万元）<input id="ci" type="number" value="100" min="1"></label>
+   <label>有机构成 c : v<span><input id="cc" type="number" value="3" min="0" step="0.5"> : <input id="cv" type="number" value="1" min="0.1" step="0.5"></span></label>
+   <label>剩余价值率 m′（%）<input id="cm" type="number" value="200" min="0" step="10"></label></div>
+   <div class="cout" id="co"></div>
+   <div class="cday"><div class="cdh">工作日：<button data-m="0" class="on">原始 8h</button><button data-m="1">绝对（+2h）</button><button data-m="2">相对（必要 −2h）</button></div>
+   <div class="cbar"><i id="dn"></i><i id="ds"></i></div><div class="cdr" id="dr"></div></div>`;
+  box.appendChild(w);
+  const calc=()=>{const I=+w.querySelector('#ci').value,c=+w.querySelector('#cc').value,v=+w.querySelector('#cv').value,mp=+w.querySelector('#cm').value/100;
+    const C=I*c/(c+v),V=I*v/(c+v),M=V*mp;
+    w.querySelector('#co').innerHTML=`c = ${I} × ${c}/${c+v} = <b>${+C.toFixed(2)}</b>　v = <b>${+V.toFixed(2)}</b><br>m = v × m′ = <b>${+M.toFixed(2)}</b>　利润 = m = <b>${+M.toFixed(2)}</b> 万元`;};
+  w.querySelectorAll('.cin input').forEach(i=>i.oninput=calc);calc();
+  const setDay=m=>{const[n,su,tot]=[[4,4,8],[4,6,10],[2,6,8]][m];w.querySelector('#dn').style.width=n/10*100+'%';w.querySelector('#ds').style.width=su/10*100+'%';
+    w.querySelector('#dn').textContent=`必要 ${n}h`;w.querySelector('#ds').textContent=`剩余 ${su}h`;
+    w.querySelector('#dr').innerHTML=`剩余价值率 = ${su} ÷ ${n} = <b>${su/n*100}%</b>${m===1?'（延长工作日）':m===2?'（工作日不变，缩短必要劳动时间）':''}`;
+    w.querySelectorAll('.cdh button').forEach(b=>b.classList.toggle('on',+b.dataset.m===m));};
+  w.querySelectorAll('.cdh button').forEach(b=>b.onclick=()=>setDay(+b.dataset.m));setDay(0);
+  return async(tok)=>{for(const m of [0,1,2]){if(tok!==figToken)return;setDay(m);await sleep(RM()?0:1600);}};
+}
+
+const FIGS={flow:figFlow,pairs:figPairs,compare:figCompare,books:figBooks,nested:figNested,cycle:figCycle,money:figMoney,surplus:figSurplus,productivity:figProductivity,bakery:figBakery,avgprofit:figAvg,calc:figCalc};
+
+function animRoute(path,delay,layer){
+  let len=0;try{len=path.getTotalLength();}catch(_){}
+  if(!len||RM())return;
+  path.classList.add('rtd');path.style.strokeDasharray=len;path.style.strokeDashoffset=len;
+  const mover=mk('circle',{r:2.6,'data-r':2.6,class:'mover',cx:-99,cy:-99},layer);
+  const dur=2200,t0=performance.now()+delay,tok=renderOverlays.tok;
+  const step=now=>{
+    if(tok!==renderOverlays.tok||!path.isConnected)return;
+    const k=Math.max(0,Math.min(1,(now-t0)/dur));
+    path.style.strokeDashoffset=len*(1-k);
+    const p=path.getPointAtLength(len*k);mover.setAttribute('cx',p.x);mover.setAttribute('cy',p.y);
+    if(k<1)requestAnimationFrame(step);
+    else{path.classList.remove('rtd');path.style.strokeDasharray='';path.style.strokeDashoffset='';}
+  };
+  requestAnimationFrame(step);
+}
+/* =====================================================================
+   v7：图解面板（马原 / 政经 / 其他）
+   ===================================================================== */
+let kbCur=null,kbPlay=null;
+CARDS.forEach(c=>{if(!c.pts&&c.fig.type==='pairs')c.pts=c.fig.items.map(i=>`${i.q}：<b>${i.a}</b>`);});
+function renderKbList(){
+  let g='',h='';
+  CARDS.forEach(c=>{if(c.g!==g){g=c.g;h+=`<div class="kb-g">${g}</div>`;}
+    const o=MST[c.id];h+=`<button data-id="${c.id}" class="${kbCur&&kbCur.id===c.id?'on':''}"><i style="background:${o?MSTN[o.s][1]:'#3a414c'}"></i>${c.t}</button>`;});
+  $('kbList').innerHTML=h;
+}
+function openCard(id,auto=true){
+  const c=cardById[id]||CARDS[0];kbCur=c;
+  $('app').classList.add('kbon');
+  $('kbG').textContent=c.g;$('kbTitle').textContent=c.t;$('kbKp').textContent=c.kp;
+  const box=$('kbFig');box.innerHTML='';figToken++;
+  kbPlay=FIGS[c.fig.type](box,c.fig);
+  const cz=h=>S.quiz?h.replace(/<b>(.*?)<\/b>/g,(m,a)=>`<span class="cz" title="点击揭示">${a}</span>`):h;
+  $('kbPts').innerHTML=c.pts.map(p=>`<li>${cz(p)}</li>`).join('');
+  const o=MST[c.id];
+  $('kbMst').innerHTML=o?`<i style="background:${MSTN[o.s][1]}"></i>上次：${MSTN[o.s][0]}`:'<i style="background:#4a515c"></i>未自测';
+  $('kbHard').textContent=ivFor(c.id,'hard')+' 天后';$('kbGood').textContent=ivFor(c.id,'good')+' 天后';
+  const i=CARDS.indexOf(c);$('kbPos').textContent=`${i+1} / ${CARDS.length}`;
+  renderKbList();
+  const btn=$('kbList').querySelector(`[data-id="${c.id}"]`);if(btn)btn.scrollIntoView({block:'nearest'});
+  $('kbScroll').scrollTop=0;
+  if(auto)requestAnimationFrame(()=>kbPlay&&kbPlay(figToken));
+}
+function closeKb(){figToken++;$('app').classList.remove('kbon');$('bKb').classList.remove('on');if(isMobile()&&$('app').dataset.view==='kb')setView('map');}
+function kbStep(d){const i=CARDS.indexOf(kbCur);openCard(CARDS[(i+d+CARDS.length)%CARDS.length].id);}
+function rateCard(level){
+  const id=kbCur.id,o=MST[id]||{n:0,iv:0},iv=ivFor(id,level);
+  MST[id]={s:level,n:(o.n||0)+1,iv,due:Date.now()+(iv?iv*DAY:10*60*1000)};saveMst();
+  toast(level==='again'?'已记下：10 分钟后再考一次':`已记下：${iv} 天后复习`);renderStudy();renderMobile();
+  if(S.reviewQ){if(S.reviewQ.length)goItem(S.reviewQ.shift());else{S.reviewQ=null;toast('本轮复习完成 ✓');openCard(id,false);}}
+  else kbStep(1);
+}
+function goItem(id){if(id[0]==='k'){if(isMobile())setView('kb');openCard(id);}else{if($('app').classList.contains('kbon'))closeKb();if(isMobile())setView('card');goEvent(id);}}
+$('kbList').addEventListener('click',e=>{const b=e.target.closest('button');if(b){openCard(b.dataset.id);if(isMobile())$('kbScroll').scrollIntoView({block:'start'});}});
+$('kbReplay').onclick=()=>{figToken++;const t=figToken;kbPlay&&kbPlay(t);};
+$('kbPrev').onclick=()=>kbStep(-1);$('kbNext').onclick=()=>kbStep(1);
+$('kbClose').onclick=closeKb;
+$('bKb').onclick=()=>{if($('app').classList.contains('kbon'))closeKb();else{play(false);$('bKb').classList.add('on');openCard(kbCur?kbCur.id:CARDS[0].id);}};
+$('kbRate').addEventListener('click',e=>{const b=e.target.closest('button');if(b)rateCard(b.dataset.r);});
+$('kbPts').addEventListener('click',e=>{const c=e.target.closest('.cz');if(c)c.classList.add('show');});
+document.addEventListener('keydown',e=>{
+  if(!$('app').classList.contains('kbon')||S.present)return;
+  if(e.key==='Escape')closeKb();
+  else if(e.key==='ArrowRight'){e.stopImmediatePropagation();e.preventDefault();kbStep(1);}
+  else if(e.key==='ArrowLeft'){e.stopImmediatePropagation();e.preventDefault();kbStep(-1);}
+  else if(S.quiz&&['1','2','3'].includes(e.key)){e.stopImmediatePropagation();rateCard(['again','hard','good'][+e.key-1]);}
+},true);
+(()=>{let x0=null,y0=0;const c=$('kbScroll');
+  c.addEventListener('touchstart',e=>{if(e.target.closest('.prod,.calc,.money,input'))return;x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+  c.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;x0=null;
+    if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.5)kbStep(dx<0?1:-1);},{passive:true});
+})();
 function init(){
   buildCn(fallbackCn());buildEu(EU_FALLBACK.map(r=>({rings:[r]})));
   zooms.cn=makeZoom(MAPS.cn.svg,'cn');zooms.eu=makeZoom(MAPS.eu.svg,'eu');
