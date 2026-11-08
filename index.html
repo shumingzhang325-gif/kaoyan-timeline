@@ -610,6 +610,27 @@ header{padding-top:max(10px,calc(env(safe-area-inset-top) + 8px))!important;padd
   .pc{min-height:92px}
   svg.fig{max-height:52vh}
 }
+
+/* ===== v9：手机时间轴紧凑布局 ===== */
+@media (max-width:599px), (max-height:500px) and (max-width:1000px){
+  :root{--tlh:100px}
+  .tl .band{top:4px;height:12px;font-size:9.5px;padding-top:1px;border-top-color:#262c36}
+  .tl .axis{top:50px}
+  .tl .dt{top:46px;width:8px;height:8px;margin-left:-4px;border-width:1.5px}
+  .tl .dt.th{width:11px;height:11px;margin-left:-5.5px;top:44.5px}
+  .tl .dt.on{width:14px;height:14px;margin-left:-7px;top:43px}
+  .tl .tk{top:57px;font-size:10px}
+  .tl .ph{top:38px}
+  .tl .ph::before{top:0;height:8px;width:2px;left:-1px;border-radius:1px}
+  .tl .ph::after{display:none}
+  .tl .lb{font-size:11px;color:#b3bbc6}
+  .tl .lb.on{font-size:12px}
+  .tl .lb::before{display:none}
+}
+@media (max-height:500px) and (max-width:1000px){
+  :root{--tlh:84px}
+  .tl .lb[style*="top:78px"]{display:none}
+}
 </style>
 </head>
 <body>
@@ -1800,12 +1821,12 @@ function tlLabels(){
   const fits=(list,a,b)=>list.every(([x,y])=>b<x-10||a>y+10);
   let h='';
   cands.forEach(e=>{
-    const x=xOf(e.t),w=e.short.length*(e===S.cur?13:12)+4,a=x-w/2,b=x+w/2;
+    const fw=isMobile()?11.5:12,x=xOf(e.t),w=e.short.length*(e===S.cur?fw+1.5:fw)+(isMobile()?10:4),a=x-w/2,b=x+w/2;
     if(a<2||b>W-2)return;
     let row=null;
     if(fits(rows.a,a,b))row='a';else if(fits(rows.b,a,b))row='b';else return;
     rows[row].push([a,b]);
-    h+=`<div class="lb${e===S.cur?' on':''}" style="left:${x}px;top:${row==='a'?32:86}px">${e.short}</div>`;
+    h+=`<div class="lb${e===S.cur?' on':''}" style="left:${x}px;top:${row==='a'?(isMobile()?20:32):(isMobile()?78:86)}px">${e.short}</div>`;
   });
   box.innerHTML=h;
   tl.querySelectorAll('.dt').forEach(d=>d.classList.toggle('on',S.cur&&d.dataset.id===S.cur.id));
