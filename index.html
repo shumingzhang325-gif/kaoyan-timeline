@@ -2754,6 +2754,7 @@ const QZ=(()=>{
   }
   async function load(){
     if(loaded)return true;
+    if(!B&&/^https?:/.test(location.protocol)){try{await loadScript('quiz-data.js',8000);if(window.__QB&&window.__QB.DATA){B=window.__QB;inline=true;}}catch(e){}}
     if(!B){try{B=await idb.get('bank')||null;}catch(e){B=null;}}
     prep();if(inline||B)cloud.init();return !!B;
   }
@@ -2899,22 +2900,32 @@ const QZ=(()=>{
       LS.set('kz-state',st);LS.set('kz-wrong',WB);prep();$('qz').classList.remove('nobank');render();v10Refresh();toast('题库已导入，可以离线刷题了');
     }catch(e){toast('导入失败：'+(e.message||e));}
   }
-  function renderXfer(){
-    const el=$('qzXfer');if(!inline||typeof CompressionStream==='undefined'){el.innerHTML='';return;}
-    el.innerHTML='把题库和进度带到主屏幕 App：先点下面的按钮复制，再到主屏幕 App 的“刷题”里点“粘贴导入”。<button id="qzPack">'+(packed?'② 复制题库到剪贴板':'① 准备题库（几秒钟）')+'</button>';
-    $('qzPack').onclick=async()=>{
-      if(!packed){$('qzPack').textContent='正在压缩…';try{packed=await pack();}catch(e){toast('压缩失败');}renderXfer();return;}
-      try{navigator.clipboard.writeText(packed).then(()=>toast('已复制。现在打开主屏幕 App → 刷题 → 粘贴导入'),()=>toast('复制被拦截，请再点一次'));}catch(e){toast('当前环境不支持复制');}
-    };
+  function renderXfer(){$('qzXfer').innerHTML='';}
+  function parseBank(text){
+    text=text||'';
+    if(text.trim().startsWith('KYQB1:'))return null;
+    const lines=text.split('\n');
+    const grab=name=>{const re=new RegExp('^\\s*(?:const|let|var)\\s+'+name+'\\s*=\\s*');const l=lines.find(x=>re.test(x.slice(0,60)));if(!l)return null;return JSON.parse(l.replace(re,'').replace(/;\s*$/,''));};
+    let o=null;if(text.length<3e7&&/^\s*\{/.test(text.slice(0,20))){try{const j=JSON.parse(text);o=j.B||j;}catch(e){}}
+    if(!o||!o.DATA){const D=grab('DATA'),SD=grab('SETDEF');if(D&&SD)o={DATA:D,SETDEF:SD,SUBJ:grab('SUBJ')||{tpl:[],sub:{}}};}
+    if(!o||!o.DATA||!o.SETDEF)throw new Error('文件里没有找到题库数据');
+    return o;
+  }
+  async function importFile(file){
+    try{toast('正在读取题库…');const text=await file.text();
+      if(text.trim().startsWith('KYQB1:')){await importText(text);return;}
+      const o=parseBank(text);await idb.set('bank',o);B=o;loaded=false;prep();$('qz').classList.remove('nobank');render();v10Refresh();
+      toast('题库已导入，共 '+summary().total+' 题');
+    }catch(e){toast('导入失败：'+(e.message||e));}
   }
   function renderEmpty(){
     $('qzEmpty').innerHTML=`<p class="eyebrow">刷题</p><h2>这台设备还没有题库</h2>
-      <p>题库体积较大，没有打包进这个版本。完整版在 claude.ai 上，可以把题库连同做题进度一次搬过来。</p>
-      <ol><li>打开 <a href="${FULL_URL}">claude.ai 上的完整版</a>，进入“刷题”。</li><li>在目录最下面点“准备题库”，再点“复制题库”。</li><li>回到这里，点下面的按钮。</li></ol>
-      <button class="pbtn pri" id="qzPaste">粘贴导入题库</button>
-      <textarea id="qzPasteBox" placeholder="如果按钮没反应：长按这里选“粘贴”"></textarea>`;
-    $('qzPaste').onclick=async()=>{try{importText(await navigator.clipboard.readText());}catch(e){toast('读不到剪贴板，请在下面的框里长按粘贴');}};
-    $('qzPasteBox').addEventListener('paste',e=>{const t=(e.clipboardData||window.clipboardData).getData('text');e.preventDefault();$('qzPasteBox').value='已收到，正在导入…';importText(t);});
+      <p>刷题功能已经装好，题库还在你原来的刷题页面里，体积太大，这次没能直接搬过来。两种办法任选一种：</p>
+      <ol><li>有刷题页面的文件（.html）或题库文件：点下面的按钮选它，导入一次后可离线使用。</li><li>在当初生成刷题页面的那个对话里，让 Claude 把题库导出成 <b>quiz-data.js</b> 放进这个 App 的 GitHub 仓库，之后这里会自动出现题库。</li></ol>
+      <button class="pbtn pri" id="qzPick">选择文件导入题库</button><input type="file" id="qzFile" accept=".html,.htm,.js,.json,.txt" hidden>
+      <p style="margin-top:14px"><a href="${FULL_URL}">原来的刷题页面</a>不受影响，可以继续用。</p>`;
+    $('qzPick').onclick=()=>$('qzFile').click();
+    $('qzFile').onchange=e=>{const f=e.target.files[0];if(f)importFile(f);};
   }
   function summary(){
     if(!B)return {has:false,total:0,done:0,ok:0,wrong:Object.keys(WB).length,groups:[]};
