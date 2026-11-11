@@ -2017,10 +2017,10 @@ function stepEvent(d){
   i=Math.min(p.length-1,Math.max(0,i+d));goEvent(p[i].id);
 }
 $('bPrev').onclick=()=>stepEvent(-1);$('bNext').onclick=()=>stepEvent(1);
-$('jump').onchange=e=>{setYear(+e.target.value+0.01,true);};
+$('jump').onchange=e=>{setYear(+e.target.value+0.01,true);e.target.blur();};
 
 /* 选项 */
-const bindOpt=(id,key,fn)=>$(id).addEventListener('change',e=>{S.opt[key]=e.target.checked;fn&&fn();});
+const bindOpt=(id,key,fn)=>$(id).addEventListener('change',e=>{S.opt[key]=e.target.checked;fn&&fn();e.target.blur();});
 bindOpt('oSlow','slow');
 bindOpt('oBg','bg',()=>$('stage').classList.toggle('nobg',!S.opt.bg));
 bindOpt('oPow','pow',()=>{MAPS.cn.sig='';paintCn();renderPower();});
@@ -2045,6 +2045,18 @@ $('bShare').onclick=()=>{
 /* 键盘 */
 function isTyping(e){return e.isComposing||(e.target&&(e.target.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)));}
 function isChord(e){return e.ctrlKey||e.metaKey||e.altKey;}
+const isSpace=e=>e.code==='Space'||e.key===' '||e.key==='Spacebar';
+function isTextEntry(t){
+  if(!t)return false;if(t.isContentEditable||t.tagName==='TEXTAREA')return true;
+  return t.tagName==='INPUT'&&!/^(checkbox|radio|range|button|submit|reset|color|file|image)$/i.test(t.type);
+}
+// 空格在按钮/复选框/下拉框获得焦点时也要归时空轴；先移走焦点，免得松开空格时再“点”一次该控件
+function spaceKey(e){
+  if(!isSpace(e)||isChord(e)||e.isComposing||isTextEntry(e.target))return false;
+  e.preventDefault();
+  const a=document.activeElement;if(a&&a!==document.body&&a.blur)a.blur();
+  return true;
+}
 // 作答键：1/2/3 = 忘了/模糊/记住；Enter = 揭示下一处挖空。按住不放不会连续作答
 const RATE_KEYS={'1':'again','2':'hard','3':'good'};
 function rateKey(e,box){
@@ -2061,18 +2073,18 @@ function revealNext(...els){
   return false;
 }
 document.addEventListener('keydown',e=>{
-  if(isTyping(e))return;
   if(curView()!=='map'&&!S.present)return;
+  if(spaceKey(e)){if(!e.repeat){if(S.present)nextStep();else play(!S.playing);}return;}
+  if(isTyping(e))return;
   if(S.present){
-    if(['ArrowRight','PageDown','Enter'].includes(e.key)||e.code==='Space'){e.preventDefault();nextStep();}
+    if(['ArrowRight','PageDown','Enter'].includes(e.key)){e.preventDefault();nextStep();}
     else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();stepEvent(-1);}
     else if(e.key==='Escape'){setPresent(false);}
     return;
   }
   if(rateKey(e,document.querySelector('#lcard .rate')))return;
   if(S.quiz&&e.key==='Enter'&&!isChord(e)){e.preventDefault();if(!e.repeat)revealNext(document.querySelector('.mcbox'),$('pts'));return;}
-  if(e.code==='Space'){e.preventDefault();play(!S.playing);}
-  else if(e.key==='ArrowLeft'){e.preventDefault();setYear(S.year-0.25);}
+  if(e.key==='ArrowLeft'){e.preventDefault();setYear(S.year-0.25);}
   else if(e.key==='ArrowRight'){e.preventDefault();setYear(S.year+0.25);}
 });
 
@@ -2254,7 +2266,7 @@ function threadRow(){
     if(on){const box=tr.closest('.th-b'),top=tr.offsetTop-40;if(top<box.scrollTop||top>box.scrollTop+box.clientHeight-60)box.scrollTop=Math.max(0,top);}
   });
 }
-$('thSel').onchange=e=>openThread(e.target.value);
+$('thSel').onchange=e=>{openThread(e.target.value);e.target.blur();};
 $('thClose').onclick=()=>openThread(null);
 $('thTable').addEventListener('click',e=>{const tr=e.target.closest('tr[data-id]');if(tr)goEvent(tr.dataset.id);});
 
