@@ -804,6 +804,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 .qz-act button:disabled{opacity:.4}
 .qz[data-sub=subj] #qzBox,.qz[data-sub=subj] #qzAct,.qz[data-sub=subj] .qz-prog,.qz[data-sub=subj] .qz-links,.qz[data-sub=wrong] #qzBox,.qz[data-sub=wrong] #qzAct,.qz[data-sub=wrong] .qz-prog,.qz[data-sub=wrong] .qz-links{display:none}
 #qzSubj,#qzWrong{display:none}
+.qz[data-sub=wrong] .qz-head{display:none}
 .qz[data-sub=subj] #qzSubj,.qz[data-sub=wrong] #qzWrong{display:block}
 .dg{margin-bottom:6px}
 .dg>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:9px 8px;border-radius:9px;font-size:13.5px;font-weight:600;line-height:1.4}
@@ -843,11 +844,58 @@ details.tpl summary{font-weight:600;cursor:pointer;font-size:14px}
 details.tpl div{white-space:pre-line;font-size:14px;color:#c3cad3;margin-top:8px;line-height:1.85}
 .wg{margin:14px auto}.wgh{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--dim);margin-bottom:8px}
 .wgh button{font-size:12.5px;color:var(--gold2);border:1px solid #6d5422;border-radius:8px;padding:4px 10px}
-.wl{display:flex;gap:8px;align-items:flex-start;margin-bottom:6px}
-.wl .wq{flex:1;min-width:0;text-align:left;padding:11px 12px;border-radius:10px;background:var(--s1);border:1px solid var(--bd)}
-.wl .wq span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:14px;line-height:1.6}
-.wl .wq small{display:block;font-size:12px;color:var(--dim);margin-top:4px}
-.wl .rm{flex:none;font-size:12px;color:var(--dim);border:1px solid var(--bd);border-radius:8px;padding:5px 8px;margin-top:4px}
+.wgh b{color:#e6e9ee;font-weight:600}
+.q-stem img,.w-opt img{max-width:100%;height:auto;border-radius:8px;vertical-align:middle}
+/* 错题卡片：题干、全部选项、你选 vs 正确一眼可见 */
+.w-sum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:6px 0 10px}
+.w-k{padding:10px 12px;border-radius:10px;background:var(--s1);border:1px solid var(--bd)}
+.w-k b{display:block;font-size:22px;font-variant-numeric:tabular-nums}.w-k span{font-size:12px;color:var(--dim)}
+.w-k.bad b{color:#f08a83}.w-k.ok b{color:var(--ok)}
+.w-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.w-chips button{font-size:12.5px;padding:6px 12px;border-radius:999px;border:1px solid var(--bd);color:#cfd5de;background:var(--s1)}
+.w-chips button.on{border-color:var(--gold);color:var(--gold2);background:rgba(217,168,69,.12)}
+.w-go{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.w-go span{flex:1;min-width:200px;font-size:12px;color:var(--dim);line-height:1.6}
+.wgh button{white-space:nowrap}
+.wc{padding:14px 16px;margin:10px 0 14px;border-radius:var(--r);background:var(--s1);border:1px solid var(--bd);border-left:3px solid var(--bad)}
+.wc.fixed{border-left-color:var(--ok)}
+.wc-h{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.q-tag.bad{background:rgba(229,83,75,.14);color:#f08a83}.q-tag.ok{background:rgba(63,191,140,.14);color:var(--ok)}
+.wc-d{font-size:11.5px;color:var(--faint);margin-left:auto}
+.wc-ans{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.wc-ans span{padding:5px 12px;border-radius:9px;font-size:13.5px;font-weight:600}
+.wc-ans b{font-size:15px;margin-left:2px}
+.wc-ans .no{background:rgba(229,83,75,.14);color:#f08a83}.wc-ans .yes{background:rgba(63,191,140,.14);color:var(--ok)}
+.wc .wc-s{font-size:16px;line-height:1.8;margin:0 0 12px}
+.w-opts{display:grid;gap:6px}
+.w-opt{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border-radius:10px;border:1px solid var(--bd);background:var(--s2)}
+.w-opt .l{flex:none;width:25px;height:25px;border-radius:50%;display:grid;place-items:center;font-size:12.5px;font-weight:700;background:var(--s3);color:#cfd5de}
+.w-opt .t{flex:1;min-width:0;font-size:14.5px;line-height:1.65;color:#dfe3e9}
+.w-opt em{flex:none;align-self:center;font-style:normal;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.w-opt.right,.w-opt.miss{border-color:var(--ok);background:rgba(63,191,140,.08)}.w-opt.miss{border-style:dashed}
+.w-opt.right .l,.w-opt.miss .l{background:var(--ok);color:#06140e}.w-opt.right em,.w-opt.miss em{color:var(--ok);background:rgba(63,191,140,.14)}
+.w-opt.bad{border-color:var(--bad);background:rgba(229,83,75,.08)}.w-opt.bad .l{background:var(--bad);color:#fff}.w-opt.bad em{color:#f08a83;background:rgba(229,83,75,.14)}
+.w-opt.plain .t{color:#9aa2af}
+.w-why{display:block;margin-top:4px;font-size:12.5px;line-height:1.65;color:#aeb6c2}
+.wc-x{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--s2);font-size:13px;line-height:1.75;color:#c3cad3}
+.wc-x>b{display:block;font-size:12px;color:var(--gold2);margin-bottom:2px}
+.wc-x.long .xt{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.wc-x.open .xt{display:block}
+.wc-x .wx{margin-top:4px;font-size:12.5px;color:var(--gold2)}
+.wc-f{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:12px}
+.wc-f button{height:36px;padding:0 14px;border-radius:9px;font-size:13px;border:1px solid var(--bd);color:#cfd5de}
+.wc-f .r2one{border-color:#6d5422;color:var(--gold2);background:rgba(217,168,69,.1)}
+.wc-f .rm{color:var(--dim)}
+/* 二刷 */
+.qz-tools .r2b{border-color:#6d5422;color:var(--gold2);background:rgba(217,168,69,.1)}
+.qz-tools .r2b[hidden],.qz:not(.r2) #qzR2End,.qz.r2 #qzMode,.qz.r2 #qzReset{display:none}
+.q-tag.r2t{background:var(--gold);color:#0b0d12;font-weight:700}
+/* 作答结果常驻在底部按钮栏，解析再长也看得到对错 */
+.qz-act .qz-res{display:none;flex:none;align-items:center;gap:4px;padding:0 14px;font-size:14px;white-space:nowrap}
+.qz-act .qz-res.ok{display:flex;color:var(--ok);background:rgba(63,191,140,.12);border-color:var(--ok)}
+.qz-act .qz-res.no{display:flex;color:#f08a83;background:rgba(229,83,75,.12);border-color:var(--bad)}
+.qz-act .qz-res b{color:var(--ok);font-size:16px}
+.qz-main,#pgQuiz{scroll-padding-bottom:84px}
 .qz-empty{display:none;grid-column:1 / -1;place-self:center;max-width:560px;padding:32px 24px;text-align:center}
 .qz.nobank{display:block!important;height:auto}
 .qz.nobank>*{display:none!important}.qz.nobank>.qz-empty{display:block!important;box-sizing:border-box;width:100%;max-width:560px;margin:0 auto}
@@ -861,6 +909,24 @@ details.tpl div{white-space:pre-line;font-size:14px;color:#c3cad3;margin-top:8px
 .qz-xfer button{margin-top:8px;width:100%;height:34px;border-radius:8px;border:1px solid #6d5422;color:var(--gold2);background:rgba(217,168,69,.1);font-size:12.5px}
 #qzWB:not(:empty){font-style:normal;margin-left:5px;font-size:10px;background:var(--bad);color:#fff;border-radius:8px;padding:1px 5px}
 
+/* 平板横放 / 窄桌面：目录收进顶部分栏，只留答题卡侧栏，题目区不再被两侧栏挤窄 */
+@media (min-width:1024px) and (max-width:1439px){
+  .qz{grid-template-columns:minmax(0,1fr) 240px}
+  .qz-tabs{grid-column:1}
+  .qz-tabs [data-s=dir]{display:block}
+  .qz-dir{display:none;grid-column:1;grid-row:2;border-right:0;background:none;padding:18px 32px}
+  .qz-main{grid-column:1}.qz-side{grid-column:2}
+  .qz[data-sub=dir] .qz-dir{display:block}.qz[data-sub=dir] .qz-main{display:none}
+  .qz-dir>*{max-width:720px;margin-left:auto;margin-right:auto}
+}
+/* 平板：压缩题目上方的标题区，把高度留给题干和选项 */
+@media (min-width:600px) and (max-width:1439px) and (min-height:501px){
+  .qz-main{padding-top:14px}
+  .qz-ttl h2{font-size:17px}
+  .qz-prog{margin:10px auto 8px}
+  .q-meta{margin:6px 0 8px}
+  .q-stem{margin-bottom:14px}
+}
 /* 中等宽度（平板竖放）：刷题改为单栏 + 顶部分栏 */
 @media (min-width:600px) and (max-width:1023px) and (min-height:501px){
   .mods{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:1fr}
@@ -2760,7 +2826,7 @@ function figKey(e){
     if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.5)kbStep(dx<0?1:-1);},{passive:true});
 })();
 const RAIL_HTML="<nav class=\"rail\" id=\"rail\" aria-label=\"模块导航\">\n  <div class=\"rail-logo\">政</div>\n  <button data-v=\"home\"><svg viewBox=\"0 0 24 24\"><path d=\"M4 11.5 12 4l8 7.5V20h-5v-5H9v5H4z\"/></svg>今日</button>\n  <button data-v=\"map\"><svg viewBox=\"0 0 24 24\"><path d=\"M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z\"/><path d=\"M9 4v14M15 6v14\"/></svg>时空轴</button>\n  <button data-v=\"quiz\"><svg viewBox=\"0 0 24 24\"><path d=\"M5 4h14v16H5z\"/><path d=\"m8.5 9 1.5 1.5L13 8M8.5 15l1.5 1.5 3-2.5M15.5 9.5H17M15.5 15.5H17\"/></svg>刷题</button>\n  <button data-v=\"kb\"><svg viewBox=\"0 0 24 24\"><circle cx=\"6\" cy=\"7\" r=\"3\"/><circle cx=\"18\" cy=\"7\" r=\"3\"/><circle cx=\"12\" cy=\"18\" r=\"3\"/><path d=\"M8.5 8.5 11 16M15.5 8.5 13 16M9 7h6\"/></svg>图解</button>\n  <button data-v=\"study\"><span class=\"badge\" id=\"railBadge\" data-n=\"0\"><svg viewBox=\"0 0 24 24\"><path d=\"M12 3a9 9 0 1 0 9 9\"/><path d=\"M12 7v5l3 2\"/><path d=\"M17 3h4v4\"/></svg></span>复习</button>\n</nav>\n";
-const PAGES_HTML="    <div class=\"page\" id=\"pgHome\"><div class=\"home\" id=\"home\"></div></div>\n    <div class=\"page\" id=\"pgStudy\"><div class=\"study\" id=\"studyPg\"></div></div>\n    <div class=\"page\" id=\"pgQuiz\">\n      <div class=\"qz\" id=\"qz\" data-sub=\"do\">\n        <div class=\"qz-tabs\" id=\"qzTabs\">\n          <button data-s=\"dir\">目录</button><button data-s=\"do\" class=\"on\">做题</button><button data-s=\"card\">答题卡</button><button data-s=\"subj\">主观题</button><button data-s=\"wrong\">错题本<i id=\"qzWB\"></i></button>\n        </div>\n        <aside class=\"qz-dir\"><div class=\"pg-h\"><span class=\"eyebrow\">题库目录</span><b id=\"qzTotal\"></b></div><div id=\"qzDir\"></div><div class=\"qz-xfer\" id=\"qzXfer\"></div></aside>\n        <main class=\"qz-main\" id=\"qzMainCol\">\n          <div class=\"qz-head\"><div class=\"qz-ttl\"><span class=\"eyebrow\" id=\"qzGroup\"></span><h2 id=\"qzSet\"></h2></div>\n            <div class=\"qz-tools\"><select id=\"qzMode\" title=\"刷题范围\"><option value=\"all\">全部题目</option><option value=\"todo\">只刷未做</option><option value=\"wrong\">只刷错题</option></select><button id=\"qzReset\">重做本套</button></div></div>\n          <div class=\"qz-prog\"><i id=\"qzBar\"></i></div>\n          <div class=\"qz-links\" id=\"qzLinks\"></div>\n          <div id=\"qzBox\"></div>\n          <div class=\"qz-act\" id=\"qzAct\"><button id=\"qzPrev\">上一题</button><button id=\"qzGo\" class=\"pri\">确认</button></div>\n          <div id=\"qzSubj\"></div>\n          <div id=\"qzWrong\"></div>\n        </main>\n        <aside class=\"qz-side\"><div class=\"pg-h\"><span class=\"eyebrow\">答题卡</span><b id=\"qzCardT\"></b></div>\n          <div class=\"qz-stat\"><div><b id=\"qsDone\">0</b><span>已做</span></div><div><b id=\"qsOk\">0</b><span>做对</span></div><div><b id=\"qsRate\">–</b><span>正确率</span></div></div>\n          <div class=\"qz-grid\" id=\"qzGrid\"></div>\n          <div class=\"qz-leg\"><span><i class=\"ok\"></i>做对</span><span><i class=\"no\"></i>做错</span><span><i class=\"cur\"></i>当前</span></div>\n          <p class=\"qz-kb\">键盘：A–D 或 1–4 选项（多选可连按）· Enter 或空格 确认 / 下一题 · ← → 翻题</p>\n        </aside>\n        <div class=\"qz-empty\" id=\"qzEmpty\"></div>\n      </div>\n    </div>\n";
+const PAGES_HTML="    <div class=\"page\" id=\"pgHome\"><div class=\"home\" id=\"home\"></div></div>\n    <div class=\"page\" id=\"pgStudy\"><div class=\"study\" id=\"studyPg\"></div></div>\n    <div class=\"page\" id=\"pgQuiz\">\n      <div class=\"qz\" id=\"qz\" data-sub=\"do\">\n        <div class=\"qz-tabs\" id=\"qzTabs\">\n          <button data-s=\"dir\">目录</button><button data-s=\"do\" class=\"on\">做题</button><button data-s=\"card\">答题卡</button><button data-s=\"subj\">主观题</button><button data-s=\"wrong\">错题本<i id=\"qzWB\"></i></button>\n        </div>\n        <aside class=\"qz-dir\"><div class=\"pg-h\"><span class=\"eyebrow\">题库目录</span><b id=\"qzTotal\"></b></div><div id=\"qzDir\"></div><div class=\"qz-xfer\" id=\"qzXfer\"></div></aside>\n        <main class=\"qz-main\" id=\"qzMainCol\">\n          <div class=\"qz-head\"><div class=\"qz-ttl\"><span class=\"eyebrow\" id=\"qzGroup\"></span><h2 id=\"qzSet\"></h2></div>\n            <div class=\"qz-tools\"><select id=\"qzMode\" title=\"刷题范围\"><option value=\"all\">全部题目</option><option value=\"todo\">只刷未做</option><option value=\"wrong\">只刷错题</option></select><button id=\"qzR2Set\" class=\"r2b\" title=\"不清记录，重新作答本套已做过的题\">二刷本套</button><button id=\"qzReset\">重做本套</button><button id=\"qzR2End\" class=\"r2b\">结束二刷</button></div></div>\n          <div class=\"qz-prog\"><i id=\"qzBar\"></i></div>\n          <div class=\"qz-links\" id=\"qzLinks\"></div>\n          <div id=\"qzBox\"></div>\n          <div class=\"qz-act\" id=\"qzAct\"><button id=\"qzPrev\">上一题</button><button id=\"qzRes\" class=\"qz-res\" title=\"查看解析\"></button><button id=\"qzGo\" class=\"pri\">确认</button></div>\n          <div id=\"qzSubj\"></div>\n          <div id=\"qzWrong\"></div>\n        </main>\n        <aside class=\"qz-side\"><div class=\"pg-h\"><span class=\"eyebrow\">答题卡</span><b id=\"qzCardT\"></b></div>\n          <div class=\"qz-stat\"><div><b id=\"qsDone\">0</b><span>已做</span></div><div><b id=\"qsOk\">0</b><span>做对</span></div><div><b id=\"qsRate\">–</b><span>正确率</span></div></div>\n          <div class=\"qz-grid\" id=\"qzGrid\"></div>\n          <div class=\"qz-leg\"><span><i class=\"ok\"></i>做对</span><span><i class=\"no\"></i>做错</span><span><i class=\"cur\"></i>当前</span></div>\n          <p class=\"qz-kb\">键盘：A–D 或 1–4 选项（多选可连按）· Enter 或空格 确认 / 下一题 · ← → 翻题</p>\n        </aside>\n        <div class=\"qz-empty\" id=\"qzEmpty\"></div>\n      </div>\n    </div>\n";
 /* =====================================================================
    v10：刷题模块（题库来自原“刷题”页面；作答与错题沿用原存储键，进度不丢）
    ===================================================================== */
@@ -2777,7 +2843,13 @@ const QZ=(()=>{
   const key=(s,n)=>s+'-'+n,isMulti=q=>(q.m!==undefined&&q.m!==null)?q.m:q.n>=17;
   const def=id=>B.SETDEF.find(x=>String(x.id)===String(id))||{};
   const nm=id=>{const x=def(id);return x.t?`${x.t}（${x.k}）`:(x.name||id);};
-  const qs=()=>B.DATA[st.set]||[];
+  // 二刷：在原有做题界面上开一轮新作答。会话内只看本轮答案（旧答案与正确答案先藏起来），
+  // 判分照常写入 st.ans / 错题本，开始二刷本身不清任何记录
+  let R2=null;
+  const qs=()=>R2?R2.qs:(B.DATA[st.set]||[]);
+  const setAt=i=>R2?R2.items[i].s:st.set;
+  const kAt=i=>key(setAt(i),qs()[i].n);
+  const ansOf=k=>R2?R2.ans[k]:st.ans[k];
   const isAll=id=>/all$/.test(String(id));
   const cloud={db:null,uid:null,ready:false,tm:{},
     ref(n){return this.db.doc('data/users/'+this.uid+'/'+n);},
@@ -2810,6 +2882,7 @@ const QZ=(()=>{
   }
   function buildOrder(){
     const all=qs().map((q,i)=>i);
+    if(R2){order=all;return;}
     order=mode==='wrong'?all.filter(i=>WB[key(st.set,qs()[i].n)]):mode==='todo'?all.filter(i=>!st.ans[key(st.set,qs()[i].n)]):all;
     if(!order.length){mode='all';order=all;if($('qzMode'))$('qzMode').value='all';}
   }
@@ -2856,11 +2929,12 @@ const QZ=(()=>{
   function renderQ(){
     const box=$('qzBox');if(!order.length){box.innerHTML='<p class="empty">这一套没有题目。</p>';return;}
     pos=Math.max(0,Math.min(pos,order.length-1));
-    const q=qs()[order[pos]],k=key(st.set,q.n),given=st.ans[k],answered=!!given,x=def(st.set);
+    const s=setAt(order[pos]),q=qs()[order[pos]],k=key(s,q.n),given=ansOf(k),answered=!!given,x=def(s);
     pick=new Set();
-    $('qzGroup').textContent=x.g||'';$('qzSet').textContent=nm(st.set);$('qzCardT').textContent=x.k||'';
+    $('qz').classList.toggle('r2',!!R2);
+    $('qzGroup').textContent=R2?'二刷 · '+nm(s):x.g||'';$('qzSet').textContent=R2?R2.title:nm(st.set);$('qzCardT').textContent=R2?'二刷':x.k||'';
     $('qzBar').style.width=((pos+1)/order.length*100)+'%';
-    const lk=linksFor(st.set);
+    const lk=linksFor(s);
     $('qzLinks').innerHTML=lk.length?'<span>本章相关</span>'+lk.map(([t,i,l])=>`<button data-t="${t}" data-i="${i}">${l} ›</button>`).join(''):'';
     const opts=q.o.map((t,i)=>{const l=L[i];let c='q-opt',lab='';
       if(answered){const a=q.a.includes(l),g=given.includes(l);
@@ -2868,39 +2942,63 @@ const QZ=(()=>{
       return `<button class="${c}" data-l="${l}"><span class="l">${l}</span><span class="t">${t}<span class="q-why"><b>${lab}</b>${(q.e&&q.e[i])||''}</span></span></button>`;}).join('');
     const ok=answered&&given===q.a;
     box.className=answered?'done':'';
-    box.innerHTML=`<div class="q-meta"><span>${mode==='wrong'?'错题 ':mode==='todo'?'未做 ':''}${pos+1} / ${order.length}</span><span class="q-tag ${isMulti(q)?'multi':''}">${isMulti(q)?'多选':'单选'}</span><span>第 ${q.n} 题</span>${q.u?'<span class="q-tag warn">时政 / 存疑</span>':''}${WB[k]?`<span class="q-tag warn">错过 ${WB[k].c} 次</span>`:''}</div>
+    box.innerHTML=`<div class="q-meta">${R2?'<span class="q-tag r2t">二刷</span>':''}<span>${R2?'':mode==='wrong'?'错题 ':mode==='todo'?'未做 ':''}${pos+1} / ${order.length}</span><span class="q-tag ${isMulti(q)?'multi':''}">${isMulti(q)?'多选':'单选'}</span><span>第 ${q.n} 题</span>${q.u?'<span class="q-tag warn">时政 / 存疑</span>':''}${WB[k]?`<span class="q-tag warn">错过 ${WB[k].c} 次</span>`:''}</div>
       <p class="q-stem">${q.s}</p><div class="q-opts">${opts}</div>
       <div class="q-verdict ${ok?'ok':'no'}"><button class="redo" id="qzRedo">重做这题</button><h4>${ok?'回答正确':'回答错误'}</h4>
       <p>正确答案 <b style="color:var(--ok)">${q.a}</b>${answered&&!ok?'　你的答案 <b style="color:#f08a83">'+given+'</b>':''}</p>
       ${q.u?'<div class="note">这道题涉及时政或表述有争议，请以书后官方解析为准。</div>':''}
       ${q.x?'<div class="off"><b>官方解析</b><br>'+String(q.x).replace(/</g,'&lt;').replace(/\n/g,'<br>')+'</div>':''}</div>`;
+    const res=$('qzRes');res.className='qz-res'+(answered?(ok?' ok':' no'):'');res.innerHTML=answered?(ok?'✓ 回答正确':`✗ 正确答案 <b>${q.a}</b>`):'';
+    $('qzR2Set').hidden=!!R2||!cnt(st.set).d;
     $('qzPrev').disabled=pos===0;const go=$('qzGo');
-    if(answered){go.textContent=pos===order.length-1?'本套完成 · 看答题卡':'下一题';go.disabled=false;}
+    if(answered){go.textContent=pos===order.length-1?(R2?'二刷完成 · 看结果':'本套完成 · 看答题卡'):'下一题';go.disabled=false;}
     else if(isMulti(q)){go.textContent='确认（多选，至少选 2 项）';go.disabled=true;}
     else{go.textContent='点选项或按 A–D 作答';go.disabled=true;}
-    st.idx[st.set]=order[pos];save();renderGrid();
+    if(!R2){st.idx[st.set]=order[pos];save();}renderGrid();
   }
   function choose(l){
-    const q=qs()[order[pos]],k=key(st.set,q.n);if(!q||st.ans[k])return;
+    const q=qs()[order[pos]];if(!q||ansOf(kAt(order[pos])))return;
     if(!isMulti(q)){commit(q,l);return;}
     pick.has(l)?pick.delete(l):pick.add(l);
     $('qzBox').querySelectorAll('.q-opt').forEach(b=>b.classList.toggle('sel',pick.has(b.dataset.l)));
     $('qzGo').disabled=pick.size<2;
   }
   function commit(q,given){
-    const k=key(st.set,q.n);st.ans[k]=given;
+    const k=kAt(order[pos]);st.ans[k]=given;if(R2)R2.ans[k]=given;
     if(given!==q.a){const o=WB[k];WB[k]={a:given,c:(o?o.c:0)+1,t:Date.now()};saveWB();}
-    save();renderQ();badge();
+    save();renderQ();badge();keepInView($('qzBox').querySelector(`.q-opt[data-l="${given[0]}"]`));
+  }
+  // 揭示答案后各选项展开错因、整体变高：只滚到“刚选的选项”完整露出在底部按钮栏之上，太高时以其顶部为准
+  function keepInView(el){
+    if(!el)return;const sc=scrollerOf(el),act=$('qzAct').getBoundingClientRect(),r=el.getBoundingClientRect();
+    const top=sc===document.scrollingElement?0:Math.max(0,sc.getBoundingClientRect().top),over=r.bottom-(act.top-8);
+    if(over>0)sc.scrollTop+=Math.min(over,r.top-top-8);
+  }
+  function scrollerOf(el){
+    for(let n=el.parentElement;n&&n!==document.body;n=n.parentElement){const o=getComputedStyle(n).overflowY;if((o==='auto'||o==='scroll')&&n.scrollHeight>n.clientHeight+1)return n;}
+    return document.scrollingElement;
   }
   function next(){
-    const q=qs()[order[pos]];if(!q)return;const k=key(st.set,q.n);
-    if(!st.ans[k]){if(pick.size<2)return;commit(q,[...pick].sort().join(''));return;}
-    if(pos<order.length-1){pos++;renderQ();scrollTop();}else setSub('card');
+    const q=qs()[order[pos]];if(!q)return;const k=kAt(order[pos]);
+    if(!ansOf(k)){if(pick.size<2)return;commit(q,[...pick].sort().join(''));return;}
+    if(pos<order.length-1){pos++;renderQ();scrollTop();}else if(R2)endR2();else setSub('card');
   }
-  const scrollTop=()=>{$('qzMainCol').scrollTop=0;if(isMobile())window.scrollTo(0,0);};
+  function startR2(items,title,from){
+    const list=items.map(([s,n])=>({s:String(s),n:String(n),q:(B.DATA[s]||[]).find(q=>String(q.n)===String(n))})).filter(x=>x.q);
+    if(!list.length){toast('没有可以二刷的题');return;}
+    R2={items:list,qs:list.map(x=>x.q),ans:{},title,from};buildOrder();pos=0;setSub('do');
+    toast(`二刷开始：${list.length} 题，之前的作答先藏起来，答完再揭晓`);
+  }
+  function endR2(){
+    if(!R2)return;const r=R2,n=r.items.length,ok=r.items.filter(x=>r.ans[key(x.s,x.q.n)]===x.q.a).length,done=Object.keys(r.ans).length;
+    R2=null;$('qz').classList.remove('r2');buildOrder();pos=Math.max(0,order.indexOf(st.idx[st.set]||0));
+    if(done)toast(`二刷结束：做了 ${done} / ${n} 题，做对 ${ok} 题${ok<done?'；仍做错的留在错题本':''}`);
+    setSub(r.from==='wrong'?'wrong':'do');v10Refresh();
+  }
+  const scrollTop=()=>{$('qzMainCol').scrollTop=0;$('pgQuiz').scrollTop=0;if(isMobile())window.scrollTo(0,0);};
   function renderGrid(){
     let d=0,ok=0;const cur=order[pos];
-    $('qzGrid').innerHTML=qs().map((q,i)=>{const a=st.ans[key(st.set,q.n)];let c='';if(a){d++;if(a===q.a){ok++;c='ok';}else c='no';}return `<button class="${c}${i===cur?' cur':''}" data-i="${i}">${q.n}</button>`;}).join('');
+    $('qzGrid').innerHTML=qs().map((q,i)=>{const a=ansOf(kAt(i));let c='';if(a){d++;if(a===q.a){ok++;c='ok';}else c='no';}return `<button class="${c}${i===cur?' cur':''}" data-i="${i}">${R2?i+1:q.n}</button>`;}).join('');
     $('qsDone').textContent=d;$('qsOk').textContent=ok;$('qsRate').textContent=d?Math.round(ok/d*100)+'%':'–';
   }
   function renderSubj(){
@@ -2909,12 +3007,43 @@ const QZ=(()=>{
     $('qzSubj').innerHTML=(ids.length?ids.map(id=>`<div class="sec-h" style="margin-top:14px"><h2>主观题 · ${nm(id)}</h2><span>先自己写要点，再看参考答案</span></div>`+S0[id].map(one).join('')).join(''):'<p class="empty">题库里暂时没有主观题。</p>')
       +'<div class="sec-h" style="margin-top:20px"><h2>答题模板</h2></div>'+(B.SUBJ.tpl||[]).map(t=>`<details class="tpl"><summary>${t.t}</summary><div>${t.b}</div></details>`).join('');
   }
+  let wSet='',wHard=false;
+  const qOf=k=>{const i=k.lastIndexOf('-'),s=k.slice(0,i),n=k.slice(i+1);return {s,n,q:(B.DATA[s]||[]).find(q=>String(q.n)===n)};};
+  // 错题本当前筛选下的题（按套分组、组内按题号）；二刷“错题本”就按这个顺序做
+  function wrongList(){
+    const by={};
+    Object.keys(WB).forEach(k=>{const x=qOf(k);if(!x.q)return;if(wSet&&x.s!==wSet)return;if(wHard&&(WB[k].c||1)<2)return;(by[x.s]=by[x.s]||[]).push(k);});
+    const sets=B.SETDEF.map(d=>String(d.id)).filter(s=>by[s]).concat(Object.keys(by).filter(s=>!def(s).id));
+    sets.forEach(s=>{const idx=new Map((B.DATA[s]||[]).map((q,i)=>[String(q.n),i]));by[s].sort((a,b)=>idx.get(qOf(a).n)-idx.get(qOf(b).n));});
+    return {by,sets};
+  }
+  function wCard(s,k){
+    const {n,q}=qOf(k),w=WB[k],g=String(w.a||''),multi=isMulti(q),fixed=st.ans[k]===q.a,d=w.t?new Date(w.t):null;
+    const opts=q.o.map((t,i)=>{const l=L[i],a=q.a.includes(l),c=g.includes(l),cls=a&&c?'right':a?'miss':c?'bad':'plain';
+      const tg=a&&c?'你选 · 正确':a?(multi?'正确 · 漏选':'正确答案'):c?'你选的':'';
+      const why=(a||c)&&q.e&&q.e[i]?`<span class="w-why">${q.e[i]}</span>`:'';
+      return `<div class="w-opt ${cls}"><span class="l">${l}</span><span class="t">${t}${why}</span>${tg?`<em>${a?'✓':'✗'} ${tg}</em>`:''}</div>`;}).join('');
+    const xs=q.x?String(q.x).replace(/</g,'&lt;').replace(/\n/g,'<br>'):'';
+    return `<article class="wc${fixed?' fixed':''}" data-k="${k}">
+      <div class="wc-h"><span class="q-tag">第 ${n} 题</span><span class="q-tag ${multi?'multi':''}">${multi?'多选':'单选'}</span><span class="q-tag bad">错过 ${w.c||1} 次</span>${fixed?'<span class="q-tag ok">最近一次已做对</span>':''}${d?`<span class="wc-d">最近答错 ${d.getMonth()+1}/${d.getDate()}</span>`:''}</div>
+      <div class="wc-ans"><span class="no">✗ 你选 <b>${g||'—'}</b></span><span class="yes">✓ 正确 <b>${q.a}</b></span></div>
+      <div class="q-stem wc-s">${q.s}</div><div class="w-opts">${opts}</div>
+      ${xs?`<div class="wc-x${xs.length>120?' long':''}"><b>官方解析</b><div class="xt">${xs}</div>${xs.length>120?'<button class="wx">展开全文 ▾</button>':''}</div>`:''}
+      <div class="wc-f"><button class="r2one" data-k="${k}">二刷这题</button><button class="wq" data-s="${s}" data-n="${n}" title="在原套题里定位这题">回到原题</button><button class="rm" data-k="${k}">移出错题本</button></div></article>`;
+  }
   function renderWrong(){
-    const by={};Object.keys(WB).forEach(k=>{const i=k.lastIndexOf('-'),s=k.slice(0,i);(by[s]=by[s]||[]).push(k);});
-    const sets=Object.keys(by).filter(s=>B.DATA[s]);
-    $('qzWrong').innerHTML=`<div class="sec-h" style="margin-top:6px"><h2>错题本</h2><span>共 ${Object.keys(WB).length} 题 · 答错的题会一直留在这里，做对后可手动移出</span></div>`+(sets.length?sets.map(s=>`<div class="wg"><div class="wgh"><span>${nm(s)} · ${by[s].length} 题</span><button data-redo="${s}">只刷这套的错题</button></div>`+
-      by[s].sort((a,b)=>(WB[b].t||0)-(WB[a].t||0)).map(k=>{const n=k.slice(k.lastIndexOf('-')+1),q=B.DATA[s].find(q=>String(q.n)===n);if(!q)return '';
-        return `<div class="wl"><button class="wq" data-s="${s}" data-n="${n}"><span>${String(q.s).replace(/<[^>]+>/g,'')}</span><small>第 ${n} 题 · 你选 ${WB[k].a} · 正确 ${q.a} · 错过 ${WB[k].c} 次</small></button><button class="rm" data-k="${k}">移出</button></div>`;}).join('')+'</div>').join(''):'<p class="empty">还没有错题。做题时答错的会自动收进来。</p>');
+    const all=Object.keys(WB).filter(k=>qOf(k).q),total=all.length,hard=all.filter(k=>(WB[k].c||1)>=2).length,fixed=all.filter(k=>st.ans[k]===qOf(k).q.a).length;
+    if(wSet&&!all.some(k=>qOf(k).s===wSet))wSet='';
+    const per={};all.forEach(k=>{const s=qOf(k).s;per[s]=(per[s]||0)+1;});
+    const {by,sets}=wrongList(),shown=sets.reduce((a,s)=>a+by[s].length,0);
+    const chips=`<button data-ws="" class="${wSet?'':'on'}">全部 ${total}</button>`+Object.keys(per).map(s=>`<button data-ws="${s}" class="${wSet===s?'on':''}">${def(s).k||nm(s)} · ${per[s]}</button>`).join('')+`<button data-wh class="hard${wHard?' on':''}">只看错 2 次以上</button>`;
+    $('qzWrong').innerHTML=`<div class="sec-h" style="margin-top:6px"><h2>错题本</h2><span>答错的题自动收进来；做对后可手动移出</span></div>`+(total?`
+      <div class="w-sum"><div class="w-k bad"><b>${total}</b><span>道错题</span></div><div class="w-k"><b>${hard}</b><span>错过 2 次以上</span></div><div class="w-k ok"><b>${fixed}</b><span>重做已做对</span></div></div>
+      <div class="w-chips">${chips}</div>
+      <div class="w-go"><button class="pbtn pri" data-r2w ${shown?'':'disabled'}>二刷${wSet||wHard?'筛选出的':'全部'}错题（${shown} 题）</button><span>先藏起上次的选择和答案，重新作答后再揭晓；答对答错都照常记录，不会清空历史</span></div>`
+      +sets.map(s=>`<section class="wg"><div class="wgh"><span><b>${nm(s)}</b> · ${by[s].length} 题</span><button data-r2s="${s}">二刷这套错题</button></div>${by[s].map(k=>wCard(s,k)).join('')}</section>`).join('')
+      +(shown?'':'<p class="empty">这个筛选下没有错题。</p>')
+      :'<p class="empty">还没有错题。做题时答错的会自动收进来。</p>');
   }
   function badge(){const n=Object.keys(WB).length;$('qzWB').textContent=n||'';}
   function setSub(s){
@@ -2922,7 +3051,7 @@ const QZ=(()=>{
     if(s==='subj')renderSubj();else if(s==='wrong')renderWrong();else if(s==='dir')renderDir();else if(s==='card')renderGrid();else renderQ();
     scrollTop();
   }
-  function pickSet(id,m){st.set=String(id);mode=m||'all';$('qzMode').value=mode;buildOrder();const i=order.indexOf(st.idx[st.set]||0);pos=i<0?0:i;save();renderDir();setSub('do');}
+  function pickSet(id,m){R2=null;$('qz').classList.remove('r2');st.set=String(id);mode=m||'all';$('qzMode').value=mode;buildOrder();const i=order.indexOf(st.idx[st.set]||0);pos=i<0?0:i;save();renderDir();setSub('do');}
   function render(){badge();renderDir();setSub($('qz').dataset.sub||'do');}
   async function show(){
     const ok=await load();$('qz').classList.toggle('nobank',!ok);
@@ -2989,19 +3118,27 @@ const QZ=(()=>{
   function bind(){
     $('qzTabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setSub(b.dataset.s);});
     $('qzDir').addEventListener('click',e=>{const b=e.target.closest('.dbtn');if(b)pickSet(b.dataset.id);});
-    $('qzBox').addEventListener('click',e=>{if(e.target.id==='qzRedo'){const q=qs()[order[pos]];delete st.ans[key(st.set,q.n)];save();renderQ();return;}const b=e.target.closest('.q-opt');if(b)choose(b.dataset.l);});
+    $('qzBox').addEventListener('click',e=>{if(e.target.id==='qzRedo'){const k=kAt(order[pos]);if(R2)delete R2.ans[k];else{delete st.ans[k];save();}renderQ();return;}const b=e.target.closest('.q-opt');if(b)choose(b.dataset.l);});
     $('qzGo').onclick=next;$('qzPrev').onclick=()=>{if(pos>0){pos--;renderQ();scrollTop();}};
-    $('qzGrid').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;mode='all';$('qzMode').value='all';buildOrder();pos=+b.dataset.i;setSub('do');});
+    $('qzGrid').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(!R2){mode='all';$('qzMode').value='all';buildOrder();}pos=+b.dataset.i;setSub('do');});
     $('qzMode').onchange=e=>{mode=e.target.value;buildOrder();pos=0;if(mode!==e.target.value)toast(e.target.value==='wrong'?'这一套没有错题':'这一套已经全部做完');setSub('do');};
     $('qzReset').onclick=()=>{if($('qzReset').dataset.arm!=='1'){$('qzReset').dataset.arm='1';$('qzReset').textContent='再点一次确认清空';setTimeout(()=>{$('qzReset').dataset.arm='';$('qzReset').textContent='重做本套';},3000);return;}
       qs().forEach(q=>delete st.ans[key(st.set,q.n)]);st.idx[st.set]=0;pos=0;mode='all';$('qzMode').value='all';buildOrder();save();$('qzReset').dataset.arm='';$('qzReset').textContent='重做本套';render();toast('已清空本套作答（错题本不受影响）');};
     $('qzLinks').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const {t,i}=b.dataset;
       if(t==='e'){goEvent(i);}else if(t==='k'){setView('kb');openCard(i);}else{setView(isMobile()?'thread':'map');openThread(i);}});
     $('qzSubj').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b){const a=b.nextElementSibling;a.classList.toggle('on');b.textContent=a.classList.contains('on')?'收起参考答案 ▴':'显示参考答案 ▾';}});
-    $('qzWrong').addEventListener('click',e=>{const r=e.target.closest('.rm'),w=e.target.closest('.wq'),d=e.target.closest('[data-redo]');
-      if(r){delete WB[r.dataset.k];saveWB();badge();renderWrong();v10Refresh();}
-      else if(d){pickSet(d.dataset.redo,'wrong');}
-      else if(w){st.set=w.dataset.s;mode='all';$('qzMode').value='all';buildOrder();pos=qs().findIndex(q=>String(q.n)===w.dataset.n);const k=key(st.set,w.dataset.n);delete st.ans[k];save();renderDir();setSub('do');}});
+    $('qzWrong').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const ds=b.dataset,toItems=ks=>ks.map(k=>{const x=qOf(k);return [x.s,x.n];});
+      if(b.classList.contains('rm')){delete WB[ds.k];saveWB();badge();renderWrong();v10Refresh();}
+      else if(b.classList.contains('wx')){const x=b.closest('.wc-x');x.classList.toggle('open');b.textContent=x.classList.contains('open')?'收起 ▴':'展开全文 ▾';}
+      else if('ws' in ds){wSet=ds.ws;renderWrong();}
+      else if('wh' in ds){wHard=!wHard;renderWrong();}
+      else if('r2w' in ds){const {by,sets}=wrongList();startR2(toItems(sets.flatMap(s=>by[s])),'二刷 · 错题本','wrong');}
+      else if('r2s' in ds){const {by}=wrongList();startR2(toItems(by[ds.r2s]||[]),'二刷 · '+(def(ds.r2s).k||nm(ds.r2s))+' 错题','wrong');}
+      else if(b.classList.contains('r2one')){startR2(toItems([ds.k]),'二刷 · 单题','wrong');}
+      else if(b.classList.contains('wq')){R2=null;st.set=ds.s;mode='all';$('qzMode').value='all';buildOrder();pos=Math.max(0,qs().findIndex(q=>String(q.n)===ds.n));save();renderDir();setSub('do');}});
+    $('qzR2Set').onclick=()=>{const ns=qs().filter(q=>st.ans[key(st.set,q.n)]).map(q=>[st.set,q.n]);startR2(ns,'二刷 · '+(def(st.set).k||nm(st.set)),'set');};
+    $('qzR2End').onclick=endR2;
+    $('qzRes').onclick=()=>{const v=$('qzBox').querySelector('.q-verdict');if(v)v.scrollIntoView({block:'nearest',behavior:'smooth'});};
     document.addEventListener('keydown',e=>{
       if($('app').dataset.view!=='quiz'||!loaded||!B||$('qz').dataset.sub!=='do')return;
       if(spaceKey(e)){if(!e.repeat)next();return;}
