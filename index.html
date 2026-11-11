@@ -218,7 +218,7 @@ header{padding:10px 18px 10px;border-bottom:1px solid var(--line);background:lin
 .cz{display:inline-block;min-width:2.5em;padding:0 .25em;margin:0 .1em;border-bottom:1.5px dashed var(--gold);color:transparent!important;background:rgba(217,168,69,.1);border-radius:3px;cursor:pointer;user-select:none;-webkit-user-select:none;line-height:1.45}
 .cz.show{color:var(--gold2)!important;background:none;border-bottom-color:transparent;font-weight:600;cursor:default}
 .mcbox.hid p{filter:blur(7px);cursor:pointer;user-select:none;-webkit-user-select:none}
-.mcbox.hid h4::after{content:"  · 先回忆，再点击揭示";font-weight:400;color:var(--dim);font-size:11px}
+.mcbox.hid h4::after{content:"  · 先回忆，再点击揭示（键盘 Enter）";font-weight:400;color:var(--dim);font-size:11px}
 .mst{display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:11px;color:var(--dim)}
 .mst i{width:7px;height:7px;border-radius:50%}
 .rate{display:none;border-top:1px solid var(--line);padding:11px 16px 13px;background:rgba(9,11,15,.7)}
@@ -230,6 +230,13 @@ header{padding:10px 18px 10px;border-bottom:1px solid var(--line);background:lin
 .rate .again{color:#f08a83;border-color:#6e302c;background:rgba(208,71,63,.1)}
 .rate .hard{color:#ecc463;border-color:#6d5422;background:rgba(217,168,69,.09)}
 .rate .good{color:#5fd3a2;border-color:#24604a;background:rgba(52,163,122,.1)}
+.kk{display:inline-block;min-width:15px;padding:0 3px;border:1px solid currentColor;border-radius:3px;font:500 9.5px/13px ui-monospace,Menlo,monospace;text-align:center;opacity:.55}
+.rate button{position:relative}
+.rate button .kk{position:absolute;left:6px;top:5px}
+.rate .q .kq{color:var(--faint)}
+.hint .qk{display:none}
+.app.quiz .hint .qk{display:inline}
+.app.quiz .hint .nq{display:none}
 .rc.study{border-left:2px solid #3fbf8c}
 .rc.study .k{color:#5fd3a2}
 .prog{height:6px;border-radius:3px;background:#1d222b;margin-top:10px;overflow:hidden;display:flex}
@@ -492,6 +499,7 @@ table.cmp{width:100%;border-collapse:separate;border-spacing:0 6px;font-size:13p
 .mrow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
 .mc{display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px 6px;border-radius:10px;background:#141a24;border:1px solid #2b3342;opacity:0;transform:translateY(10px);transition:.35s}
 .mc.in{opacity:1;transform:none}
+.mc{position:relative}.mc .kk{position:absolute;left:6px;top:5px;color:#aab2bd}
 .mc b{font-size:14px;color:var(--gold2)}.mc span{font-size:11px;color:#aab2bd;text-align:center}
 .mc.ok{border-color:#3fbf8c;background:rgba(52,163,122,.15)}.mc.no{border-color:#e5534b;background:rgba(208,71,63,.12)}
 .mq{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;padding:10px 12px;border-radius:9px;background:#10141b;font-size:13px}
@@ -965,8 +973,8 @@ details.tpl div{white-space:pre-line;font-size:14px;color:#c3cad3;margin-top:8px
         <div class="kb-fig" id="kbFig"></div>
         <div class="kph">关键考点</div>
         <ul class="kb-pts" id="kbPts"></ul>
-        <div class="rate kb-rate" id="kbRate"><div class="q"><span>回忆得怎么样？</span></div><div class="bs">
-          <button class="again" data-r="again">忘了<small>10 分钟后</small></button><button class="hard" data-r="hard">模糊<small id="kbHard">1 天后</small></button><button class="good" data-r="good">记住<small id="kbGood">3 天后</small></button></div></div>
+        <div class="rate kb-rate" id="kbRate"><div class="q"><span>回忆得怎么样？</span><span class="kq">键盘 Enter 揭示 · 1/2/3 自评</span></div><div class="bs">
+          <button class="again" data-r="again"><kbd class="kk">1</kbd>忘了<small>10 分钟后</small></button><button class="hard" data-r="hard"><kbd class="kk">2</kbd>模糊<small id="kbHard">1 天后</small></button><button class="good" data-r="good"><kbd class="kk">3</kbd>记住<small id="kbGood">3 天后</small></button></div></div>
       </div>
     </div>
     <div class="thread" id="thread"><div class="th-h"><b id="thTitle"></b><span id="thSub"></span><button id="thClose">关闭 ×</button></div><div class="th-b"><table id="thTable"></table></div></div>
@@ -989,9 +997,9 @@ details.tpl div{white-space:pre-line;font-size:14px;color:#c3cad3;margin-top:8px
       <div class="rate">
         <div class="q"><span>回忆得怎么样？（据此安排下次复习）</span><span id="rateQ"></span></div>
         <div class="bs">
-          <button class="again" data-r="again">忘了<small>10 分钟后</small></button>
-          <button class="hard" data-r="hard">模糊<small id="ivHard">1 天后</small></button>
-          <button class="good" data-r="good">记住<small id="ivGood">3 天后</small></button>
+          <button class="again" data-r="again"><kbd class="kk">1</kbd>忘了<small>10 分钟后</small></button>
+          <button class="hard" data-r="hard"><kbd class="kk">2</kbd>模糊<small id="ivHard">1 天后</small></button>
+          <button class="good" data-r="good"><kbd class="kk">3</kbd>记住<small id="ivGood">3 天后</small></button>
         </div>
       </div>
       <div class="pbar">
@@ -1039,7 +1047,7 @@ details.tpl div{white-space:pre-line;font-size:14px;color:#c3cad3;margin-top:8px
 
   <div class="tl" id="tl"></div>
   <div class="hint" id="hint">
-    <span><b>空格</b> 暂停/播放</span>·<span><b>←/→</b> 连续微调</span>·<span><b>拖拽</b> 平移地图</span><span><b>滚轮</b> 缩放（不干预自动播放）</span>·<span><b>时间轴</b> 拖动播放 / 滚轮缩放</span>
+    <span><b>空格</b> 暂停/播放</span>·<span><b>←/→</b> 连续微调</span>·<span class="nq"><b>拖拽</b> 平移地图</span><span class="nq"><b>滚轮</b> 缩放（不干预自动播放）</span><span class="qk"><b>Enter</b> 揭示挖空 · <b>1/2/3</b> 忘了/模糊/记住</span>·<span><b>时间轴</b> 拖动播放 / 滚轮缩放</span>
   </div>
 </div>
 <nav class="tabbar" id="tabbar"><button data-v="map" class="on"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>时空轴</button><button data-v="card"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>考点</button><button data-v="thread"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h13"/><circle cx="19" cy="12" r="1.5"/></svg>专题</button><button data-v="kb"><svg viewBox="0 0 24 24"><circle cx="6" cy="7" r="3"/><circle cx="18" cy="7" r="3"/><circle cx="12" cy="18" r="3"/><path d="M8.5 8.5 11 16M15.5 8.5 13 16M9 7h6"/></svg>图解</button><button data-v="study"><span class="badge" id="tabBadge" data-n="0"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7v5l3 2"/><path d="M17 3h4v4"/></svg></span>复习</button><button data-v="more"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>设置</button></nav>
@@ -2035,8 +2043,25 @@ $('bShare').onclick=()=>{
 };
 
 /* 键盘 */
+function isTyping(e){return e.isComposing||(e.target&&(e.target.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)));}
+function isChord(e){return e.ctrlKey||e.metaKey||e.altKey;}
+// 作答键：1/2/3 = 忘了/模糊/记住；Enter = 揭示下一处挖空。按住不放不会连续作答
+const RATE_KEYS={'1':'again','2':'hard','3':'good'};
+function rateKey(e,box){
+  if(!S.quiz||isChord(e))return false;
+  const r=RATE_KEYS[e.key];
+  if(r){e.preventDefault();if(!e.repeat)box.querySelector(`[data-r=${r}]`).click();return true;}
+  return false;
+}
+function revealNext(...els){
+  for(const el of els){
+    if(el.classList.contains('mcbox')){if(el.classList.contains('hid')){el.click();return true;}continue;}
+    const c=el.querySelector('.cz:not(.show)');if(c){c.click();return true;}
+  }
+  return false;
+}
 document.addEventListener('keydown',e=>{
-  if(e.target.tagName==='SELECT'||e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  if(isTyping(e))return;
   if(curView()!=='map'&&!S.present)return;
   if(S.present){
     if(['ArrowRight','PageDown','Enter'].includes(e.key)||e.code==='Space'){e.preventDefault();nextStep();}
@@ -2044,7 +2069,8 @@ document.addEventListener('keydown',e=>{
     else if(e.key==='Escape'){setPresent(false);}
     return;
   }
-  if(S.quiz&&['1','2','3'].includes(e.key)){rate(['again','hard','good'][+e.key-1]);return;}
+  if(rateKey(e,document.querySelector('#lcard .rate')))return;
+  if(S.quiz&&e.key==='Enter'&&!isChord(e)){e.preventDefault();if(!e.repeat)revealNext(document.querySelector('.mcbox'),$('pts'));return;}
   if(e.code==='Space'){e.preventDefault();play(!S.playing);}
   else if(e.key==='ArrowLeft'){e.preventDefault();setYear(S.year-0.25);}
   else if(e.key==='ArrowRight'){e.preventDefault();setYear(S.year+0.25);}
@@ -2190,10 +2216,10 @@ function rate(level){
     else{S.reviewQ=null;toast('本轮复习完成 ✓');renderMst();}
   }else stepEvent(1);
 }
-document.querySelector('.rate').addEventListener('click',e=>{const b=e.target.closest('button');if(b)rate(b.dataset.r);});
+document.querySelector('#lcard .rate').addEventListener('click',e=>{const b=e.target.closest('button');if(b)rate(b.dataset.r);});
 $('pts').addEventListener('click',e=>{const c=e.target.closest('.cz');if(c)c.classList.add('show');});
 document.querySelector('.mcbox').addEventListener('click',()=>document.querySelector('.mcbox').classList.remove('hid'));
-$('bQuiz').onclick=()=>{setQuiz(!S.quiz);toast(S.quiz?'自测已开启：先回忆，再点空格处揭示，最后自评（键盘 1/2/3）':'已退出自测');};
+$('bQuiz').onclick=()=>{setQuiz(!S.quiz);toast(S.quiz?'自测已开启：先回忆，再点空格处揭示（键盘 Enter），最后自评（键盘 1/2/3）':'已退出自测');};
 $('bReview').onclick=()=>{
   const q=dueList();if(!q.length){toast('今天没有到期的复习，去学新事件吧');return;}
   play(false);S.reviewQ=q;setQuiz(true);goItem(S.reviewQ.shift());
@@ -2512,9 +2538,9 @@ function figCycle(box){
 function figMoney(box){
   const F=[['价值尺度','标价','这件衣服标价 200 元'],['流通手段','买（即时交易）','一手交钱，一手交货'],['贮藏手段','足值货币贮存','把金银收藏起来'],['支付手段','延期付款','发工资、交房租、还债、纳税'],['世界货币','汇率、国际结算','用美元结算进口原油']];
   const w=document.createElement('div');w.className='money';
-  w.innerHTML='<div class="mrow">'+F.map(([n,k],i)=>`<button class="mc" data-i="${i}"><b>${n}</b><span>${k}</span></button>`).join('')+'</div><div class="mq"><span>情境：</span><b id="mqT"></b><em id="mqR"></em><button id="mqN">换一题</button></div>';
+  w.innerHTML='<div class="mrow">'+F.map(([n,k],i)=>`<button class="mc" data-i="${i}"><kbd class="kk">${'ABCDE'[i]}</kbd><b>${n}</b><span>${k}</span></button>`).join('')+'</div><div class="mq"><span>情境：</span><b id="mqT"></b><em id="mqR"></em><button id="mqN">换一题 <kbd class="kk">N</kbd></button></div>';
   box.appendChild(w);let cur=0;
-  const ask=()=>{cur=Math.floor(Math.random()*F.length);w.querySelector('#mqT').textContent=F[cur][2];w.querySelector('#mqR').textContent='点上面对应的职能';w.querySelectorAll('.mc').forEach(c=>c.classList.remove('ok','no'));};
+  const ask=()=>{cur=Math.floor(Math.random()*F.length);w.querySelector('#mqT').textContent=F[cur][2];w.querySelector('#mqR').textContent='点上面对应的职能（键盘 A–E）';w.querySelectorAll('.mc').forEach(c=>c.classList.remove('ok','no'));};
   w.querySelectorAll('.mc').forEach(c=>c.onclick=()=>{const i=+c.dataset.i;c.classList.add(i===cur?'ok':'no');w.querySelector('#mqR').textContent=i===cur?'✓ 正确':'✗ 再想想';});
   w.querySelector('#mqN').onclick=ask;ask();
   return async(tok)=>{const cs=[...w.querySelectorAll('.mc')];cs.forEach(c=>c.classList.remove('in'));
@@ -2698,19 +2724,31 @@ $('bKb').onclick=()=>{if($('app').classList.contains('kbon'))closeKb();else{play
 $('kbRate').addEventListener('click',e=>{const b=e.target.closest('button');if(b)rateCard(b.dataset.r);});
 $('kbPts').addEventListener('click',e=>{const c=e.target.closest('.cz');if(c)c.classList.add('show');});
 document.addEventListener('keydown',e=>{
-  if(!$('app').classList.contains('kbon')||S.present)return;
+  if(!$('app').classList.contains('kbon')||S.present||isTyping(e))return;
   if(e.key==='Escape')closeKb();
   else if(e.key==='ArrowRight'){e.stopImmediatePropagation();e.preventDefault();kbStep(1);}
   else if(e.key==='ArrowLeft'){e.stopImmediatePropagation();e.preventDefault();kbStep(-1);}
-  else if(S.quiz&&['1','2','3'].includes(e.key)){e.stopImmediatePropagation();rateCard(['again','hard','good'][+e.key-1]);}
+  else if(rateKey(e,$('kbRate')))e.stopImmediatePropagation();
+  else if(S.quiz&&e.key==='Enter'&&!isChord(e)){e.stopImmediatePropagation();e.preventDefault();if(!e.repeat)revealNext($('kbPts'));}
+  else if(!isChord(e)&&!e.repeat&&figKey(e))e.stopImmediatePropagation();
 },true);
+// 图解里的情境小测（货币五职能）：A–E 选职能（自测关闭时 1–5 也可），N 换一题
+function figKey(e){
+  const m=$('kbFig').querySelector('.money');if(!m)return false;
+  const cs=m.querySelectorAll('.mc'),k=e.key.toLowerCase();
+  let i='abcdefgh'.indexOf(k);
+  if(i<0&&!S.quiz&&/^[1-9]$/.test(k))i=+k-1;
+  if(k.length===1&&i>=0&&i<cs.length){e.preventDefault();cs[i].click();return true;}
+  if(k==='n'){e.preventDefault();m.querySelector('#mqN').click();return true;}
+  return false;
+}
 (()=>{let x0=null,y0=0;const c=$('kbScroll');
   c.addEventListener('touchstart',e=>{if(e.target.closest('.prod,.calc,.money,input'))return;x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
   c.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;x0=null;
     if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.5)kbStep(dx<0?1:-1);},{passive:true});
 })();
 const RAIL_HTML="<nav class=\"rail\" id=\"rail\" aria-label=\"模块导航\">\n  <div class=\"rail-logo\">政</div>\n  <button data-v=\"home\"><svg viewBox=\"0 0 24 24\"><path d=\"M4 11.5 12 4l8 7.5V20h-5v-5H9v5H4z\"/></svg>今日</button>\n  <button data-v=\"map\"><svg viewBox=\"0 0 24 24\"><path d=\"M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z\"/><path d=\"M9 4v14M15 6v14\"/></svg>时空轴</button>\n  <button data-v=\"quiz\"><svg viewBox=\"0 0 24 24\"><path d=\"M5 4h14v16H5z\"/><path d=\"m8.5 9 1.5 1.5L13 8M8.5 15l1.5 1.5 3-2.5M15.5 9.5H17M15.5 15.5H17\"/></svg>刷题</button>\n  <button data-v=\"kb\"><svg viewBox=\"0 0 24 24\"><circle cx=\"6\" cy=\"7\" r=\"3\"/><circle cx=\"18\" cy=\"7\" r=\"3\"/><circle cx=\"12\" cy=\"18\" r=\"3\"/><path d=\"M8.5 8.5 11 16M15.5 8.5 13 16M9 7h6\"/></svg>图解</button>\n  <button data-v=\"study\"><span class=\"badge\" id=\"railBadge\" data-n=\"0\"><svg viewBox=\"0 0 24 24\"><path d=\"M12 3a9 9 0 1 0 9 9\"/><path d=\"M12 7v5l3 2\"/><path d=\"M17 3h4v4\"/></svg></span>复习</button>\n</nav>\n";
-const PAGES_HTML="    <div class=\"page\" id=\"pgHome\"><div class=\"home\" id=\"home\"></div></div>\n    <div class=\"page\" id=\"pgStudy\"><div class=\"study\" id=\"studyPg\"></div></div>\n    <div class=\"page\" id=\"pgQuiz\">\n      <div class=\"qz\" id=\"qz\" data-sub=\"do\">\n        <div class=\"qz-tabs\" id=\"qzTabs\">\n          <button data-s=\"dir\">目录</button><button data-s=\"do\" class=\"on\">做题</button><button data-s=\"card\">答题卡</button><button data-s=\"subj\">主观题</button><button data-s=\"wrong\">错题本<i id=\"qzWB\"></i></button>\n        </div>\n        <aside class=\"qz-dir\"><div class=\"pg-h\"><span class=\"eyebrow\">题库目录</span><b id=\"qzTotal\"></b></div><div id=\"qzDir\"></div><div class=\"qz-xfer\" id=\"qzXfer\"></div></aside>\n        <main class=\"qz-main\" id=\"qzMainCol\">\n          <div class=\"qz-head\"><div class=\"qz-ttl\"><span class=\"eyebrow\" id=\"qzGroup\"></span><h2 id=\"qzSet\"></h2></div>\n            <div class=\"qz-tools\"><select id=\"qzMode\" title=\"刷题范围\"><option value=\"all\">全部题目</option><option value=\"todo\">只刷未做</option><option value=\"wrong\">只刷错题</option></select><button id=\"qzReset\">重做本套</button></div></div>\n          <div class=\"qz-prog\"><i id=\"qzBar\"></i></div>\n          <div class=\"qz-links\" id=\"qzLinks\"></div>\n          <div id=\"qzBox\"></div>\n          <div class=\"qz-act\" id=\"qzAct\"><button id=\"qzPrev\">上一题</button><button id=\"qzGo\" class=\"pri\">确认</button></div>\n          <div id=\"qzSubj\"></div>\n          <div id=\"qzWrong\"></div>\n        </main>\n        <aside class=\"qz-side\"><div class=\"pg-h\"><span class=\"eyebrow\">答题卡</span><b id=\"qzCardT\"></b></div>\n          <div class=\"qz-stat\"><div><b id=\"qsDone\">0</b><span>已做</span></div><div><b id=\"qsOk\">0</b><span>做对</span></div><div><b id=\"qsRate\">–</b><span>正确率</span></div></div>\n          <div class=\"qz-grid\" id=\"qzGrid\"></div>\n          <div class=\"qz-leg\"><span><i class=\"ok\"></i>做对</span><span><i class=\"no\"></i>做错</span><span><i class=\"cur\"></i>当前</span></div>\n          <p class=\"qz-kb\">键盘：1–4 选项 · Enter 确认 / 下一题 · ← → 翻题</p>\n        </aside>\n        <div class=\"qz-empty\" id=\"qzEmpty\"></div>\n      </div>\n    </div>\n";
+const PAGES_HTML="    <div class=\"page\" id=\"pgHome\"><div class=\"home\" id=\"home\"></div></div>\n    <div class=\"page\" id=\"pgStudy\"><div class=\"study\" id=\"studyPg\"></div></div>\n    <div class=\"page\" id=\"pgQuiz\">\n      <div class=\"qz\" id=\"qz\" data-sub=\"do\">\n        <div class=\"qz-tabs\" id=\"qzTabs\">\n          <button data-s=\"dir\">目录</button><button data-s=\"do\" class=\"on\">做题</button><button data-s=\"card\">答题卡</button><button data-s=\"subj\">主观题</button><button data-s=\"wrong\">错题本<i id=\"qzWB\"></i></button>\n        </div>\n        <aside class=\"qz-dir\"><div class=\"pg-h\"><span class=\"eyebrow\">题库目录</span><b id=\"qzTotal\"></b></div><div id=\"qzDir\"></div><div class=\"qz-xfer\" id=\"qzXfer\"></div></aside>\n        <main class=\"qz-main\" id=\"qzMainCol\">\n          <div class=\"qz-head\"><div class=\"qz-ttl\"><span class=\"eyebrow\" id=\"qzGroup\"></span><h2 id=\"qzSet\"></h2></div>\n            <div class=\"qz-tools\"><select id=\"qzMode\" title=\"刷题范围\"><option value=\"all\">全部题目</option><option value=\"todo\">只刷未做</option><option value=\"wrong\">只刷错题</option></select><button id=\"qzReset\">重做本套</button></div></div>\n          <div class=\"qz-prog\"><i id=\"qzBar\"></i></div>\n          <div class=\"qz-links\" id=\"qzLinks\"></div>\n          <div id=\"qzBox\"></div>\n          <div class=\"qz-act\" id=\"qzAct\"><button id=\"qzPrev\">上一题</button><button id=\"qzGo\" class=\"pri\">确认</button></div>\n          <div id=\"qzSubj\"></div>\n          <div id=\"qzWrong\"></div>\n        </main>\n        <aside class=\"qz-side\"><div class=\"pg-h\"><span class=\"eyebrow\">答题卡</span><b id=\"qzCardT\"></b></div>\n          <div class=\"qz-stat\"><div><b id=\"qsDone\">0</b><span>已做</span></div><div><b id=\"qsOk\">0</b><span>做对</span></div><div><b id=\"qsRate\">–</b><span>正确率</span></div></div>\n          <div class=\"qz-grid\" id=\"qzGrid\"></div>\n          <div class=\"qz-leg\"><span><i class=\"ok\"></i>做对</span><span><i class=\"no\"></i>做错</span><span><i class=\"cur\"></i>当前</span></div>\n          <p class=\"qz-kb\">键盘：A–D 或 1–4 选项（多选可连按）· Enter 确认 / 下一题 · ← → 翻题</p>\n        </aside>\n        <div class=\"qz-empty\" id=\"qzEmpty\"></div>\n      </div>\n    </div>\n";
 /* =====================================================================
    v10：刷题模块（题库来自原“刷题”页面；作答与错题沿用原存储键，进度不丢）
    ===================================================================== */
@@ -2786,7 +2824,7 @@ const QZ=(()=>{
     const id=c>=10?'x30'+c:'x30'+c;return B.DATA[id]?{id,c}:null;
   }
   /* ---- 渲染 ---- */
-  const L=['A','B','C','D'];
+  const L=[...'ABCDEFGH'];
   function cnt(id){const qq=B.DATA[id]||[];let d=0,ok=0;qq.forEach(q=>{const a=st.ans[key(id,q.n)];if(a){d++;if(a===q.a)ok++;}});return {d,ok,n:qq.length};}
   function renderDir(){
     const groups=[...new Set(B.SETDEF.map(x=>x.g))];
@@ -2827,7 +2865,7 @@ const QZ=(()=>{
     $('qzPrev').disabled=pos===0;const go=$('qzGo');
     if(answered){go.textContent=pos===order.length-1?'本套完成 · 看答题卡':'下一题';go.disabled=false;}
     else if(isMulti(q)){go.textContent='确认（多选，至少选 2 项）';go.disabled=true;}
-    else{go.textContent='点选项即作答';go.disabled=true;}
+    else{go.textContent='点选项或按 A–D 作答';go.disabled=true;}
     st.idx[st.set]=order[pos];save();renderGrid();
   }
   function choose(l){
@@ -2953,9 +2991,11 @@ const QZ=(()=>{
       else if(d){pickSet(d.dataset.redo,'wrong');}
       else if(w){st.set=w.dataset.s;mode='all';$('qzMode').value='all';buildOrder();pos=qs().findIndex(q=>String(q.n)===w.dataset.n);const k=key(st.set,w.dataset.n);delete st.ans[k];save();renderDir();setSub('do');}});
     document.addEventListener('keydown',e=>{
-      if($('app').dataset.view!=='quiz'||!loaded||!B||$('qz').dataset.sub!=='do'||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;
-      const i='1234'.indexOf(e.key),j='abcd'.indexOf(e.key.toLowerCase());
-      if(i>=0||j>=0)choose(L[i>=0?i:j]);else if(e.key==='Enter'){e.preventDefault();next();}else if(e.key==='ArrowRight'){if(pos<order.length-1){pos++;renderQ();}}else if(e.key==='ArrowLeft'){if(pos>0){pos--;renderQ();}}
+      if($('app').dataset.view!=='quiz'||!loaded||!B||$('qz').dataset.sub!=='do'||isTyping(e)||isChord(e))return;
+      const q=qs()[order[pos]],k=e.key.length===1?e.key.toUpperCase():'',n=q?q.o.length:0;
+      let i=k?L.indexOf(k):-1;if(i<0&&/^[1-9]$/.test(k))i=+k-1;
+      if(i>=0&&i<n){e.preventDefault();if(!e.repeat)choose(L[i]);}
+      else if(e.key==='Enter'){e.preventDefault();if(!e.repeat)next();}else if(e.key==='ArrowRight'){if(pos<order.length-1){pos++;renderQ();}}else if(e.key==='ArrowLeft'){if(pos>0){pos--;renderQ();}}
     });
   }
   return {show,load,summary,bind,pickSet,setSub,chapSet,get has(){return !!B;}};
