@@ -996,6 +996,25 @@ details.tpl div{white-space:pre-line;font-size:14px;color:#c3cad3;margin-top:8px
 .sm-sheet.hide .cz2{color:transparent;background:rgba(95,211,162,.12);border-radius:5px;cursor:pointer;user-select:none;-webkit-user-select:none}
 .sm-sheet.hide .cz2.show{color:#5fd3a2;background:none}
 @media (max-width:1023px){.qz[data-sub=sum] .qz-main{display:block}}
+/* ===== v12：键盘光标 + 快捷键帮助 ===== */
+.kcur{outline:2px solid var(--gold2)!important;outline-offset:3px;border-radius:10px}
+.sm-sheet li.kcur{outline-offset:4px;border-radius:6px;background:rgba(217,168,69,.06)}
+.wc.kcur{outline-offset:2px}
+summary.kcur{border-radius:9px}
+.khelp{display:none;position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.62);align-items:center;justify-content:center;padding:20px}
+.khelp.on{display:flex}
+.khb{background:var(--s2,#161b24);border:1px solid var(--bd,#262d39);border-radius:16px;padding:18px 22px 14px;max-width:560px;width:100%;max-height:86vh;overflow:auto}
+.khh{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:4px}
+.khh b{font-size:17px}.khh span{font-size:12px;color:var(--gold2)}
+.khb h4{font-size:12px;color:var(--dim);letter-spacing:.08em;margin:14px 0 6px;font-weight:600}
+.khb table{width:100%;border-collapse:collapse;font-size:13.5px}
+.khb td{padding:5px 0;vertical-align:top;color:#d6dce4;line-height:1.55}
+.khb td:first-child{width:150px;white-space:nowrap;padding-right:12px}
+.khb td b{display:inline-block;min-width:20px;padding:0 6px;margin:0 2px 2px 0;border-radius:5px;border:1px solid #3a4252;background:var(--s3,#1c222d);color:var(--gold2);text-align:center;font:600 12px/20px ui-monospace,Menlo,monospace}
+.khb td i{font-style:normal;font-size:11.5px;color:var(--dim);margin:0 4px 0 1px}
+.khb .dim{font-size:11.5px;color:var(--faint);margin-top:12px}
+.rail-kb{margin-top:auto}
+@media (pointer:coarse) and (max-width:599px){.rail-kb{display:none}}
 </style>
 </head>
 <body>
@@ -2849,7 +2868,7 @@ function figKey(e){
     if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.5)kbStep(dx<0?1:-1);},{passive:true});
 })();
 const RAIL_HTML="<nav class=\"rail\" id=\"rail\" aria-label=\"模块导航\">\n  <div class=\"rail-logo\">政</div>\n  <button data-v=\"home\"><svg viewBox=\"0 0 24 24\"><path d=\"M4 11.5 12 4l8 7.5V20h-5v-5H9v5H4z\"/></svg>今日</button>\n  <button data-v=\"map\"><svg viewBox=\"0 0 24 24\"><path d=\"M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z\"/><path d=\"M9 4v14M15 6v14\"/></svg>时空轴</button>\n  <button data-v=\"quiz\"><svg viewBox=\"0 0 24 24\"><path d=\"M5 4h14v16H5z\"/><path d=\"m8.5 9 1.5 1.5L13 8M8.5 15l1.5 1.5 3-2.5M15.5 9.5H17M15.5 15.5H17\"/></svg>刷题</button>\n  <button data-v=\"kb\"><svg viewBox=\"0 0 24 24\"><circle cx=\"6\" cy=\"7\" r=\"3\"/><circle cx=\"18\" cy=\"7\" r=\"3\"/><circle cx=\"12\" cy=\"18\" r=\"3\"/><path d=\"M8.5 8.5 11 16M15.5 8.5 13 16M9 7h6\"/></svg>图解</button>\n  <button data-v=\"study\"><span class=\"badge\" id=\"railBadge\" data-n=\"0\"><svg viewBox=\"0 0 24 24\"><path d=\"M12 3a9 9 0 1 0 9 9\"/><path d=\"M12 7v5l3 2\"/><path d=\"M17 3h4v4\"/></svg></span>复习</button>\n</nav>\n";
-const PAGES_HTML="    <div class=\"page\" id=\"pgHome\"><div class=\"home\" id=\"home\"></div></div>\n    <div class=\"page\" id=\"pgStudy\"><div class=\"study\" id=\"studyPg\"></div></div>\n    <div class=\"page\" id=\"pgQuiz\">\n      <div class=\"qz\" id=\"qz\" data-sub=\"do\">\n        <div class=\"qz-tabs\" id=\"qzTabs\">\n          <button data-s=\"dir\">目录</button><button data-s=\"do\" class=\"on\">做题</button><button data-s=\"card\">答题卡</button><button data-s=\"subj\">主观题</button><button data-s=\"wrong\">错题本<i id=\"qzWB\"></i></button>\n        </div>\n        <aside class=\"qz-dir\"><div class=\"pg-h\"><span class=\"eyebrow\">题库目录</span><b id=\"qzTotal\"></b></div><div id=\"qzDir\"></div><div class=\"qz-xfer\" id=\"qzXfer\"></div></aside>\n        <main class=\"qz-main\" id=\"qzMainCol\">\n          <div class=\"qz-head\"><div class=\"qz-ttl\"><span class=\"eyebrow\" id=\"qzGroup\"></span><h2 id=\"qzSet\"></h2></div>\n            <div class=\"qz-tools\"><select id=\"qzMode\" title=\"刷题范围\"><option value=\"all\">全部题目</option><option value=\"todo\">只刷未做</option><option value=\"wrong\">只刷错题</option></select><button id=\"qzR2Set\" class=\"r2b\" title=\"不清记录，重新作答本套已做过的题\">二刷本套</button><button id=\"qzReset\">重做本套</button><button id=\"qzR2End\" class=\"r2b\">结束二刷</button></div></div>\n          <div class=\"qz-prog\"><i id=\"qzBar\"></i></div>\n          <div class=\"qz-links\" id=\"qzLinks\"></div>\n          <div id=\"qzBox\"></div>\n          <div class=\"qz-act\" id=\"qzAct\"><button id=\"qzPrev\">上一题</button><button id=\"qzRes\" class=\"qz-res\" title=\"查看解析\"></button><button id=\"qzGo\" class=\"pri\">确认</button></div>\n          <div id=\"qzSubj\"></div>\n          <div id=\"qzWrong\"></div>\n        </main>\n        <aside class=\"qz-side\"><div class=\"pg-h\"><span class=\"eyebrow\">答题卡</span><b id=\"qzCardT\"></b></div>\n          <div class=\"qz-stat\"><div><b id=\"qsDone\">0</b><span>已做</span></div><div><b id=\"qsOk\">0</b><span>做对</span></div><div><b id=\"qsRate\">–</b><span>正确率</span></div></div>\n          <div class=\"qz-grid\" id=\"qzGrid\"></div>\n          <div class=\"qz-leg\"><span><i class=\"ok\"></i>做对</span><span><i class=\"no\"></i>做错</span><span><i class=\"cur\"></i>当前</span></div>\n          <p class=\"qz-kb\">键盘：A–D 或 1–4 选项（多选可连按）· Enter 或空格 确认 / 下一题 · ← → 翻题 · ↑ ↓ 滚动看解析</p>\n        </aside>\n        <div class=\"qz-empty\" id=\"qzEmpty\"></div>\n      </div>\n    </div>\n";
+const PAGES_HTML="    <div class=\"page\" id=\"pgHome\"><div class=\"home\" id=\"home\"></div></div>\n    <div class=\"page\" id=\"pgStudy\"><div class=\"study\" id=\"studyPg\"></div></div>\n    <div class=\"page\" id=\"pgQuiz\">\n      <div class=\"qz\" id=\"qz\" data-sub=\"do\">\n        <div class=\"qz-tabs\" id=\"qzTabs\">\n          <button data-s=\"dir\">目录</button><button data-s=\"do\" class=\"on\">做题</button><button data-s=\"card\">答题卡</button><button data-s=\"subj\">主观题</button><button data-s=\"wrong\">错题本<i id=\"qzWB\"></i></button>\n        </div>\n        <aside class=\"qz-dir\"><div class=\"pg-h\"><span class=\"eyebrow\">题库目录</span><b id=\"qzTotal\"></b></div><div id=\"qzDir\"></div><div class=\"qz-xfer\" id=\"qzXfer\"></div></aside>\n        <main class=\"qz-main\" id=\"qzMainCol\">\n          <div class=\"qz-head\"><div class=\"qz-ttl\"><span class=\"eyebrow\" id=\"qzGroup\"></span><h2 id=\"qzSet\"></h2></div>\n            <div class=\"qz-tools\"><select id=\"qzMode\" title=\"刷题范围\"><option value=\"all\">全部题目</option><option value=\"todo\">只刷未做</option><option value=\"wrong\">只刷错题</option></select><button id=\"qzR2Set\" class=\"r2b\" title=\"不清记录，重新作答本套已做过的题\">二刷本套</button><button id=\"qzReset\">重做本套</button><button id=\"qzR2End\" class=\"r2b\">结束二刷</button></div></div>\n          <div class=\"qz-prog\"><i id=\"qzBar\"></i></div>\n          <div class=\"qz-links\" id=\"qzLinks\"></div>\n          <div id=\"qzBox\"></div>\n          <div class=\"qz-act\" id=\"qzAct\"><button id=\"qzPrev\">上一题</button><button id=\"qzRes\" class=\"qz-res\" title=\"查看解析\"></button><button id=\"qzGo\" class=\"pri\">确认</button></div>\n          <div id=\"qzSubj\"></div>\n          <div id=\"qzWrong\"></div>\n        </main>\n        <aside class=\"qz-side\"><div class=\"pg-h\"><span class=\"eyebrow\">答题卡</span><b id=\"qzCardT\"></b></div>\n          <div class=\"qz-stat\"><div><b id=\"qsDone\">0</b><span>已做</span></div><div><b id=\"qsOk\">0</b><span>做对</span></div><div><b id=\"qsRate\">–</b><span>正确率</span></div></div>\n          <div class=\"qz-grid\" id=\"qzGrid\"></div>\n          <div class=\"qz-leg\"><span><i class=\"ok\"></i>做对</span><span><i class=\"no\"></i>做错</span><span><i class=\"cur\"></i>当前</span></div>\n          <p class=\"qz-kb\">键盘：1–4 / A–D 选项 · Enter / 空格 下一题 · ← → 翻题 · 按 <b>?</b> 看全部快捷键</p>\n        </aside>\n        <div class=\"qz-empty\" id=\"qzEmpty\"></div>\n      </div>\n    </div>\n";
 /* =====================================================================
    v10：刷题模块（题库来自原“刷题”页面；作答与错题沿用原存储键，进度不丢）
    ===================================================================== */
@@ -3225,7 +3244,6 @@ p{margin:0}.sm-q{color:#333}.sm-q em{font-style:normal;color:#c0392b;font-size:1
     $('qzTabs').insertAdjacentHTML('beforeend','<button data-s="sum">错题总结</button>');
     $('qzWrong').insertAdjacentHTML('afterend','<div id="qzSum"></div>');
     $('qzSum').addEventListener('click',sumClick);
-    document.addEventListener('keydown',e=>{if(e.key.toLowerCase()!=='z'||e.metaKey||e.ctrlKey||e.altKey||$('app').dataset.view!=='quiz'||!B||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;setSub('sum');});
     $('qzTabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setSub(b.dataset.s);});
     $('qzDir').addEventListener('click',e=>{const b=e.target.closest('.dbtn');if(b)pickSet(b.dataset.id);});
     $('qzBox').addEventListener('click',e=>{if(e.target.id==='qzRedo'){const k=kAt(order[pos]);if(R2)delete R2.ans[k];else{delete st.ans[k];save();}renderQ();return;}const b=e.target.closest('.q-opt');if(b)choose(b.dataset.l);});
@@ -3422,6 +3440,197 @@ measure();setTimeout(measure,300);
 /* 独立部署时注册离线缓存（在 claude.ai 预览里会被忽略） */
 try{if('serviceWorker' in navigator&&document.querySelector('link[rel=manifest]'))navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(_){}
 let rT;window.addEventListener('resize',()=>{clearTimeout(rT);rT=setTimeout(()=>{tlBuild();},120);});
+
+/* =====================================================================
+   v12：全局键盘层 —— 每个模块都能只用键盘操作（按 ? 看当前页面的快捷键）
+   ===================================================================== */
+(()=>{
+  const VIEWS=['home','map','quiz','kb','study'],VN={home:'今日',map:'时空轴',quiz:'刷题',kb:'图解',study:'复习'};
+  const vis=el=>!!(el&&el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden');
+  const qsub=()=>$('qz').dataset.sub;
+  /* ---- 光标：在列表型页面里用 ↑↓ 移动、Enter 执行 ---- */
+  const curs={};
+  function ctx(){
+    const v=curView();
+    if(v==='quiz'){if($('qz').classList.contains('nobank'))return 'quiz-empty';return 'quiz-'+qsub();}
+    return v;
+  }
+  const ITEMS={
+    home:()=>[...$('home').querySelectorAll('button')],
+    study:()=>[...$('studyPg').querySelectorAll('button:not(:disabled)')],
+    'quiz-dir':()=>[...$('qzDir').querySelectorAll('summary,.dg[open] .dbtn')],
+    'quiz-subj':()=>[...$('qzSubj').querySelectorAll('.rv,details.tpl>summary')],
+    'quiz-wrong':()=>[...$('qzWrong').querySelectorAll('.wc')],
+    'quiz-sum':()=>[...$('qzSum').querySelectorAll('.sm-sheet li')],
+    'quiz-card':()=>[...$('qzGrid').querySelectorAll('button')],
+    'quiz-empty':()=>[...$('qzEmpty').querySelectorAll('button,a')],
+  };
+  function list(c){return (ITEMS[c]?ITEMS[c]():[]).filter(vis);}
+  function getCur(c,items){let el=curs[c];if(!el||!items.includes(el)){el=null;}return el;}
+  function setCur(c,el){
+    document.querySelectorAll('.kcur').forEach(x=>x.classList.remove('kcur'));
+    curs[c]=el;if(!el)return;el.classList.add('kcur');
+    el.scrollIntoView({block:c==='quiz-wrong'?'start':'nearest',behavior:'smooth'});
+  }
+  function move(c,d){
+    const it=list(c);if(!it.length)return false;
+    const cur=getCur(c,it);let i=cur?it.indexOf(cur)+d:(d>0?0:it.length-1);
+    i=Math.max(0,Math.min(it.length-1,i));setCur(c,it[i]);return true;
+  }
+  function gridMove(dx,dy){
+    const it=list('quiz-card');if(!it.length)return;
+    const cur=getCur('quiz-card',it)||it.find(b=>b.classList.contains('cur'))||it[0];
+    if(dy===0){const i=Math.max(0,Math.min(it.length-1,it.indexOf(cur)+dx));setCur('quiz-card',it[i]);return;}
+    const r=cur.getBoundingClientRect(),cx=r.left+r.width/2;
+    const rows=it.filter(b=>{const q=b.getBoundingClientRect();return dy>0?q.top>r.top+4:q.top<r.top-4;});
+    if(!rows.length)return;
+    const ty=dy>0?Math.min(...rows.map(b=>b.getBoundingClientRect().top)):Math.max(...rows.map(b=>b.getBoundingClientRect().top));
+    const row=rows.filter(b=>Math.abs(b.getBoundingClientRect().top-ty)<4);
+    row.sort((a,b)=>Math.abs(a.getBoundingClientRect().left+a.offsetWidth/2-cx)-Math.abs(b.getBoundingClientRect().left+b.offsetWidth/2-cx));
+    setCur('quiz-card',row[0]);
+  }
+  const press=el=>{if(!el)return;if(el.tagName==='SUMMARY'){el.parentElement.open=!el.parentElement.open;return;}el.click();};
+  /* ---- 帮助 ---- */
+  const K=k=>k.split(' ').map(x=>x==='/'?'<i>或</i>':`<b>${x}</b>`).join(' ');
+  const HELP={
+    global:[['Shift+1…5','切换模块：今日 / 时空轴 / 刷题 / 图解 / 复习'],['[ ]','上一个 / 下一个模块'],['?','打开或关闭本帮助'],['Esc','关闭弹窗 / 返回上一层']],
+    home:[['↑ ↓','在待办和模块之间移动'],['Enter','打开选中的那一项']],
+    study:[['↑ ↓','在条目之间移动'],['Enter','打开选中的事件 / 图解'],['R','开始复习（今天到期的）'],['N','学一个新事件']],
+    map:[['空格','播放 / 暂停'],['← →','年份微调'],[', .','上一个 / 下一个事件（也可用 PageUp / PageDown）'],['T','开关自测（挖空 + 自评）'],['1 2 3','自测时：忘了 / 模糊 / 记住'],['Enter','自测时：揭示下一个挖空'],['L','下一条专题线索（Shift+L 上一条，Esc 关闭）'],['G','切换分类：史纲 / 毛中特 / 马原 / 时政 / 全部'],['F','收藏当前事件'],['+ − 0','地图放大 / 缩小 / 复位'],['H','隐藏 / 显示边栏'],['P','课堂模式（→ 逐条揭示，Esc 退出）']],
+    kb:[['← →','上一张 / 下一张图解'],['↑ ↓','上下滚动'],['空格','重播动画'],['T','开关自测'],['1 2 3','自测时：忘了 / 模糊 / 记住'],['Enter','自测时：揭示下一个挖空'],['A–E','货币职能小测：选职能（N 换一题）'],['Esc','回到时空轴']],
+    'quiz-tabs':[['Q','做题'],['M','目录'],['S','答题卡'],['J','主观题'],['W','错题本'],['Z','错题总结']],
+    'quiz-do':[['1–4 / A–D','选择选项（多选再按一次取消）'],['Enter / 空格','确认 / 下一题'],['← →','上一题 / 下一题'],['↑ ↓','上下滚动看解析'],['R','重做本题（错题记录保留）'],['V','切换范围：全部 / 只刷未做 / 只刷错题']],
+    'quiz-dir':[['↑ ↓','在套卷 / 章节之间移动'],['Enter','展开分组 / 开始做这一套']],
+    'quiz-card':[['方向键','在题号之间移动'],['Enter','跳到这道题']],
+    'quiz-subj':[['↑ ↓','在题目和模板之间移动'],['Enter','显示 / 收起参考答案']],
+    'quiz-wrong':[['↑ ↓','一张一张看错题'],['Enter','二刷这题'],['G','回到原题'],['E','展开 / 收起官方解析'],['X','移出错题本（按两次确认）'],['← →','切换套卷筛选'],['H','只看错 2 次以上'],['A','二刷当前筛选出的全部错题']],
+    'quiz-sum':[['↑ ↓','一题一题往下背'],['Enter / 空格','背诵模式下揭示答案，再按到下一题'],['B','开关背诵模式'],['A','全部揭示 / 全部遮住'],['E','精简 / 带错因'],['X','导出文件'],['C','复制文字']],
+  };
+  document.body.insertAdjacentHTML('beforeend','<div class="khelp" id="kHelp"><div class="khb"><div class="khh"><b>键盘快捷键</b><span id="kHelpCtx"></span></div><div id="kHelpBody"></div><p class="dim">按 ? 或 Esc 关闭 · 点任意处关闭</p></div></div>');
+  $('rail').insertAdjacentHTML('beforeend','<button class="rail-kb" id="railKb" title="键盘快捷键（?）"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10"/></svg>快捷键</button>');
+  const kh=$('kHelp');
+  function help(on){
+    if(on===undefined)on=!kh.classList.contains('on');
+    if(on){
+      const c=ctx(),v=curView(),secs=[];
+      const name=c.startsWith('quiz')?'刷题 · '+({do:'做题',dir:'目录',card:'答题卡',subj:'主观题',wrong:'错题本',sum:'错题总结',empty:'导入题库'}[c.slice(5)]||''):VN[v]||'';
+      if(HELP[c])secs.push(['当前页面 · '+name,HELP[c]]);
+      if(c.startsWith('quiz')&&c!=='quiz-empty')secs.push(['刷题里切换',HELP['quiz-tabs']]);
+      secs.push(['任何页面',HELP.global]);
+      $('kHelpCtx').textContent=name;
+      $('kHelpBody').innerHTML=secs.map(([t,rows])=>`<h4>${t}</h4><table>${rows.map(([k,d])=>`<tr><td>${K(k)}</td><td>${d}</td></tr>`).join('')}</table>`).join('');
+    }
+    kh.classList.toggle('on',on);
+  }
+  kh.onclick=()=>help(false);$('railKb').onclick=()=>help(true);
+  /* ---- 分派 ---- */
+  let armX=null;
+  const stop=e=>{e.preventDefault();e.stopImmediatePropagation();};
+  function go(v){setView(v);setTimeout(()=>{if(['home','study'].includes(v))move(v,1);},60);}
+  window.addEventListener('keydown',e=>{
+    if(e.isComposing)return;
+    const k=e.key,kl=k.length===1?k.toLowerCase():k,typing=isTyping(e)||(e.target&&e.target.tagName==='TEXTAREA');
+    if(kh.classList.contains('on')){if(k==='Escape'||k==='?'||k==='？'||k==='/'){stop(e);help(false);}return;}
+    if(typing||e.ctrlKey||e.metaKey||e.altKey)return;
+    if(k==='?'||k==='？'){stop(e);help(true);return;}
+    if(S.present)return;
+    // 全局：Shift+1…5 / [ ]
+    if(e.shiftKey&&/^Digit[1-5]$/.test(e.code)){stop(e);go(VIEWS[+e.code.slice(5)-1]);return;}
+    if(k==='['||k===']'||k==='【'||k==='】'){stop(e);const i=VIEWS.indexOf(curView());go(VIEWS[(i+(k===']'||k==='】'?1:VIEWS.length-1))%VIEWS.length]);return;}
+    const c=ctx(),v=curView();
+    /* 今日 / 复习 */
+    if(c==='home'||c==='study'){
+      if(k==='ArrowDown'||kl==='j'){stop(e);move(c,1);return;}
+      if(k==='ArrowUp'||kl==='k'){stop(e);move(c,-1);return;}
+      if(k==='Enter'||k===' '){stop(e);const it=list(c);press(getCur(c,it)||it[0]);return;}
+      if(c==='study'&&kl==='r'){stop(e);$('studyPg').querySelector('[data-act=review]').click();return;}
+      if(c==='study'&&kl==='n'){stop(e);$('studyPg').querySelector('[data-act=new]').click();return;}
+      return;
+    }
+    /* 刷题 */
+    if(v==='quiz'){
+      if(c==='quiz-empty'){if(k==='Enter'){stop(e);const b=$('qzPick')||$('qzPaste');if(b)b.click();}return;}
+      const sub=qsub(),TAB={q:'do',m:'dir',s:'card',j:'subj',w:'wrong',z:'sum'};
+      if(TAB[kl]&&!e.shiftKey){stop(e);QZ.setSub(TAB[kl]);setTimeout(()=>{if(TAB[kl]!=='do'&&TAB[kl]!=='card')move('quiz-'+TAB[kl],1);},40);return;}
+      if(k==='Escape'&&sub!=='do'){stop(e);QZ.setSub('do');return;}
+      if(sub==='do'){
+        if(kl==='r'){stop(e);const b=$('qzRedo');if(b&&vis(b)){b.click();toast('已重做本题（错题记录保留）');}return;}
+        if(kl==='v'){stop(e);const s=$('qzMode'),o=[...s.options].map(x=>x.value),i=o.indexOf(s.value);s.value=o[(i+1)%o.length];s.dispatchEvent(new Event('change'));toast('刷题范围：'+s.options[s.selectedIndex].text);return;}
+        return;
+      }
+      if(sub==='card'){
+        const D={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[k];
+        if(D){stop(e);gridMove(D[0],D[1]);return;}
+        if(k==='Enter'||k===' '){stop(e);const it=list(c);press(getCur(c,it)||it.find(b=>b.classList.contains('cur')));return;}
+        return;
+      }
+      if(k==='ArrowDown'||kl==='j'&&false){stop(e);move(c,1);return;}
+      if(k==='ArrowUp'){stop(e);move(c,-1);return;}
+      const it=list(c),cur=getCur(c,it);
+      if(sub==='dir'||sub==='subj'){
+        if(k==='Enter'||k===' '){stop(e);press(cur||it[0]);if(cur&&cur.tagName==='SUMMARY')setTimeout(()=>setCur(c,cur),20);return;}
+        return;
+      }
+      if(sub==='wrong'){
+        const card=cur||it[0],W=$('qzWrong');
+        if(k==='Enter'){stop(e);if(card)card.querySelector('.r2one').click();return;}
+        if(kl==='g'){stop(e);if(card)card.querySelector('.wq').click();return;}
+        if(kl==='e'){stop(e);const b=card&&card.querySelector('.wx');if(b)b.click();return;}
+        if(kl==='x'||k==='Delete'||k==='Backspace'){stop(e);if(!card)return;
+          if(armX!==card.dataset.k){armX=card.dataset.k;toast('再按一次 X 移出这道错题');setTimeout(()=>{armX=null;},2500);return;}
+          const i=it.indexOf(card);armX=null;card.querySelector('.rm').click();toast('已移出错题本');
+          setTimeout(()=>{const n=list(c);if(n.length)setCur(c,n[Math.min(i,n.length-1)]);},40);return;}
+        if(k==='ArrowLeft'||k==='ArrowRight'){stop(e);const ch=[...W.querySelectorAll('.w-chips [data-ws]')];if(!ch.length)return;
+          let i=ch.findIndex(b=>b.classList.contains('on'));i=(i+(k==='ArrowRight'?1:ch.length-1))%ch.length;ch[i].click();setTimeout(()=>move(c,1),40);return;}
+        if(kl==='h'){stop(e);const b=W.querySelector('[data-wh]');if(b){b.click();setTimeout(()=>move(c,1),40);}return;}
+        if(kl==='a'){stop(e);const b=W.querySelector('[data-r2w]');if(b&&!b.disabled)b.click();return;}
+        return;
+      }
+      if(sub==='sum'){
+        const S2=$('qzSum'),hide=!!S2.querySelector('.sm-sheet.hide');
+        if(k==='Enter'||k===' '){stop(e);
+          const li=cur;if(!li){move(c,1);return;}
+          const z=li.querySelector('.cz2:not(.show)');if(hide&&z){z.classList.add('show');return;}
+          move(c,1);return;}
+        const re=o=>{const i=cur?it.indexOf(cur):-1;S2.querySelector(`[data-o=${o}]`).click();setTimeout(()=>{const n=list(c);if(n.length&&i>=0)setCur(c,n[Math.min(i,n.length-1)]);},30);};
+        if(kl==='b'){stop(e);re('hide');return;}
+        if(kl==='e'){stop(e);re(S2.querySelector('[data-o=why1].on')?'why0':'why1');return;}
+        if(kl==='a'){stop(e);const zs=[...S2.querySelectorAll('.cz2')];if(!zs.length){toast('先按 B 打开背诵模式');return;}const all=zs.every(z=>z.classList.contains('show'));zs.forEach(z=>z.classList.toggle('show',!all));toast(all?'已全部遮住':'已全部揭示');return;}
+        if(kl==='x'){stop(e);S2.querySelector('[data-o=file]').click();return;}
+        if(kl==='c'){stop(e);S2.querySelector('[data-o=copy]').click();return;}
+        return;
+      }
+      return;
+    }
+    /* 图解 */
+    if(v==='kb'){
+      if(k===' '){stop(e);$('kbReplay').click();return;}
+      if(kl==='t'){stop(e);$('bQuiz').click();return;}
+      if(k==='ArrowDown'||k==='ArrowUp'||k==='PageDown'||k==='PageUp'){stop(e);const sc=$('kbScroll'),big=/Page/.test(k),d=(k==='ArrowDown'||k==='PageDown'?1:-1)*(big?sc.clientHeight*0.85:Math.max(90,sc.clientHeight*0.3));
+        (sc.scrollHeight>sc.clientHeight+1?sc:document.scrollingElement).scrollBy({top:d,behavior:e.repeat?'auto':'smooth'});return;}
+      return;
+    }
+    /* 时空轴 */
+    if(v==='map'){
+      if(k===','||k==='，'||k==='PageUp'){stop(e);stepEvent(-1);return;}
+      if(k==='.'||k==='。'||k==='PageDown'){stop(e);stepEvent(1);return;}
+      if(kl==='t'){stop(e);$('bQuiz').click();return;}
+      if(kl==='f'){stop(e);$('bFav').click();return;}
+      if(kl==='h'){stop(e);$('bSide').click();return;}
+      if(kl==='p'){stop(e);$('bPresent').click();return;}
+      if(k==='+'||k==='='){stop(e);$('zIn').click();return;}
+      if(k==='-'||k==='_'){stop(e);$('zOut').click();return;}
+      if(k==='0'){stop(e);$('zReset').click();return;}
+      if(kl==='g'){stop(e);const b=[...$('seg').querySelectorAll('button')],i=b.findIndex(x=>x.classList.contains('on'));b[(i+1)%b.length].click();toast('分类：'+b[(i+1)%b.length].textContent);return;}
+      if(kl==='l'){stop(e);const ks=Object.keys(THREADS),i=ks.indexOf(S.thread),n=e.shiftKey?(i<=0?ks.length-1:i-1):(i+1)%ks.length;openThread(ks[n]);toast('专题线索：'+THREADS[ks[n]].t+'（Esc 关闭）');return;}
+      if(k==='Escape'&&S.thread){stop(e);openThread(null);return;}
+      return;
+    }
+  },true);
+  // 鼠标点击后清掉键盘光标，避免两套高亮
+  document.addEventListener('pointerdown',()=>document.querySelectorAll('.kcur').forEach(x=>x.classList.remove('kcur')),true);
+})();
+
 </script>
 </body>
 </html>
