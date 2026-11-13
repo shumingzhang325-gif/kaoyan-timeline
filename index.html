@@ -1015,6 +1015,19 @@ summary.kcur{border-radius:9px}
 .khb .dim{font-size:11.5px;color:var(--faint);margin-top:12px}
 .rail-kb{margin-top:auto}
 @media (pointer:coarse) and (max-width:599px){.rail-kb{display:none}}
+
+/* v18：错题本分类管理 */
+.w-sub{display:flex;align-items:baseline;justify-content:space-between;margin:22px auto 8px;padding:7px 12px;border-radius:8px;background:rgba(217,168,69,.14);color:var(--gold2);font-size:15px;letter-spacing:.06em}
+.w-sub em{font-style:normal;font-size:12px;color:#c9b27a;letter-spacing:0;font-weight:400}
+details.wg>summary{list-style:none;cursor:pointer;padding:6px 2px}
+details.wg>summary::-webkit-details-marker{display:none}
+details.wg>summary>span::before{content:"▸";display:inline-block;margin-right:7px;color:var(--faint);transition:transform .15s}
+details.wg[open]>summary>span::before{transform:rotate(90deg)}
+.w-tools{margin-top:-2px}
+.w-tools button,.w-tools select{font-size:12px!important;padding:5px 10px!important}
+.w-tools select{border-radius:999px;border:1px solid var(--bd);background:var(--s1);color:#cfd5de;height:auto}
+.w-tools .clean{border-color:#24604a!important;color:#5fd3a2!important}
+.wc-f .star{color:#aeb6c2}.wc-f .star.on{color:var(--gold2);border-color:#6d5422;background:rgba(217,168,69,.12)}
 </style>
 </head>
 <body>
@@ -3058,14 +3071,15 @@ const QZ=(()=>{
     $('qzSubj').innerHTML=(ids.length?ids.map(id=>`<div class="sec-h" style="margin-top:14px"><h2>主观题 · ${nm(id)}</h2><span>先自己写要点，再看参考答案</span></div>`+S0[id].map(one).join('')).join(''):'<p class="empty">题库里暂时没有主观题。</p>')
       +'<div class="sec-h" style="margin-top:20px"><h2>答题模板</h2></div>'+(B.SUBJ.tpl||[]).map(t=>`<details class="tpl"><summary>${t.t}</summary><div>${t.b}</div></details>`).join('');
   }
-  let wSet='',wHard=false;
+  let wSet='',wHard=false,wStar=false,wSort='n';
+  const wSubj=s=>subjOf(def(s),s),W_ORD=['马原','毛中特','习思想','史纲','思修法基','套卷 · 真题（综合）'];
   const qOf=k=>{const i=k.lastIndexOf('-'),s=k.slice(0,i),n=k.slice(i+1);return {s,n,q:(B.DATA[s]||[]).find(q=>String(q.n)===n)};};
   // 错题本当前筛选下的题（按套分组、组内按题号）；二刷“错题本”就按这个顺序做
   function wrongList(){
     const by={};
-    Object.keys(WB).forEach(k=>{const x=qOf(k);if(!x.q)return;if(wSet&&x.s!==wSet)return;if(wHard&&(WB[k].c||1)<2)return;(by[x.s]=by[x.s]||[]).push(k);});
+    Object.keys(WB).forEach(k=>{const x=qOf(k);if(!x.q)return;if(wSet&&wSubj(x.s)!==wSet)return;if(wHard&&(WB[k].c||1)<2)return;if(wStar&&!WB[k].f)return;(by[x.s]=by[x.s]||[]).push(k);});
     const sets=B.SETDEF.map(d=>String(d.id)).filter(s=>by[s]).concat(Object.keys(by).filter(s=>!def(s).id));
-    sets.forEach(s=>{const idx=new Map((B.DATA[s]||[]).map((q,i)=>[String(q.n),i]));by[s].sort((a,b)=>idx.get(qOf(a).n)-idx.get(qOf(b).n));});
+    sets.forEach(s=>{const idx=new Map((B.DATA[s]||[]).map((q,i)=>[String(q.n),i]));by[s].sort((a,b)=>wSort==='c'?(WB[b].c||1)-(WB[a].c||1):wSort==='t'?(WB[b].t||0)-(WB[a].t||0):idx.get(qOf(a).n)-idx.get(qOf(b).n));});
     return {by,sets};
   }
   function wCard(s,k){
@@ -3080,21 +3094,26 @@ const QZ=(()=>{
       <div class="wc-ans"><span class="no">✗ 你选 <b>${g||'—'}</b></span><span class="yes">✓ 正确 <b>${q.a}</b></span></div>
       <div class="q-stem wc-s">${q.s}</div><div class="w-opts">${opts}</div>
       ${xs?`<div class="wc-x${xs.length>120?' long':''}"><b>官方解析</b><div class="xt">${xs}</div>${xs.length>120?'<button class="wx">展开全文 ▾</button>':''}</div>`:''}
-      <div class="wc-f"><button class="r2one" data-k="${k}">二刷这题</button><button class="wq" data-s="${s}" data-n="${n}" title="在原套题里定位这题">回到原题</button><button class="rm" data-k="${k}">移出错题本</button></div></article>`;
+      <div class="wc-f"><button class="star${w.f?' on':''}" data-star="${k}">${w.f?'★ 重点':'☆ 标为重点'}</button><button class="r2one" data-k="${k}">二刷这题</button><button class="wq" data-s="${s}" data-n="${n}" title="在原套题里定位这题">回到原题</button><button class="rm" data-k="${k}">移出错题本</button></div></article>`;
   }
   function renderWrong(){
-    const all=Object.keys(WB).filter(k=>qOf(k).q),total=all.length,hard=all.filter(k=>(WB[k].c||1)>=2).length,fixed=all.filter(k=>st.ans[k]===qOf(k).q.a).length;
-    if(wSet&&!all.some(k=>qOf(k).s===wSet))wSet='';
-    const per={};all.forEach(k=>{const s=qOf(k).s;per[s]=(per[s]||0)+1;});
+    const all=Object.keys(WB).filter(k=>qOf(k).q),total=all.length,hard=all.filter(k=>(WB[k].c||1)>=2).length,fixedK=all.filter(k=>st.ans[k]===qOf(k).q.a),fixed=fixedK.length,stars=all.filter(k=>WB[k].f).length;
+    const per={};all.forEach(k=>{const s=wSubj(qOf(k).s);per[s]=(per[s]||0)+1;});
+    if(wSet&&!per[wSet])wSet='';
     const {by,sets}=wrongList(),shown=sets.reduce((a,s)=>a+by[s].length,0);
-    const chips=`<button data-ws="" class="${wSet?'':'on'}">全部 ${total}</button>`+Object.keys(per).map(s=>`<button data-ws="${s}" class="${wSet===s?'on':''}">${def(s).k||nm(s)} · ${per[s]}</button>`).join('')+`<button data-wh class="hard${wHard?' on':''}">只看错 2 次以上</button>`;
-    $('qzWrong').innerHTML=`<div class="sec-h" style="margin-top:6px"><h2>错题本</h2><span>答错的题自动收进来；做对后可手动移出</span></div>`+(total?`
+    const chips=`<button data-ws="" class="${wSet?'':'on'}">全部 ${total}</button>`+W_ORD.filter(s=>per[s]).map(s=>`<button data-ws="${s}" class="${wSet===s?'on':''}">${s} · ${per[s]}</button>`).join('');
+    const tools=`<button data-wst class="${wStar?'on':''}">★ 只看重点${stars?' · '+stars:''}</button><button data-wh class="hard${wHard?' on':''}">只看错 2 次以上</button>
+      <select id="wSortSel" title="组内排序"><option value="n"${wSort==='n'?' selected':''}>按题号</option><option value="c"${wSort==='c'?' selected':''}>错得最多在前</option><option value="t"${wSort==='t'?' selected':''}>最近答错在前</option></select>
+      <button data-wfold>全部折叠 / 展开</button>${fixed?`<button data-wclean class="clean">移出已做对的（${fixed}）</button>`:''}`;
+    const groups=W_ORD.map(sub=>{const ss=sets.filter(s=>wSubj(s)===sub);if(!ss.length)return '';const n=ss.reduce((a,s)=>a+by[s].length,0);
+      return `<h3 class="w-sub"><span>${sub}</span><em>${n} 题 · ${ss.length} 组</em></h3>`+ss.map(s=>`<details class="wg" open><summary class="wgh"><span><b>${nm(s)}</b> · ${by[s].length} 题</span><button data-r2s="${s}">二刷这组</button></summary>${by[s].map(k=>wCard(s,k)).join('')}</details>`).join('');}).join('');
+    $('qzWrong').innerHTML=`<div class="sec-h" style="margin-top:6px"><h2>错题本</h2><span>按科目 → 章节分类；答错自动收进来</span></div>`+(total?`
       <div class="w-sum"><div class="w-k bad"><b>${total}</b><span>道错题</span></div><div class="w-k"><b>${hard}</b><span>错过 2 次以上</span></div><div class="w-k ok"><b>${fixed}</b><span>重做已做对</span></div></div>
-      <div class="w-chips">${chips}</div>
-      <div class="w-go"><button class="pbtn pri" data-r2w ${shown?'':'disabled'}>二刷${wSet||wHard?'筛选出的':'全部'}错题（${shown} 题）</button><span>先藏起上次的选择和答案，重新作答后再揭晓；答对答错都照常记录，不会清空历史</span></div>`
-      +sets.map(s=>`<section class="wg"><div class="wgh"><span><b>${nm(s)}</b> · ${by[s].length} 题</span><button data-r2s="${s}">二刷这套错题</button></div>${by[s].map(k=>wCard(s,k)).join('')}</section>`).join('')
-      +(shown?'':'<p class="empty">这个筛选下没有错题。</p>')
+      <div class="w-chips">${chips}</div><div class="w-chips w-tools">${tools}</div>
+      <div class="w-go"><button class="pbtn pri" data-r2w ${shown?'':'disabled'}>二刷${wSet||wHard||wStar?'筛选出的':'全部'}错题（${shown} 题）</button><span>先藏起上次的选择和答案，重新作答后再揭晓；答对答错都照常记录，不会清空历史</span></div>`
+      +groups+(shown?'':'<p class="empty">这个筛选下没有错题。</p>')
       :'<p class="empty">还没有错题。做题时答错的会自动收进来。</p>');
+    const sel=$('wSortSel');if(sel)sel.onchange=()=>{wSort=sel.value;renderWrong();};
   }
   function badge(){const n=Object.keys(WB).length;$('qzWB').textContent=n||'';}
   function setSub(s){
@@ -3202,7 +3221,7 @@ const QZ=(()=>{
     $('qzSum').innerHTML=`<div class="sec-h" style="margin-top:6px"><h2>错题一页纸</h2><span>${day} · ${r.n} 道错题${r.weak?' · '+r.weak+' 个薄弱知识点':''}</span></div>
       <div class="sm-bar"><div class="seg"><button data-o="why0" class="${sumOpt.why?'':'on'}">精简</button><button data-o="why1" class="${sumOpt.why?'on':''}">带错因</button></div>
         <button data-o="hide" class="sm-b ${sumOpt.hide?'on':''}">${sumOpt.hide?'✓ 背诵模式':'背诵模式'}</button><span style="flex:1"></span>
-        <button data-o="file" class="sm-b pri">导出文件</button><button data-o="copy" class="sm-b">复制文字</button></div>
+        <button data-o="file" class="sm-b pri">导出 PDF</button><button data-o="copy" class="sm-b">复制文字</button></div>
       ${sumOpt.hide?'<p class="sm-tip">答案已遮住：先自己说出答案，再点那一行核对。</p>':''}
       <div class="sm-sheet ${sumOpt.hide?'hide':''}">${r.h||'<p class="empty">还没有错题，也没有自评为“忘了 / 模糊”的知识点。做题答错后，这里会自动按科目和章节整理成一页纸。</p>'}</div>`;
   }
@@ -3211,25 +3230,65 @@ const QZ=(()=>{
     try{const f=new File([blob],name,{type});if(matchMedia('(pointer:coarse)').matches&&navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:name}).catch(()=>{});return;}}catch(e){}
     try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);toast('已导出 '+name+'；如果没有反应，请用“复制文字”');}catch(e){toast('这里不能下载，请用“复制文字”');}
   }
+  function pdfBlocks(){
+    const data=sumData(),weak=weakPts(),bl=[];let n=0;
+    data.forEach(G=>{bl.push({t:'h3',x:G.sub});G.chs.forEach(C=>{bl.push({t:'h4',x:plain(C.ch)});C.items.forEach((it,i)=>{const d=sumItem(it);n++;
+      bl.push({t:'q',x:`${i+1}. ${d.stem}${d.c>1?'（错 '+d.c+' 次）':''}`});bl.push({t:'a',x:'✓ '+d.ok.map(o=>o.l+' '+o.t).join('；')});
+      if(sumOpt.why){d.bad.forEach(o=>bl.push({t:'e',x:`✗ 误选 ${o.l}「${o.t}」${o.e?'：'+o.e:''}`}));if(d.multi&&d.miss.length)bl.push({t:'e',x:'△ 漏选 '+d.miss.join('、')});}
+      bl.push({t:'gap'});});});});
+    if(weak.length){bl.push({t:'h3',x:'自评薄弱的知识点'});weak.forEach(w=>{bl.push({t:'h4',x:w.t});w.pts.forEach(p=>bl.push({t:'li',x:'· '+p}));bl.push({t:'gap'});});}
+    return {bl,n,weak:weak.length};
+  }
+  function exportPdf(){
+    const {bl,n,weak}=pdfBlocks();if(!bl.length){toast('还没有可导出的内容');return;}
+    const d=new Date(),ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const W=1240,H=1754,M=84,FF='-apple-system,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC","Noto Sans SC",sans-serif';
+    const ST={h3:{f:'bold 25px ',c:'#ffffff',lh:38,in:14},h4:{f:'bold 21px ',c:'#8a5a00',lh:34,in:0},q:{f:'21px ',c:'#2b2d31',lh:33,in:0},a:{f:'bold 21px ',c:'#0b6b3a',lh:33,in:30},e:{f:'18px ',c:'#a23b32',lh:28,in:30},li:{f:'20px ',c:'#2b2d31',lh:32,in:10}};
+    const pages=[];let cv,g,y;
+    const newPage=()=>{cv=document.createElement('canvas');cv.width=W;cv.height=H;g=cv.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,H);g.textBaseline='top';pages.push(cv);y=M;};
+    const wrap=(text,maxW)=>{const out=[];let line='';for(const ch of text){if(g.measureText(line+ch).width>maxW&&line){out.push(line);line=ch;}else line+=ch;}if(line)out.push(line);return out;};
+    newPage();
+    g.font='bold 40px '+FF;g.fillStyle='#1c1e22';g.fillText('错题一页纸',M,y);y+=56;
+    g.font='19px '+FF;g.fillStyle='#777';g.fillText(`考研政治 · ${ds} · ${n} 道错题${weak?' · '+weak+' 个薄弱知识点':''}　✓ 正确答案${sumOpt.why?'　✗ 错因':''}`,M,y);y+=44;
+    bl.forEach((b,bi)=>{
+      if(b.t==='gap'){y+=12;return;}
+      const s0=ST[b.t];g.font=s0.f+FF;const lines=wrap(b.x,W-2*M-s0.in-(b.t==='h3'?14:0));
+      if(b.t==='h3'){if(y+60+120>H-M)newPage();y+=14;g.fillStyle='#1c1e22';g.fillRect(M,y,W-2*M,46);g.fillStyle=s0.c;g.font=s0.f+FF;g.fillText(lines[0],M+s0.in,y+9);y+=58;return;}
+      if(b.t==='h4'){if(y+34+80>H-M)newPage();y+=6;g.fillStyle=s0.c;g.fillText(lines[0],M,y);y+=s0.lh;g.fillStyle='#e6d9b8';g.fillRect(M,y-4,W-2*M,2);y+=6;return;}
+      if(b.t==='q'){let need=lines.length*s0.lh+ST.a.lh;if(y+need>H-M&&need<H-2*M)newPage();}
+      lines.forEach(l=>{if(y+s0.lh>H-M)newPage();g.font=s0.f+FF;g.fillStyle=s0.c;g.fillText(l,M+s0.in,y);y+=s0.lh;});
+    });
+    pages.forEach((c,i)=>{const x=c.getContext('2d');x.font='16px '+FF;x.fillStyle='#999';x.textBaseline='top';x.textAlign='center';x.fillText(`${i+1} / ${pages.length}`,W/2,H-52);});
+    // 组装 PDF（每页一张 JPEG）
+    const enc=new TextEncoder(),parts=[],offs=[];let len=0;
+    const put=x=>{const u=typeof x==='string'?enc.encode(x):x;parts.push(u);len+=u.length;};
+    const obj=(i,body)=>{offs[i]=len;put(`${i} 0 obj\n`);body();put('\nendobj\n');};
+    put('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+    const N=pages.length,kids=pages.map((_,i)=>`${3+i*3} 0 R`).join(' ');
+    obj(1,()=>put('<< /Type /Catalog /Pages 2 0 R >>'));
+    obj(2,()=>put(`<< /Type /Pages /Count ${N} /Kids [${kids}] >>`));
+    pages.forEach((c,i)=>{
+      const bin=atob(c.toDataURL('image/jpeg',0.9).split(',')[1]),u=new Uint8Array(bin.length);for(let j=0;j<bin.length;j++)u[j]=bin.charCodeAt(j);
+      const p=3+i*3,cs='q 595 0 0 842 0 0 cm /Im0 Do Q';
+      obj(p,()=>put(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 ${p+2} 0 R >> >> /Contents ${p+1} 0 R >>`));
+      obj(p+1,()=>put(`<< /Length ${cs.length} >>\nstream\n${cs}\nendstream`));
+      obj(p+2,()=>{put(`<< /Type /XObject /Subtype /Image /Width ${W} /Height ${H} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${u.length} >>\nstream\n`);put(u);put('\nendstream');});
+      c.width=c.height=0;
+    });
+    const xref=len,cnt=3+N*3;
+    put(`xref\n0 ${cnt}\n0000000000 65535 f \n`);for(let i=1;i<cnt;i++)put(String(offs[i]).padStart(10,'0')+' 00000 n \n');
+    put(`trailer\n<< /Size ${cnt} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
+    const name='错题一页纸-'+ds+'.pdf',blob=new Blob(parts,{type:'application/pdf'});
+    try{const f=new File([blob],name,{type:'application/pdf'});if(matchMedia('(pointer:coarse)').matches&&navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:name}).catch(()=>{});return;}}catch(e){}
+    try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},4000);toast(`已导出 ${name}（${N} 页）`);}catch(e){toast('这里不能下载，请用“复制文字”');}
+  }
   function sumClick(e){
     const z=e.target.closest('.cz2');if(z&&sumOpt.hide){z.classList.toggle('show');return;}
     const b=e.target.closest('[data-o]');if(!b)return;const o=b.dataset.o;
     if(o==='why0'||o==='why1'){sumOpt.why=o==='why1';renderSum();}
     else if(o==='hide'){sumOpt.hide=!sumOpt.hide;renderSum();}
     else if(o==='copy'){try{navigator.clipboard.writeText(sumText()).then(()=>toast('已复制，可粘贴到备忘录或微信'),()=>toast('复制失败'));}catch(_){toast('复制失败');}}
-    else if(o==='file'){const r=sumBody(sumOpt.why,true),d=new Date(),ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-      if(!r.h){toast('还没有可导出的内容');return;}
-      const doc=`<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>错题一页纸 ${ds}</title><sty${''}le>
-body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:#1c1e22;background:#fff;max-width:820px;margin:0 auto;padding:22px 20px 40px;font-size:14px;line-height:1.65}
-h1{font-size:22px;margin:0 0 2px}.meta{color:#777;font-size:12px;margin-bottom:14px}
-h3{font-size:16px;margin:20px 0 6px;padding:5px 10px;background:#1c1e22;color:#fff;border-radius:4px}
-h4{font-size:13.5px;margin:12px 0 4px;color:#8a5a00;border-bottom:1px solid #e6d9b8;padding-bottom:2px}
-ol,ul{margin:4px 0 0;padding-left:22px}li{margin:0 0 7px;break-inside:avoid}
-p{margin:0}.sm-q{color:#333}.sm-q em{font-style:normal;color:#c0392b;font-size:11.5px;margin-left:6px}
-.sm-a{color:#0b6b3a;font-weight:600}.sm-a b{margin-right:2px}.sm-e{color:#a23b32;font-size:12.5px}
-@media print{body{padding:0;font-size:12px}h3{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
-<\/style></head><bo${''}dy><h1>错题一页纸</h1><div class="meta">考研政治 · ${ds} · ${r.n} 道错题${r.weak?' · '+r.weak+' 个薄弱知识点':''}　✓ 正确答案${sumOpt.why?'　✗ 错因':''}</div>${r.h}</body></html>`;
-      exportFile('错题一页纸-'+ds+'.html',doc,'text/html');}
+    else if(o==='file'){exportPdf();}
   }
   function summary(){
     if(!B)return {has:false,total:0,done:0,ok:0,wrong:Object.keys(WB).length,groups:[]};
@@ -3258,6 +3317,11 @@ p{margin:0}.sm-q{color:#333}.sm-q em{font-style:normal;color:#c0392b;font-size:1
     $('qzWrong').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const ds=b.dataset,toItems=ks=>ks.map(k=>{const x=qOf(k);return [x.s,x.n];});
       if(b.classList.contains('rm')){delete WB[ds.k];saveWB();badge();renderWrong();v10Refresh();}
       else if(b.classList.contains('wx')){const x=b.closest('.wc-x');x.classList.toggle('open');b.textContent=x.classList.contains('open')?'收起 ▴':'展开全文 ▾';}
+      else if('star' in ds){const w=WB[ds.star];if(w){if(w.f)delete w.f;else w.f=1;saveWB();const y=scrollY,sc=$('qzMainCol').scrollTop;renderWrong();$('qzMainCol').scrollTop=sc;window.scrollTo(0,y);}}
+      else if('wst' in ds){wStar=!wStar;renderWrong();}
+      else if('wfold' in ds){const d=[...$('qzWrong').querySelectorAll('details.wg')],o=d.some(x=>x.open);d.forEach(x=>x.open=!o);}
+      else if('wclean' in ds){if(b.dataset.arm!=='1'){b.dataset.arm='1';b.textContent='再点一次确认移出';setTimeout(()=>{if(b.isConnected){b.dataset.arm='';renderWrong();}},3000);return;}
+        Object.keys(WB).forEach(k=>{const x=qOf(k);if(x.q&&st.ans[k]===x.q.a&&!WB[k].f)delete WB[k];});saveWB();badge();renderWrong();v10Refresh();toast('已移出做对的错题（标为重点的保留）');}
       else if('ws' in ds){wSet=ds.ws;renderWrong();}
       else if('wh' in ds){wHard=!wHard;renderWrong();}
       else if('r2w' in ds){const {by,sets}=wrongList();startR2(toItems(sets.flatMap(s=>by[s])),'二刷 · 错题本','wrong');}
@@ -3503,8 +3567,8 @@ let rT;window.addEventListener('resize',()=>{clearTimeout(rT);rT=setTimeout(()=>
     'quiz-dir':[['↑ ↓','在套卷 / 章节之间移动'],['Enter','展开分组 / 开始做这一套']],
     'quiz-card':[['方向键','在题号之间移动'],['Enter','跳到这道题']],
     'quiz-subj':[['↑ ↓','在题目和模板之间移动'],['Enter','显示 / 收起参考答案']],
-    'quiz-wrong':[['↑ ↓','一张一张看错题'],['Enter','二刷这题'],['G','回到原题'],['E','展开 / 收起官方解析'],['X','移出错题本（按两次确认）'],['← →','切换套卷筛选'],['H','只看错 2 次以上'],['A','二刷当前筛选出的全部错题']],
-    'quiz-sum':[['↑ ↓','一题一题往下背'],['Enter / 空格','背诵模式下揭示答案，再按到下一题'],['B','开关背诵模式'],['A','全部揭示 / 全部遮住'],['E','精简 / 带错因'],['X','导出文件'],['C','复制文字']],
+    'quiz-wrong':[['↑ ↓','一张一张看错题'],['Enter','二刷这题'],['G','回到原题'],['E','展开 / 收起官方解析'],['X','移出错题本（按两次确认）'],['← →','切换套卷筛选'],['H','只看错 2 次以上'],['A','二刷当前筛选出的全部错题'],['F','标为重点 / 取消']],
+    'quiz-sum':[['↑ ↓','一题一题往下背'],['Enter / 空格','背诵模式下揭示答案，再按到下一题'],['B','开关背诵模式'],['A','全部揭示 / 全部遮住'],['E','精简 / 带错因'],['X','导出 PDF'],['C','复制文字']],
   };
   document.body.insertAdjacentHTML('beforeend','<div class="khelp" id="kHelp"><div class="khb"><div class="khh"><b>键盘快捷键</b><span id="kHelpCtx"></span></div><div id="kHelpBody"></div><p class="dim">按 ? 或 Esc 关闭 · 点任意处关闭</p></div></div>');
   $('rail').insertAdjacentHTML('beforeend','<button class="rail-kb" id="railKb" title="键盘快捷键（?）"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10"/></svg>快捷键</button>');
@@ -3575,6 +3639,7 @@ let rT;window.addEventListener('resize',()=>{clearTimeout(rT);rT=setTimeout(()=>
         const card=cur||it[0],W=$('qzWrong');
         if(k==='Enter'){stop(e);if(card)card.querySelector('.r2one').click();return;}
         if(kl==='g'){stop(e);if(card)card.querySelector('.wq').click();return;}
+        if(kl==='f'){stop(e);if(card){const kk=card.dataset.k;card.querySelector('.star').click();setTimeout(()=>{const n=list(c).find(x=>x.dataset.k===kk);if(n)setCur(c,n);},30);}return;}
         if(kl==='e'){stop(e);const b=card&&card.querySelector('.wx');if(b)b.click();return;}
         if(kl==='x'||k==='Delete'||k==='Backspace'){stop(e);if(!card)return;
           if(armX!==card.dataset.k){armX=card.dataset.k;toast('再按一次 X 移出这道错题');setTimeout(()=>{armX=null;},2500);return;}
