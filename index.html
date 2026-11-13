@@ -3192,7 +3192,7 @@ const QZ=(()=>{
     $('qzFile').onchange=e=>{const f=e.target.files[0];if(f)importFile(f);};
   }
   /* ---- 错题总结：一页纸 ---- */
-  let sumOpt={why:false,hide:false};
+  let sumOpt={why:false,hide:false,sub:''};
   const plain=t=>String(t==null?'':t).replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
   const esc=t=>plain(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');
   function subjOf(x,id){
@@ -3208,7 +3208,9 @@ const QZ=(()=>{
       seen.set(sig,{q,sid,n,c:w.c||1,t:w.t||0,given:w.a||'',sub:kSub(k),ch:x.t||x.name||sid});});
     const ORD=W_ORD,g={};
     [...seen.values()].forEach(it=>{(g[it.sub]=g[it.sub]||{})[it.ch]=(g[it.sub][it.ch]||[]).concat(it);});
-    return ORD.filter(k=>g[k]).map(k=>({sub:k,chs:Object.keys(g[k]).map(c=>({ch:c,items:g[k][c].sort((a,b)=>b.c-a.c||b.t-a.t)}))}));
+    sumData.per={};ORD.forEach(k=>{if(g[k])sumData.per[k]=Object.values(g[k]).reduce((a,x)=>a+x.length,0);});
+    if(sumOpt.sub&&!g[sumOpt.sub])sumOpt.sub='';
+    return ORD.filter(k=>g[k]&&(!sumOpt.sub||k===sumOpt.sub)).map(k=>({sub:k,chs:Object.keys(g[k]).map(c=>({ch:c,items:g[k][c].sort((a,b)=>b.c-a.c||b.t-a.t)}))}));
   }
   const sumItem=it=>{const q=it.q,ok=[...q.a].map(l=>({l,t:plain(q.o[L.indexOf(l)]),e:plain(q.e&&q.e[L.indexOf(l)])}));
     const bad=[...it.given].filter(l=>!q.a.includes(l)).map(l=>({l,t:plain(q.o[L.indexOf(l)]),e:plain(q.e&&q.e[L.indexOf(l)])}));
@@ -3216,7 +3218,7 @@ const QZ=(()=>{
   function weakPts(){return EVENTS.filter(e=>MST[e.id]&&MST[e.id].s!=='good').map(e=>({t:e.y+' '+e.title,pts:e.pts.map(plain)}))
     .concat(CARDS.filter(c=>MST[c.id]&&MST[c.id].s!=='good').map(c=>({t:'图解 · '+c.t,pts:c.pts.map(plain)})));}
   function sumBody(why,forFile){
-    const data=sumData(),weak=weakPts();let n=0;
+    const data=sumData(),weak=sumOpt.sub?[]:weakPts();let n=0;
     const h=data.map(G=>`<section class="sm-sec"><h3>${G.sub}</h3>`+G.chs.map(C=>`<h4>${esc(C.ch)}</h4><ol>`+C.items.map(it=>{const d=sumItem(it);n++;
       return `<li><p class="sm-q">${esc(d.stem)}${d.c>1?`<em>错 ${d.c} 次</em>`:''}</p><p class="sm-a${forFile?'':' cz2'}">✓ ${d.ok.map(o=>`<b>${o.l}</b> ${esc(o.t)}`).join('；')}</p>`+
         (why?(d.bad.map(o=>`<p class="sm-e">✗ 你选了 ${o.l}「${esc(o.t)}」${o.e?'：'+esc(o.e):''}</p>`).join('')+(d.multi&&d.miss.length?`<p class="sm-e">△ 漏选 ${d.miss.join('、')}${d.ok.filter(o=>d.miss.includes(o.l)&&o.e).map(o=>'：'+esc(o.e)).join('')}</p>`:'')):'')+'</li>';}).join('')+'</ol>').join('')+'</section>').join('')
@@ -3224,7 +3226,7 @@ const QZ=(()=>{
     return {h,n,weak:weak.length};
   }
   function sumText(){
-    const data=sumData(),weak=weakPts(),out=['错题一页纸 '+new Date().toLocaleDateString('zh-CN'),''];
+    const data=sumData(),weak=sumOpt.sub?[]:weakPts(),out=['错题一页纸 '+new Date().toLocaleDateString('zh-CN'),''];
     data.forEach(G=>{out.push('【'+G.sub+'】');G.chs.forEach(C=>{out.push('◆ '+plain(C.ch));C.items.forEach((it,i)=>{const d=sumItem(it);
       out.push(`${i+1}. ${d.stem}${d.c>1?'（错'+d.c+'次）':''}`);out.push('   ✓ '+d.ok.map(o=>o.l+' '+o.t).join('；'));
       if(sumOpt.why)d.bad.forEach(o=>out.push(`   ✗ 误选${o.l}「${o.t}」${o.e?'：'+o.e:''}`));});out.push('');});});
@@ -3237,6 +3239,7 @@ const QZ=(()=>{
       <div class="sm-bar"><div class="seg"><button data-o="why0" class="${sumOpt.why?'':'on'}">精简</button><button data-o="why1" class="${sumOpt.why?'on':''}">带错因</button></div>
         <button data-o="hide" class="sm-b ${sumOpt.hide?'on':''}">${sumOpt.hide?'✓ 背诵模式':'背诵模式'}</button><span style="flex:1"></span>
         <button data-o="file" class="sm-b pri">导出 PDF</button><button data-o="copy" class="sm-b">复制文字</button></div>
+      <div class="w-chips" style="margin-bottom:10px">${(()=>{const p=sumData.per||{},t=Object.values(p).reduce((a,b)=>a+b,0);return `<button data-sb="" class="${sumOpt.sub?'':'on'}">全部 ${t}</button>`+Object.keys(p).map(k=>`<button data-sb="${k}" class="${sumOpt.sub===k?'on':''}">${k} · ${p[k]}</button>`).join('');})()}</div>
       ${sumOpt.hide?'<p class="sm-tip">答案已遮住：先自己说出答案，再点那一行核对。</p>':''}
       <div class="sm-sheet ${sumOpt.hide?'hide':''}">${r.h||'<p class="empty">还没有错题，也没有自评为“忘了 / 模糊”的知识点。做题答错后，这里会自动按科目和章节整理成一页纸。</p>'}</div>`;
   }
@@ -3246,7 +3249,7 @@ const QZ=(()=>{
     try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);toast('已导出 '+name+'；如果没有反应，请用“复制文字”');}catch(e){toast('这里不能下载，请用“复制文字”');}
   }
   function pdfBlocks(){
-    const data=sumData(),weak=weakPts(),bl=[];let n=0;
+    const data=sumData(),weak=sumOpt.sub?[]:weakPts(),bl=[];let n=0;
     data.forEach(G=>{bl.push({t:'h3',x:G.sub});G.chs.forEach(C=>{bl.push({t:'h4',x:plain(C.ch)});C.items.forEach((it,i)=>{const d=sumItem(it);n++;
       bl.push({t:'q',x:`${i+1}. ${d.stem}${d.c>1?'（错 '+d.c+' 次）':''}`});bl.push({t:'a',x:'✓ '+d.ok.map(o=>o.l+' '+o.t).join('；')});
       if(sumOpt.why){d.bad.forEach(o=>bl.push({t:'e',x:`✗ 误选 ${o.l}「${o.t}」${o.e?'：'+o.e:''}`}));if(d.multi&&d.miss.length)bl.push({t:'e',x:'△ 漏选 '+d.miss.join('、')});}
@@ -3263,7 +3266,7 @@ const QZ=(()=>{
     const newPage=()=>{cv=document.createElement('canvas');cv.width=W;cv.height=H;g=cv.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,H);g.textBaseline='top';pages.push(cv);y=M;};
     const wrap=(text,maxW)=>{const out=[];let line='';for(const ch of text){if(g.measureText(line+ch).width>maxW&&line){out.push(line);line=ch;}else line+=ch;}if(line)out.push(line);return out;};
     newPage();
-    g.font='bold 40px '+FF;g.fillStyle='#1c1e22';g.fillText('错题一页纸',M,y);y+=56;
+    g.font='bold 40px '+FF;g.fillStyle='#1c1e22';g.fillText('错题一页纸'+(sumOpt.sub?' · '+sumOpt.sub:''),M,y);y+=56;
     g.font='19px '+FF;g.fillStyle='#777';g.fillText(`考研政治 · ${ds} · ${n} 道错题${weak?' · '+weak+' 个薄弱知识点':''}　✓ 正确答案${sumOpt.why?'　✗ 错因':''}`,M,y);y+=44;
     bl.forEach((b,bi)=>{
       if(b.t==='gap'){y+=12;return;}
@@ -3293,12 +3296,13 @@ const QZ=(()=>{
     const xref=len,cnt=3+N*3;
     put(`xref\n0 ${cnt}\n0000000000 65535 f \n`);for(let i=1;i<cnt;i++)put(String(offs[i]).padStart(10,'0')+' 00000 n \n');
     put(`trailer\n<< /Size ${cnt} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
-    const name='错题一页纸-'+ds+'.pdf',blob=new Blob(parts,{type:'application/pdf'});
+    const name='错题一页纸-'+(sumOpt.sub?sumOpt.sub+'-':'')+ds+'.pdf',blob=new Blob(parts,{type:'application/pdf'});
     try{const f=new File([blob],name,{type:'application/pdf'});if(matchMedia('(pointer:coarse)').matches&&navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:name}).catch(()=>{});return;}}catch(e){}
     try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},4000);toast(`已导出 ${name}（${N} 页）`);}catch(e){toast('这里不能下载，请用“复制文字”');}
   }
   function sumClick(e){
     const z=e.target.closest('.cz2');if(z&&sumOpt.hide){z.classList.toggle('show');return;}
+    const sbb=e.target.closest('[data-sb]');if(sbb){sumOpt.sub=sbb.dataset.sb;renderSum();return;}
     const b=e.target.closest('[data-o]');if(!b)return;const o=b.dataset.o;
     if(o==='why0'||o==='why1'){sumOpt.why=o==='why1';renderSum();}
     else if(o==='hide'){sumOpt.hide=!sumOpt.hide;renderSum();}
@@ -3583,7 +3587,7 @@ let rT;window.addEventListener('resize',()=>{clearTimeout(rT);rT=setTimeout(()=>
     'quiz-card':[['方向键','在题号之间移动'],['Enter','跳到这道题']],
     'quiz-subj':[['↑ ↓','在题目和模板之间移动'],['Enter','显示 / 收起参考答案']],
     'quiz-wrong':[['↑ ↓','一张一张看错题'],['Enter','二刷这题'],['G','回到原题'],['E','展开 / 收起官方解析'],['X','移出错题本（按两次确认）'],['← →','切换套卷筛选'],['H','只看错 2 次以上'],['A','二刷当前筛选出的全部错题'],['F','标为重点 / 取消']],
-    'quiz-sum':[['↑ ↓','一题一题往下背'],['Enter / 空格','背诵模式下揭示答案，再按到下一题'],['B','开关背诵模式'],['A','全部揭示 / 全部遮住'],['E','精简 / 带错因'],['X','导出 PDF'],['C','复制文字']],
+    'quiz-sum':[['↑ ↓','一题一题往下背'],['Enter / 空格','背诵模式下揭示答案，再按到下一题'],['← →','切换科目'],['B','开关背诵模式'],['A','全部揭示 / 全部遮住'],['E','精简 / 带错因'],['X','导出 PDF'],['C','复制文字']],
   };
   document.body.insertAdjacentHTML('beforeend','<div class="khelp" id="kHelp"><div class="khb"><div class="khh"><b>键盘快捷键</b><span id="kHelpCtx"></span></div><div id="kHelpBody"></div><p class="dim">按 ? 或 Esc 关闭 · 点任意处关闭</p></div></div>');
   $('rail').insertAdjacentHTML('beforeend','<button class="rail-kb" id="railKb" title="键盘快捷键（?）"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10"/></svg>快捷键</button>');
@@ -3673,6 +3677,7 @@ let rT;window.addEventListener('resize',()=>{clearTimeout(rT);rT=setTimeout(()=>
           const z=li.querySelector('.cz2:not(.show)');if(hide&&z){z.classList.add('show');return;}
           move(c,1);return;}
         const re=o=>{const i=cur?it.indexOf(cur):-1;S2.querySelector(`[data-o=${o}]`).click();setTimeout(()=>{const n=list(c);if(n.length&&i>=0)setCur(c,n[Math.min(i,n.length-1)]);},30);};
+        if(k==='ArrowLeft'||k==='ArrowRight'){stop(e);const ch=[...S2.querySelectorAll('[data-sb]')];if(ch.length){let i=ch.findIndex(b=>b.classList.contains('on'));ch[(i+(k==='ArrowRight'?1:ch.length-1))%ch.length].click();setTimeout(()=>move(c,1),40);}return;}
         if(kl==='b'){stop(e);re('hide');return;}
         if(kl==='e'){stop(e);re(S2.querySelector('[data-o=why1].on')?'why0':'why1');return;}
         if(kl==='a'){stop(e);const zs=[...S2.querySelectorAll('.cz2')];if(!zs.length){toast('先按 B 打开背诵模式');return;}const all=zs.every(z=>z.classList.contains('show'));zs.forEach(z=>z.classList.toggle('show',!all));toast(all?'已全部遮住':'已全部揭示');return;}
