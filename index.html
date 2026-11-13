@@ -1028,6 +1028,7 @@ details.wg[open]>summary>span::before{transform:rotate(90deg)}
 .w-tools select{border-radius:999px;border:1px solid var(--bd);background:var(--s1);color:#cfd5de;height:auto}
 .w-tools .clean{border-color:#24604a!important;color:#5fd3a2!important}
 .wc-f .star{color:#aeb6c2}.wc-f .star.on{color:var(--gold2);border-color:#6d5422;background:rgba(217,168,69,.12)}
+.wsj{height:26px;padding:0 6px;border-radius:999px;border:1px solid #6d5422;background:rgba(217,168,69,.1);color:var(--gold2);font-size:12px;margin-right:2px}
 </style>
 </head>
 <body>
@@ -3072,14 +3073,27 @@ const QZ=(()=>{
       +'<div class="sec-h" style="margin-top:20px"><h2>答题模板</h2></div>'+(B.SUBJ.tpl||[]).map(t=>`<details class="tpl"><summary>${t.t}</summary><div>${t.b}</div></details>`).join('');
   }
   let wSet='',wHard=false,wStar=false,wSort='n';
-  const wSubj=s=>subjOf(def(s),s),W_ORD=['马原','毛中特','习思想','史纲','思修法基','套卷 · 真题（综合）'];
+  const W_ORD=['马原','毛中特','习思想','史纲','思修法基','时政','未分类'];
+  // 每道错题归到哪一科：手动改过的优先；章节练习按所在部分；套卷 / 真题按题号位置 + 题干关键词自动判断
+  const XI=/习近平|新时代|二十大|二十届|中国式现代化|高质量发展|新发展|全过程人民民主|共同富裕|人类命运共同体|总体国家安全|全面从严治党|新质生产力|十八大以来|强国建设/;
+  function kSub(k){
+    const w=WB[k]||{};if(w.sj&&W_ORD.includes(w.sj))return w.sj;
+    const x=qOf(k),d=subjOf(def(x.s),x.s);if(d!=='套卷 · 真题（综合）')return d;
+    const n=+x.n,t=plain(x.q?x.q.s:'');
+    if(!(n>=1&&n<=33))return '未分类';
+    const m=n<=16?n:n-16,multi=n>16;
+    if(multi){if(n<=21)return '马原';if(n<=26)return XI.test(t)?'习思想':'毛中特';if(n<=30)return '史纲';if(n<=32)return '思修法基';return '时政';}
+    if(n<=4)return '马原';if(n<=8)return XI.test(t)?'习思想':'毛中特';if(n<=12)return '史纲';if(n<=14)return '思修法基';return '时政';
+  }
+  const gSub=g=>g.slice(0,g.indexOf('|')),gSet=g=>g.slice(g.indexOf('|')+1),gName=g=>def(gSet(g)).t?nm(gSet(g)):(def(gSet(g)).name||nm(gSet(g)));
   const qOf=k=>{const i=k.lastIndexOf('-'),s=k.slice(0,i),n=k.slice(i+1);return {s,n,q:(B.DATA[s]||[]).find(q=>String(q.n)===n)};};
   // 错题本当前筛选下的题（按套分组、组内按题号）；二刷“错题本”就按这个顺序做
   function wrongList(){
     const by={};
-    Object.keys(WB).forEach(k=>{const x=qOf(k);if(!x.q)return;if(wSet&&wSubj(x.s)!==wSet)return;if(wHard&&(WB[k].c||1)<2)return;if(wStar&&!WB[k].f)return;(by[x.s]=by[x.s]||[]).push(k);});
-    const sets=B.SETDEF.map(d=>String(d.id)).filter(s=>by[s]).concat(Object.keys(by).filter(s=>!def(s).id));
-    sets.forEach(s=>{const idx=new Map((B.DATA[s]||[]).map((q,i)=>[String(q.n),i]));by[s].sort((a,b)=>wSort==='c'?(WB[b].c||1)-(WB[a].c||1):wSort==='t'?(WB[b].t||0)-(WB[a].t||0):idx.get(qOf(a).n)-idx.get(qOf(b).n));});
+    Object.keys(WB).forEach(k=>{const x=qOf(k);if(!x.q)return;const sb=kSub(k);if(wSet&&sb!==wSet)return;if(wHard&&(WB[k].c||1)<2)return;if(wStar&&!WB[k].f)return;const g=sb+'|'+x.s;(by[g]=by[g]||[]).push(k);});
+    const so=B.SETDEF.map(d=>String(d.id)),oi=g=>{const i=so.indexOf(gSet(g));return W_ORD.indexOf(gSub(g))*1e4+(i<0?9999:i);};
+    const sets=Object.keys(by).sort((a,b)=>oi(a)-oi(b));
+    sets.forEach(s=>{const idx=new Map((B.DATA[gSet(s)]||[]).map((q,i)=>[String(q.n),i]));by[s].sort((a,b)=>wSort==='c'?(WB[b].c||1)-(WB[a].c||1):wSort==='t'?(WB[b].t||0)-(WB[a].t||0):idx.get(qOf(a).n)-idx.get(qOf(b).n));});
     return {by,sets};
   }
   function wCard(s,k){
@@ -3090,7 +3104,7 @@ const QZ=(()=>{
       return `<div class="w-opt ${cls}"><span class="l">${l}</span><span class="t">${t}${why}</span>${tg?`<em>${a?'✓':'✗'} ${tg}</em>`:''}</div>`;}).join('');
     const xs=q.x?String(q.x).replace(/</g,'&lt;').replace(/\n/g,'<br>'):'';
     return `<article class="wc${fixed?' fixed':''}" data-k="${k}">
-      <div class="wc-h"><span class="q-tag">第 ${n} 题</span><span class="q-tag ${multi?'multi':''}">${multi?'多选':'单选'}</span><span class="q-tag bad">错过 ${w.c||1} 次</span>${fixed?'<span class="q-tag ok">最近一次已做对</span>':''}${d?`<span class="wc-d">最近答错 ${d.getMonth()+1}/${d.getDate()}</span>`:''}</div>
+      <div class="wc-h"><select class="wsj" data-sj="${k}" title="改分类">${W_ORD.map(o=>`<option${o===kSub(k)?' selected':''}>${o}</option>`).join('')}</select><span class="q-tag">第 ${n} 题</span><span class="q-tag ${multi?'multi':''}">${multi?'多选':'单选'}</span><span class="q-tag bad">错过 ${w.c||1} 次</span>${fixed?'<span class="q-tag ok">最近一次已做对</span>':''}${d?`<span class="wc-d">最近答错 ${d.getMonth()+1}/${d.getDate()}</span>`:''}</div>
       <div class="wc-ans"><span class="no">✗ 你选 <b>${g||'—'}</b></span><span class="yes">✓ 正确 <b>${q.a}</b></span></div>
       <div class="q-stem wc-s">${q.s}</div><div class="w-opts">${opts}</div>
       ${xs?`<div class="wc-x${xs.length>120?' long':''}"><b>官方解析</b><div class="xt">${xs}</div>${xs.length>120?'<button class="wx">展开全文 ▾</button>':''}</div>`:''}
@@ -3098,22 +3112,23 @@ const QZ=(()=>{
   }
   function renderWrong(){
     const all=Object.keys(WB).filter(k=>qOf(k).q),total=all.length,hard=all.filter(k=>(WB[k].c||1)>=2).length,fixedK=all.filter(k=>st.ans[k]===qOf(k).q.a),fixed=fixedK.length,stars=all.filter(k=>WB[k].f).length;
-    const per={};all.forEach(k=>{const s=wSubj(qOf(k).s);per[s]=(per[s]||0)+1;});
+    const per={};all.forEach(k=>{const s=kSub(k);per[s]=(per[s]||0)+1;});
     if(wSet&&!per[wSet])wSet='';
     const {by,sets}=wrongList(),shown=sets.reduce((a,s)=>a+by[s].length,0);
     const chips=`<button data-ws="" class="${wSet?'':'on'}">全部 ${total}</button>`+W_ORD.filter(s=>per[s]).map(s=>`<button data-ws="${s}" class="${wSet===s?'on':''}">${s} · ${per[s]}</button>`).join('');
     const tools=`<button data-wst class="${wStar?'on':''}">★ 只看重点${stars?' · '+stars:''}</button><button data-wh class="hard${wHard?' on':''}">只看错 2 次以上</button>
       <select id="wSortSel" title="组内排序"><option value="n"${wSort==='n'?' selected':''}>按题号</option><option value="c"${wSort==='c'?' selected':''}>错得最多在前</option><option value="t"${wSort==='t'?' selected':''}>最近答错在前</option></select>
       <button data-wfold>全部折叠 / 展开</button>${fixed?`<button data-wclean class="clean">移出已做对的（${fixed}）</button>`:''}`;
-    const groups=W_ORD.map(sub=>{const ss=sets.filter(s=>wSubj(s)===sub);if(!ss.length)return '';const n=ss.reduce((a,s)=>a+by[s].length,0);
-      return `<h3 class="w-sub"><span>${sub}</span><em>${n} 题 · ${ss.length} 组</em></h3>`+ss.map(s=>`<details class="wg" open><summary class="wgh"><span><b>${nm(s)}</b> · ${by[s].length} 题</span><button data-r2s="${s}">二刷这组</button></summary>${by[s].map(k=>wCard(s,k)).join('')}</details>`).join('');}).join('');
-    $('qzWrong').innerHTML=`<div class="sec-h" style="margin-top:6px"><h2>错题本</h2><span>按科目 → 章节分类；答错自动收进来</span></div>`+(total?`
+    const groups=W_ORD.map(sub=>{const ss=sets.filter(s=>gSub(s)===sub);if(!ss.length)return '';const n=ss.reduce((a,s)=>a+by[s].length,0);
+      return `<h3 class="w-sub"><span>${sub}</span><em>${n} 题 · ${ss.length} 组</em></h3>`+ss.map(s=>`<details class="wg" open><summary class="wgh"><span><b>${gName(s)}</b> · ${by[s].length} 题</span><button data-r2s="${s}">二刷这组</button></summary>${by[s].map(k=>wCard(gSet(s),k)).join('')}</details>`).join('');}).join('');
+    $('qzWrong').innerHTML=`<div class="sec-h" style="margin-top:6px"><h2>错题本</h2><span>答错自动收进来并按科目分好；分错了可在每题右上角改</span></div>`+(total?`
       <div class="w-sum"><div class="w-k bad"><b>${total}</b><span>道错题</span></div><div class="w-k"><b>${hard}</b><span>错过 2 次以上</span></div><div class="w-k ok"><b>${fixed}</b><span>重做已做对</span></div></div>
       <div class="w-chips">${chips}</div><div class="w-chips w-tools">${tools}</div>
       <div class="w-go"><button class="pbtn pri" data-r2w ${shown?'':'disabled'}>二刷${wSet||wHard||wStar?'筛选出的':'全部'}错题（${shown} 题）</button><span>先藏起上次的选择和答案，重新作答后再揭晓；答对答错都照常记录，不会清空历史</span></div>`
       +groups+(shown?'':'<p class="empty">这个筛选下没有错题。</p>')
       :'<p class="empty">还没有错题。做题时答错的会自动收进来。</p>');
     const sel=$('wSortSel');if(sel)sel.onchange=()=>{wSort=sel.value;renderWrong();};
+    $('qzWrong').querySelectorAll('.wsj').forEach(e=>e.onchange=()=>{const w=WB[e.dataset.sj];if(!w)return;w.sj=e.value;saveWB();const sc=$('qzMainCol').scrollTop,y=scrollY;renderWrong();$('qzMainCol').scrollTop=sc;window.scrollTo(0,y);toast('已改到「'+e.value+'」');});
   }
   function badge(){const n=Object.keys(WB).length;$('qzWB').textContent=n||'';}
   function setSub(s){
@@ -3189,9 +3204,9 @@ const QZ=(()=>{
     const seen=new Map();
     Object.keys(WB).forEach(k=>{const i=k.lastIndexOf('-'),sid=k.slice(0,i),n=k.slice(i+1),q=(B.DATA[sid]||[]).find(q=>String(q.n)===n);if(!q)return;
       const x=def(sid),sig=plain(q.s),w=WB[k],old=seen.get(sig);
-      if(old){old.c+=w.c||1;if((w.t||0)>old.t){old.t=w.t;old.given=w.a;}if(isAll(old.sid)&&!isAll(sid)){old.sid=sid;old.ch=x.t||x.name||sid;old.sub=subjOf(x,sid);}return;}
-      seen.set(sig,{q,sid,n,c:w.c||1,t:w.t||0,given:w.a||'',sub:subjOf(x,sid),ch:x.t||x.name||sid});});
-    const ORD=['马原','毛中特','习思想','史纲','思修法基','套卷 · 真题（综合）'],g={};
+      if(old){old.c+=w.c||1;if((w.t||0)>old.t){old.t=w.t;old.given=w.a;}if(isAll(old.sid)&&!isAll(sid)){old.sid=sid;old.ch=x.t||x.name||sid;old.sub=kSub(k);}return;}
+      seen.set(sig,{q,sid,n,c:w.c||1,t:w.t||0,given:w.a||'',sub:kSub(k),ch:x.t||x.name||sid});});
+    const ORD=W_ORD,g={};
     [...seen.values()].forEach(it=>{(g[it.sub]=g[it.sub]||{})[it.ch]=(g[it.sub][it.ch]||[]).concat(it);});
     return ORD.filter(k=>g[k]).map(k=>({sub:k,chs:Object.keys(g[k]).map(c=>({ch:c,items:g[k][c].sort((a,b)=>b.c-a.c||b.t-a.t)}))}));
   }
@@ -3325,7 +3340,7 @@ const QZ=(()=>{
       else if('ws' in ds){wSet=ds.ws;renderWrong();}
       else if('wh' in ds){wHard=!wHard;renderWrong();}
       else if('r2w' in ds){const {by,sets}=wrongList();startR2(toItems(sets.flatMap(s=>by[s])),'二刷 · 错题本','wrong');}
-      else if('r2s' in ds){const {by}=wrongList();startR2(toItems(by[ds.r2s]||[]),'二刷 · '+(def(ds.r2s).k||nm(ds.r2s))+' 错题','wrong');}
+      else if('r2s' in ds){const {by}=wrongList();startR2(toItems(by[ds.r2s]||[]),'二刷 · '+gSub(ds.r2s)+' · '+gName(ds.r2s),'wrong');}
       else if(b.classList.contains('r2one')){startR2(toItems([ds.k]),'二刷 · 单题','wrong');}
       else if(b.classList.contains('wq')){R2=null;st.set=ds.s;mode='all';$('qzMode').value='all';buildOrder();pos=Math.max(0,qs().findIndex(q=>String(q.n)===ds.n));save();renderDir();setSub('do');}});
     $('qzR2Set').onclick=()=>{const ns=qs().filter(q=>st.ans[key(st.set,q.n)]).map(q=>[st.set,q.n]);startR2(ns,'二刷 · '+(def(st.set).k||nm(st.set)),'set');};
